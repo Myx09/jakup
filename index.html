@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucky Felt</title>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,600;1,600&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--felt:#0f4a36;--felt2:#092b21;--brass:#c8a24a;--gold:#f0cf7a;--ivory:#f2ead3;--wine:#8c2331;--ink:#221c14;--line:rgba(200,162,74,.4);--serif:"Bodoni Moda",Georgia,serif}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;color:var(--ivory);font:400 16px/1.5 Figtree,system-ui,sans-serif;background:radial-gradient(ellipse at 50% 0,#14604a,transparent 70%),repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 7px),var(--felt2)}
+.wrap{max-width:660px;margin:0 auto;padding:24px 16px 44px}
+h1{font:italic 600 2.3rem/1 var(--serif);margin:0;color:var(--gold)}
+.sub{margin:6px 0 0;color:var(--brass);font-size:.9rem}
+.plate{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 18px;padding:14px 20px;border:1px solid var(--brass);outline:1px solid var(--line);outline-offset:4px;border-radius:6px;background:linear-gradient(#06201a,var(--felt2));box-shadow:inset 0 2px 12px rgba(0,0,0,.6)}
+.plate small{display:block;color:var(--brass)}
+#bal{font:italic 600 3.4rem/1 var(--serif);color:var(--ivory)}
+.best{margin-top:6px;color:var(--brass);font-size:.9rem}
+.best b{color:var(--gold);font-weight:600}
+.best.new b::after{content:" ★"}
+.plate.pop{animation:pop .9s ease-out}
+@keyframes pop{0%{box-shadow:0 0 0 0 var(--gold),inset 0 2px 12px rgba(0,0,0,.6)}40%{box-shadow:0 0 34px 6px var(--gold),inset 0 2px 12px rgba(0,0,0,.6)}100%{box-shadow:inset 0 2px 12px rgba(0,0,0,.6)}}
+button{font:inherit;cursor:pointer;color:var(--ivory)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+button:disabled{opacity:.4;cursor:default}
+.ghost{background:transparent;border:1px solid var(--brass);border-radius:4px;padding:7px 12px;font-size:.9rem}
+.ghost:hover:not(:disabled){background:rgba(200,162,74,.18)}
+.go{background:linear-gradient(var(--wine),#6d1a26);border:1px solid var(--brass);border-radius:4px;padding:11px 28px;font-weight:600;box-shadow:0 3px 0 #4a1119}
+.go:hover:not(:disabled){filter:brightness(1.15)}
+.go:active:not(:disabled){transform:translateY(2px);box-shadow:0 1px 0 #4a1119}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
+.mid{justify-content:center}
+.lbl{color:var(--brass)}
+.chip{--t:#fff;width:58px;height:58px;border:0;padding:0;border-radius:50%;font-weight:600;color:var(--t);background:radial-gradient(circle,var(--c) 0 57%,transparent 58%),repeating-conic-gradient(var(--ivory) 0 18deg,var(--c) 18deg 36deg);box-shadow:0 4px 0 rgba(0,0,0,.45);transition:transform .15s}
+.chip[aria-pressed=true]{transform:translateY(-5px);outline:2px solid var(--gold);outline-offset:3px}
+.chip.custom{background:transparent;border:2px dashed var(--brass);color:var(--gold);font-size:.85rem;box-shadow:none}
+#cb{width:108px}
+.tabs{display:flex;margin:6px 0 14px;border:1px solid var(--brass);border-radius:6px;overflow:hidden}
+.tab{flex:1;background:transparent;border:0;padding:10px;border-right:1px solid var(--line)}
+.tab:last-child{border-right:0}
+.tab[aria-selected=true]{background:var(--brass);color:var(--ink);font-weight:600}
+.table{position:relative;border:1px solid var(--line);border-radius:16px;padding:26px 18px;background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.08),transparent 60%),var(--felt);box-shadow:inset 0 0 70px rgba(0,0,0,.5),0 12px 30px rgba(0,0,0,.4)}
+.table::before{content:"";position:absolute;inset:8px;border:1px solid var(--line);border-radius:10px;pointer-events:none}
+.msg{min-height:1.7em;margin:14px 0 0;font-weight:600;text-align:center}
+.msg.good{color:var(--gold)}
+.machine{padding:16px;border:3px solid var(--brass);border-radius:14px;background:var(--felt2);box-shadow:inset 0 0 24px #000}
+.reels{position:relative;display:flex;gap:10px;justify-content:center}
+.reels::after{content:"";position:absolute;left:-6px;right:-6px;top:50%;height:2px;background:var(--wine);opacity:.85;pointer-events:none}
+.reel{width:30%;max-width:104px;aspect-ratio:.85;display:grid;place-items:center;font:600 3rem var(--serif);color:var(--ink);border-radius:8px;background:linear-gradient(#b9b095,var(--ivory) 28%,var(--ivory) 72%,#b9b095);box-shadow:inset 0 0 10px rgba(0,0,0,.4)}
+.reel.spin{filter:blur(1.4px)}
+.reel.win{box-shadow:0 0 0 3px var(--gold),0 0 26px var(--gold)}
+.who{display:flex;justify-content:space-between;align-items:center;color:var(--brass)}
+.tot{min-width:2.2em;text-align:center;padding:1px 10px;border-radius:99px;background:var(--felt2);color:var(--ivory);font-weight:600}
+.hand{display:flex;flex-wrap:wrap;gap:8px;min-height:92px;margin:8px 0 14px}
+.card{position:relative;width:60px;height:86px;background:var(--ivory);color:var(--ink);border-radius:6px;box-shadow:0 3px 8px rgba(0,0,0,.45)}
+.card.r{color:var(--wine)}
+.ix{position:absolute;top:5px;left:7px;font:600 .95rem/1 var(--serif);text-align:center}
+.su{position:absolute;inset:0;display:grid;place-items:center;font-size:2rem;padding-top:10px}
+.card.back{background:repeating-linear-gradient(45deg,var(--wine) 0 5px,#6d1a26 5px 10px);border:3px solid var(--ivory)}
+@media (prefers-reduced-motion:no-preference){.card.n{animation:deal .3s ease-out both}}
+@keyframes deal{from{opacity:0;transform:translateY(-26px) rotate(-8deg)}}
+.wbox{position:relative;width:min(250px,80vw);aspect-ratio:1;margin:12px auto 8px}
+.wheel{position:absolute;inset:0;border-radius:50%;border:6px solid var(--brass);box-shadow:0 6px 18px rgba(0,0,0,.5);transition:transform 4s cubic-bezier(.12,.6,.1,1)}
+.wheel::before{content:"";position:absolute;inset:0;border-radius:50%;background:repeating-conic-gradient(rgba(200,162,74,.6) 0 .6deg,transparent .6deg 9.7297deg)}
+.wheel::after{content:"";position:absolute;inset:20%;border-radius:50%;background:var(--felt2);border:2px solid var(--brass)}
+@media (prefers-reduced-motion:reduce){.wheel{transition-duration:.01s}}
+.ptr{position:absolute;top:-8px;left:50%;margin-left:-10px;border:10px solid transparent;border-top:18px solid var(--gold);z-index:2}
+.hub{position:absolute;inset:0;margin:auto;width:34%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font:italic 600 2rem var(--serif);border:3px solid var(--brass);background:var(--felt2);z-index:1}
+.hub.red{background:var(--wine)}.hub.black{background:var(--ink)}.hub.green{background:#1f7a44}
+.pick[aria-pressed=true]{background:var(--brass);color:var(--ink);font-weight:600}
+input[type=number]{width:76px;font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);background:var(--ivory);color:var(--ink)}
+.note{color:var(--brass);font-size:.85rem;margin-top:26px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Lucky Felt</h1>
+  <p class="sub">A little casino for play money.</p>
+
+  <div class="plate" id="plate">
+    <div><small>Balance</small><span id="bal">1,000</span><div class="best">Highscore <b id="hs">1,000</b></div></div>
+    <button class="ghost" id="reset">Restart with 1,000</button>
+  </div>
+
+  <div class="row" id="chips"><span class="lbl">Bet</span></div>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" data-t="slots" aria-selected="true">Slots</button>
+    <button class="tab" role="tab" data-t="bj" aria-selected="false">Blackjack</button>
+    <button class="tab" role="tab" data-t="rl" aria-selected="false">Roulette</button>
+  </div>
+
+  <section id="slots" class="table">
+    <div class="machine"><div class="reels"><div class="reel">7</div><div class="reel">7</div><div class="reel">7</div></div></div>
+    <div class="row mid"><button class="go" id="spin">Spin</button></div>
+    <p class="msg" id="sm">Three of a kind wins. Sevens pay 50×.</p>
+  </section>
+
+  <section id="bj" class="table" hidden>
+    <div class="who"><span>Dealer</span><span class="tot" id="dt">–</span></div><div class="hand" id="dh"></div>
+    <div class="who"><span>You</span><span class="tot" id="pt">–</span></div><div class="hand" id="ph"></div>
+    <div class="row mid">
+      <button class="go" id="deal">Deal</button>
+      <button class="ghost" id="hit" disabled>Hit</button>
+      <button class="ghost" id="stand" disabled>Stand</button>
+    </div>
+    <p class="msg" id="bm">Blackjack pays 3:2. The dealer stands on 17.</p>
+  </section>
+
+  <section id="rl" class="table" hidden>
+    <div class="wbox"><div class="ptr"></div><div class="wheel" id="wheel"></div><div class="hub" id="hub">?</div></div>
+    <div class="row mid" id="picks">
+      <button class="ghost pick" data-k="red">Red ×2</button>
+      <button class="ghost pick" data-k="black">Black ×2</button>
+      <button class="ghost pick" data-k="even">Even ×2</button>
+      <button class="ghost pick" data-k="odd">Odd ×2</button>
+      <button class="ghost pick" data-k="num">Number ×36</button>
+    </div>
+    <div class="row mid">
+      <input type="number" id="rn" min="0" max="36" value="7" aria-label="Number from 0 to 36" hidden>
+      <button class="go" id="rgo">Spin the wheel</button>
+    </div>
+    <p class="msg" id="rm">Pick a bet, then spin the wheel.</p>
+  </section>
+
+  <p class="note">Play money only. This is for fun, not for real money.</p>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const rnd = n => Math.floor(Math.random() * n);
+const fmt = n => n.toLocaleString("en-US");
+function say(id, t, good) { const el = $(id); el.textContent = t; el.classList.toggle("good", !!good); }
+let bal = 1000, bet = 10;
+try { const v = localStorage.getItem("casino_bal"); if (v !== null && !isNaN(+v)) bal = +v; } catch (e) {}
+let hs = 1000;
+try { const v = localStorage.getItem("casino_hs"); if (v !== null && !isNaN(+v)) hs = +v; } catch (e) {}
+hs = Math.max(hs, bal);
+let shown = bal;
+function showBal() {
+  try { localStorage.setItem("casino_bal", bal); } catch (e) {}
+  if (bal > hs) { hs = bal; $(".best").classList.add("new"); try { localStorage.setItem("casino_hs", hs); } catch (e) {} }
+  $("#hs").textContent = fmt(hs);
+  const from = shown, to = bal, t0 = performance.now();
+  (function f(t) {
+    const k = Math.min(1, (t - t0) / 500);
+    shown = Math.round(from + (to - from) * k);
+    $("#bal").textContent = fmt(shown);
+    if (k < 1) requestAnimationFrame(f);
+  })(t0);
+}
+function flash() { const p = $("#plate"); p.classList.remove("pop"); void p.offsetWidth; p.classList.add("pop"); }
+const canPay = () => bet >= 1 && bal >= bet;
+const why = () => bet < 1 ? "Enter a bet of at least 1." : "Not enough balance. Lower your bet or restart.";
+
+/* Bet chips */
+[[10, "#e6dcc0", "#221c14"], [50, "#8c2331", "#fff"], [100, "#1f6b4c", "#fff"], [250, "#c8a24a", "#221c14"]].forEach(([v, c, t]) => {
+  const b = document.createElement("button");
+  b.className = "chip"; b.textContent = v; b.style.setProperty("--c", c); b.style.setProperty("--t", t);
+  b.setAttribute("aria-pressed", v === bet); b.setAttribute("aria-label", "Bet " + v);
+  b.onclick = () => { bet = v; $("#cb").hidden = true; document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b)); };
+  $("#chips").append(b);
+});
+const cb = document.createElement("input");
+cb.type = "number"; cb.id = "cb"; cb.min = 1; cb.step = 1; cb.placeholder = "Amount"; cb.hidden = true;
+cb.setAttribute("aria-label", "Custom bet amount");
+const cc = document.createElement("button");
+cc.className = "chip custom"; cc.textContent = "Own"; cc.setAttribute("aria-pressed", "false"); cc.setAttribute("aria-label", "Custom bet");
+function setCustom() { const v = Math.floor(+cb.value); bet = Number.isFinite(v) && v >= 1 ? v : 0; }
+cc.onclick = () => {
+  document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === cc));
+  cb.hidden = false; if (!cb.value) cb.value = 25; setCustom(); cb.focus(); cb.select();
+};
+cb.oninput = setCustom;
+$("#chips").append(cc, cb);
+$("#reset").onclick = () => { bal = 1000; showBal(); };
+
+/* Tabs */
+document.querySelectorAll("[role=tab]").forEach(t => t.onclick = () => {
+  document.querySelectorAll("[role=tab]").forEach(x => x.setAttribute("aria-selected", x === t));
+  ["slots", "bj", "rl"].forEach(id => $("#" + id).hidden = id !== t.dataset.t);
+});
+
+/* Slots */
+const SY = ["🍒", "🍋", "🔔", "⭐", "7"];
+const PAY = { "7": 50, "⭐": 25, "🔔": 15, "🍋": 10, "🍒": 8 };
+let spinning = false;
+$("#spin").onclick = () => {
+  if (spinning) return;
+  if (!canPay()) return say("#sm", why());
+  bal -= bet; showBal(); spinning = true; say("#sm", "…");
+  const reels = [...document.querySelectorAll(".reel")];
+  reels.forEach(r => r.classList.remove("win"));
+  const res = reels.map(() => SY[rnd(SY.length)]);
+  reels.forEach((el, i) => {
+    el.classList.add("spin");
+    const t = setInterval(() => el.textContent = SY[rnd(SY.length)], 70);
+    setTimeout(() => { clearInterval(t); el.classList.remove("spin"); el.textContent = res[i]; if (i === 2) endSpin(res, reels); }, 700 + i * 450);
+  });
+};
+function endSpin(r, reels) {
+  spinning = false;
+  let w = 0;
+  if (r[0] === r[1] && r[1] === r[2]) { w = bet * PAY[r[0]]; reels.forEach(x => x.classList.add("win")); }
+  else if (r.filter(x => x === "🍒").length === 2) w = bet;
+  bal += w; showBal();
+  if (w > bet) flash();
+  say("#sm", w > bet ? "You win " + fmt(w) + "!" : w === bet ? "Two cherries: bet returned." : "No luck. Spin again?", w > bet);
+}
+
+/* Blackjack */
+let deck, ph, dh, bjOn = false, bjBet = 0, sp = 0, sd = 0;
+function newDeck() {
+  deck = [];
+  for (const s of "♠♥♦♣") for (const r of "A 2 3 4 5 6 7 8 9 10 J Q K".split(" ")) deck.push({ r, s });
+  for (let i = deck.length - 1; i > 0; i--) { const j = rnd(i + 1); [deck[i], deck[j]] = [deck[j], deck[i]]; }
+}
+function val(h) {
+  let t = 0, a = 0;
+  for (const c of h) {
+    if (c.r === "A") { a++; t += 11; }
+    else t += "JQK10".includes(c.r) ? 10 : +c.r;
+  }
+  while (t > 21 && a) { t -= 10; a--; }
+  return t;
+}
+const draw = () => deck.pop();
+const cardEl = (c, i, from) => '<div class="card' + ("♥♦".includes(c.s) ? " r" : "") + (i >= from ? " n" : "") + '"><span class="ix">' + c.r + "<br>" + c.s + '</span><span class="su">' + c.s + "</span></div>";
+function show() {
+  $("#ph").innerHTML = ph.map((c, i) => cardEl(c, i, sp)).join("");
+  $("#dh").innerHTML = dh.map((c, i) => bjOn && i === 1 ? '<div class="card back' + (i >= sd ? " n" : "") + '"></div>' : cardEl(c, i, sd)).join("");
+  sp = ph.length; sd = dh.length;
+  $("#pt").textContent = val(ph);
+  $("#dt").textContent = bjOn ? val([dh[0]]) : val(dh);
+  $("#deal").disabled = bjOn;
+  $("#hit").disabled = $("#stand").disabled = !bjOn;
+}
+function endBj(text, payout, good) {
+  bjOn = false; bal += payout; showBal(); show(); say("#bm", text, good);
+  if (good) flash();
+}
+$("#deal").onclick = () => {
+  if (!canPay()) return say("#bm", why());
+  bal -= bet; bjBet = bet; showBal(); newDeck(); sp = sd = 0;
+  ph = [draw(), draw()]; dh = [draw(), draw()]; bjOn = true; show();
+  say("#bm", "You have " + val(ph) + ". Hit or stand?");
+  if (val(ph) === 21) {
+    if (val(dh) === 21) endBj("Both have blackjack. Bet returned.", bjBet);
+    else endBj("Blackjack! You win " + fmt(Math.floor(bjBet * 1.5)) + ".", bjBet + Math.floor(bjBet * 1.5), true);
+  }
+};
+$("#hit").onclick = () => {
+  ph.push(draw());
+  if (val(ph) > 21) endBj("Bust with " + val(ph) + ". Bet lost.", 0);
+  else { show(); say("#bm", "You have " + val(ph) + "."); }
+};
+$("#stand").onclick = () => {
+  while (val(dh) < 17) dh.push(draw());
+  const p = val(ph), d = val(dh);
+  if (d > 21) endBj("Dealer busts with " + d + ". You win!", bjBet * 2, true);
+  else if (p > d) endBj(p + " beats " + d + ". You win!", bjBet * 2, true);
+  else if (p === d) endBj("Push at " + p + ". Bet returned.", bjBet);
+  else endBj("Dealer has " + d + ". Bet lost.", 0);
+};
+
+/* Roulette */
+const RED = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+const col = n => n === 0 ? "green" : RED.includes(n) ? "red" : "black";
+const HEX = { green: "#1f7a44", red: "#8c2331", black: "#221c14" };
+const SEG = 360 / 37;
+$("#wheel").style.background = "conic-gradient(" + [...Array(37).keys()].map(i => HEX[col(i)] + " " + i * SEG + "deg " + (i + 1) * SEG + "deg").join(",") + ")";
+let pick = null, rolling = false, rot = 0;
+document.querySelectorAll(".pick").forEach(b => b.onclick = () => {
+  pick = b.dataset.k;
+  document.querySelectorAll(".pick").forEach(x => x.setAttribute("aria-pressed", x === b));
+  $("#rn").hidden = pick !== "num";
+});
+$("#rgo").onclick = () => {
+  if (rolling) return;
+  if (!pick) return say("#rm", "Pick a bet first.");
+  const guess = +$("#rn").value;
+  if (pick === "num" && !(Number.isInteger(guess) && guess >= 0 && guess <= 36)) return say("#rm", "Enter a whole number from 0 to 36.");
+  if (!canPay()) return say("#rm", why());
+  bal -= bet; showBal(); rolling = true; say("#rm", "No more bets …");
+  const n = rnd(37), hub = $("#hub");
+  hub.textContent = "…"; hub.className = "hub";
+  rot += 1800 + ((((-(n + .5) * SEG - rot) % 360) + 360) % 360);
+  $("#wheel").style.transform = "rotate(" + rot + "deg)";
+  setTimeout(() => {
+    rolling = false;
+    hub.textContent = n; hub.className = "hub " + col(n);
+    const win = pick === "red" ? col(n) === "red"
+      : pick === "black" ? col(n) === "black"
+      : pick === "even" ? n > 0 && n % 2 === 0
+      : pick === "odd" ? n % 2 === 1
+      : n === guess;
+    const w = win ? bet * (pick === "num" ? 36 : 2) : 0;
+    bal += w; showBal();
+    if (win) flash();
+    say("#rm", win ? "Hit! You win " + fmt(w) + "." : "It’s " + n + ". Bet lost.", win);
+  }, 4100);
+};
+
+showBal();
+</script>
+</body>
+</html>
