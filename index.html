@@ -93,6 +93,21 @@ select{font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);
 .pick[aria-pressed=true],.dpick[aria-pressed=true]{background:var(--brass);color:var(--ink);font-weight:600}
 input[type=number]{width:76px;font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);background:var(--ivory);color:var(--ink)}
 .note{color:var(--brass);font-size:.85rem;margin-top:26px;text-align:center}
+
+/* Global leaderboard */
+.profile{margin:18px 0;padding:16px;border:1px solid var(--line);border-radius:10px;background:rgba(0,0,0,.18)}
+.profile label{display:block;color:var(--brass);margin-bottom:6px}
+.profile input{width:min(100%,300px);font:inherit;padding:10px;border-radius:4px;border:1px solid var(--brass);background:var(--ivory);color:var(--ink)}
+.profile .row{margin:8px 0 0}
+.lb-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}
+.lb-table{width:100%;border-collapse:collapse;font-size:.95rem;position:relative}
+.lb-table th,.lb-table td{padding:11px 8px;text-align:left;border-bottom:1px solid var(--line)}
+.lb-table th{color:var(--brass);font-weight:600}
+.lb-table td:last-child,.lb-table th:last-child{text-align:right;font-variant-numeric:tabular-nums}
+.lb-table tr.mine td{color:var(--gold);font-weight:600}
+.lb-empty{color:var(--brass);text-align:center;padding:20px 0}
+.lb-status{font-size:.88rem;color:var(--brass);min-height:1.4em;margin:8px 0}
+@media(max-width:420px){.lb-table th,.lb-table td{padding:9px 4px;font-size:.85rem}}
 </style>
 </head>
 <body>
@@ -107,6 +122,12 @@ input[type=number]{width:76px;font:inherit;padding:8px;border-radius:4px;border:
 
   <div class="row" id="chips"><span class="lbl">Bet</span></div>
 
+  <div class="profile" aria-label="Player profile">
+    <label for="username">Your leaderboard username</label>
+    <div class="row"><input id="username" maxlength="20" autocomplete="nickname" placeholder="Choose a username"><button class="ghost" id="saveUsername">Save username</button></div>
+    <p class="lb-status" id="profileStatus" aria-live="polite">Choose a username to appear on the global leaderboard.</p>
+  </div>
+
   <div class="tabs" role="tablist">
     <button class="tab" role="tab" data-t="slots" aria-selected="true">Slots</button>
     <button class="tab" role="tab" data-t="bj" aria-selected="false">Blackjack</button>
@@ -115,7 +136,15 @@ input[type=number]{width:76px;font:inherit;padding:8px;border-radius:4px;border:
     <button class="tab" role="tab" data-t="crash" aria-selected="false">Crash</button>
     <button class="tab" role="tab" data-t="mines" aria-selected="false">Mines</button>
     <button class="tab" role="tab" data-t="fw" aria-selected="false">Prize Wheel</button>
+    <button class="tab" role="tab" data-t="leaderboard" aria-selected="false">Leaderboard</button>
   </div>
+
+  <section id="leaderboard" class="table" hidden>
+    <div class="lb-head"><div><h2 style="font:italic 600 1.6rem var(--serif);color:var(--gold);margin:0">Global Leaderboard</h2><p class="sub">Ranked by highest balance</p></div><button class="ghost" id="refreshLeaderboard">Refresh</button></div>
+    <div id="leaderboardContent" aria-live="polite"><p class="lb-empty">Connect Supabase to load global scores.</p></div>
+    <p class="lb-status" id="leaderboardStatus"></p>
+    <p class="note" style="margin-top:14px">Play money only. Usernames are public.</p>
+  </section>
 
   <section id="slots" class="table">
     <div class="machine"><div class="reels"><div class="reel">7</div><div class="reel">7</div><div class="reel">7</div></div></div>
@@ -188,8 +217,94 @@ input[type=number]{width:76px;font:inherit;padding:8px;border-radius:4px;border:
   <p class="note">Play money only. This is for fun, not for real money.</p>
 </div>
 
+<!-- Supabase client. Configure the URL and anon key in the script below. -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const $ = s => document.querySelector(s);
+// Paste these two values from Supabase > Project Settings > API.
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const supabaseConfigured = SUPABASE_URL.startsWith("https://") && !SUPABASE_URL.includes("YOUR_") && !SUPABASE_ANON_KEY.includes("YOUR_");
+const supabase = supabaseConfigured && window.supabase ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let playerId = null;
+let currentUsername = "";
+let scoreSyncBusy = false;
+let scoreSyncQueued = false;
+function setProfileStatus(message, good=false) { const el = $("#profileStatus"); if (el) { el.textContent = message; el.style.color = good ? "var(--gold)" : "var(--brass)"; } }
+function setLeaderboardStatus(message) { const el = $("#leaderboardStatus"); if (el) el.textContent = message; }
+function escapeHtml(value) { return String(value).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;", "'":"&#39;"}[c])); }
+async function initLeaderboard() {
+  try { currentUsername = localStorage.getItem("jakup_username") || ""; } catch(e) {}
+  $("#username").value = currentUsername;
+  if (!supabase) {
+    setProfileStatus("Supabase is not configured yet. Add your project URL and anon key in the HTML.");
+    setLeaderboardStatus("Global leaderboard is offline until Supabase is configured.");
+    return;
+  }
+  try {
+    const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+    if (sessionError) throw sessionError;
+    if (session?.user) playerId = session.user.id;
+    else {
+      const { data, error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+      playerId = data.user.id;
+    }
+    setProfileStatus(currentUsername ? "Username saved on this device. Your highscore syncs when you play." : "Choose a username to join the global leaderboard.");
+    await loadLeaderboard();
+    if (currentUsername) await syncMyScore();
+  } catch (error) {
+    setProfileStatus("Could not connect to Supabase. Check Anonymous Sign-Ins and your project settings.");
+    setLeaderboardStatus(error.message || "Connection failed.");
+  }
+}
+async function saveUsername() {
+  const name = $("#username").value.trim().replace(/\s+/g, " ");
+  if (!name || name.length < 2) return setProfileStatus("Username must be at least 2 characters.");
+  if (name.length > 20) return setProfileStatus("Username must be 20 characters or fewer.");
+  if (/[<>]/.test(name)) return setProfileStatus("Please remove < and > from the username.");
+  currentUsername = name;
+  try { localStorage.setItem("jakup_username", name); } catch(e) {}
+  if (!supabase) return setProfileStatus("Username saved on this device. Configure Supabase to publish it globally.", true);
+  if (!playerId) { setProfileStatus("Connecting to Supabase…"); await initLeaderboard(); if (!playerId) return; }
+  setProfileStatus("Username saved. Publishing your highscore…", true);
+  await syncMyScore();
+  await loadLeaderboard();
+}
+async function syncMyScore() {
+  if (!supabase || !playerId || !currentUsername) return;
+  if (scoreSyncBusy) { scoreSyncQueued = true; return; }
+  scoreSyncBusy = true;
+  try {
+    // Only this anonymous Supabase identity can update its own row (RLS policy).
+    const { error } = await supabase.from("leaderboard").upsert({ id: playerId, username: currentUsername, highscore: Math.max(0, Math.floor(hs)), updated_at: new Date().toISOString() }, { onConflict: "id" });
+    if (error) throw error;
+    setProfileStatus("Global highscore synced ✓", true);
+  } catch (error) {
+    setProfileStatus("Could not sync score: " + (error.message || "check Supabase setup"));
+  } finally {
+    scoreSyncBusy = false;
+    if (scoreSyncQueued) { scoreSyncQueued = false; syncMyScore(); }
+  }
+}
+async function loadLeaderboard() {
+  const content = $("#leaderboardContent");
+  if (!supabase) { content.innerHTML = '<p class="lb-empty">Configure Supabase to show global scores.</p>'; return; }
+  setLeaderboardStatus("Loading leaderboard…");
+  try {
+    const { data, error } = await supabase.from("leaderboard").select("id, username, highscore, updated_at").order("highscore", { ascending: false }).order("updated_at", { ascending: true }).limit(100);
+    if (error) throw error;
+    if (!data || !data.length) { content.innerHTML = '<p class="lb-empty">No scores yet. Be the first to set a highscore!</p>'; setLeaderboardStatus(""); return; }
+    content.innerHTML = '<table class="lb-table"><thead><tr><th>#</th><th>Username</th><th>Highscore</th></tr></thead><tbody>' + data.map((row, i) => '<tr class="' + (row.id === playerId ? 'mine' : '') + '"><td>' + (i + 1) + '</td><td>' + escapeHtml(row.username) + (row.id === playerId ? ' (you)' : '') + '</td><td>' + Number(row.highscore || 0).toLocaleString("en-US") + '</td></tr>').join("") + '</tbody></table>';
+    setLeaderboardStatus("Showing top " + data.length + " players. Your row is highlighted.");
+  } catch (error) {
+    content.innerHTML = '<p class="lb-empty">Could not load leaderboard.</p>';
+    setLeaderboardStatus((error.message || "Database error") + " — check the SQL setup and Supabase keys.");
+  }
+}
+$("#saveUsername").addEventListener("click", saveUsername);
+$("#username").addEventListener("keydown", e => { if (e.key === "Enter") saveUsername(); });
+$("#refreshLeaderboard").addEventListener("click", loadLeaderboard);
 const rnd = n => Math.floor(Math.random() * n);
 const fmt = n => n.toLocaleString("en-US");
 function say(id, t, good) { const el = $(id); el.textContent = t; el.classList.toggle("good", !!good); }
@@ -201,8 +316,10 @@ hs = Math.max(hs, bal);
 let shown = bal;
 function showBal() {
   try { localStorage.setItem("casino_bal", bal); } catch (e) {}
-  if (bal > hs) { hs = bal; $(".best").classList.add("new"); try { localStorage.setItem("casino_hs", hs); } catch (e) {} }
+  let newHighscore = false;
+  if (bal > hs) { hs = bal; newHighscore = true; $(".best").classList.add("new"); try { localStorage.setItem("casino_hs", hs); } catch (e) {} }
   $("#hs").textContent = fmt(hs);
+  if (newHighscore && currentUsername) syncMyScore();
   const from = shown, to = bal, t0 = performance.now();
   (function f(t) {
     const k = Math.min(1, (t - t0) / 500);
@@ -496,6 +613,7 @@ $("#pgo").onclick = () => {
 };
 
 showBal();
+initLeaderboard();
 </script>
 </body>
 </html>
