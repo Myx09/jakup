@@ -36,12 +36,6 @@ button:disabled{opacity:.4;cursor:default}
 .chip[aria-pressed=true]{transform:translateY(-5px);outline:2px solid var(--gold);outline-offset:3px}
 .chip.custom{background:transparent;border:2px dashed var(--brass);color:var(--gold);font-size:.85rem;box-shadow:none}
 #cb{width:108px}
-#un{width:170px}
-.lrow{display:grid;grid-template-columns:2.2em 1fr auto;gap:8px;padding:9px 12px;border-bottom:1px solid var(--line)}
-.lrow:first-child span:first-child{color:var(--gold);font-weight:600}
-.lrow span:last-child{font:italic 600 1.1rem var(--serif);color:var(--gold)}
-.lrow.me{background:rgba(200,162,74,.18);font-weight:600}
-.lempty{text-align:center;color:var(--brass);padding:14px}
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
 .tab{flex:1 1 auto;background:transparent;border:1px solid var(--brass);border-radius:6px;padding:8px 12px}
 .tab[aria-selected=true]{background:var(--brass);color:var(--ink);font-weight:600}
@@ -97,7 +91,7 @@ select{font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);
 .hub{position:absolute;inset:0;margin:auto;width:34%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font:italic 600 2rem var(--serif);border:3px solid var(--brass);background:var(--felt2);z-index:1}
 .hub.red{background:var(--wine)}.hub.black{background:var(--ink)}.hub.green{background:#1f7a44}
 .pick[aria-pressed=true],.dpick[aria-pressed=true]{background:var(--brass);color:var(--ink);font-weight:600}
-input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);background:var(--ivory);color:var(--ink)}
+input[type=number]{width:76px;font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);background:var(--ivory);color:var(--ink)}
 .note{color:var(--brass);font-size:.85rem;margin-top:26px;text-align:center}
 </style>
 </head>
@@ -111,10 +105,6 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
     <button class="ghost" id="reset">Restart with 1,000</button>
   </div>
 
-  <div class="row"><label class="lbl" for="un">Name</label>
-    <input type="text" id="un" maxlength="16" placeholder="Your name" autocomplete="nickname">
-    <button class="ghost" id="unok">Save</button><span class="lbl" id="unmsg"></span></div>
-
   <div class="row" id="chips"><span class="lbl">Bet</span></div>
 
   <div class="tabs" role="tablist">
@@ -125,7 +115,6 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
     <button class="tab" role="tab" data-t="crash" aria-selected="false">Crash</button>
     <button class="tab" role="tab" data-t="mines" aria-selected="false">Mines</button>
     <button class="tab" role="tab" data-t="fw" aria-selected="false">Prize Wheel</button>
-    <button class="tab" role="tab" data-t="lb" aria-selected="false">Leaderboard</button>
   </div>
 
   <section id="slots" class="table">
@@ -196,19 +185,10 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
     <p class="msg" id="pm">Spin for up to 5× your bet.</p>
   </section>
 
-  <section id="lb" class="table" hidden>
-    <div id="lbl"></div>
-    <div class="row mid"><button class="ghost" id="lbr">Refresh</button></div>
-    <p class="msg" style="font-weight:400">Ranked by highest balance reached.</p>
-  </section>
-
   <p class="note">Play money only. This is for fun, not for real money.</p>
 </div>
 
 <script>
-// Paste your Firebase Realtime Database URL here to switch on the global leaderboard,
-// e.g. "https://my-project-default-rtdb.europe-west1.firebasedatabase.app"
-const DB_URL = "";
 const $ = s => document.querySelector(s);
 const rnd = n => Math.floor(Math.random() * n);
 const fmt = n => n.toLocaleString("en-US");
@@ -221,7 +201,7 @@ hs = Math.max(hs, bal);
 let shown = bal;
 function showBal() {
   try { localStorage.setItem("casino_bal", bal); } catch (e) {}
-  if (bal > hs) { hs = bal; $(".best").classList.add("new"); submitScore(); try { localStorage.setItem("casino_hs", hs); } catch (e) {} }
+  if (bal > hs) { hs = bal; $(".best").classList.add("new"); try { localStorage.setItem("casino_hs", hs); } catch (e) {} }
   $("#hs").textContent = fmt(hs);
   const from = shown, to = bal, t0 = performance.now();
   (function f(t) {
@@ -514,52 +494,6 @@ $("#pgo").onclick = () => {
     say("#pm", w > stake ? "You win " + fmt(w) + "!" : w === stake ? "Bet returned." : w > 0 ? "You get back " + fmt(w) + "." : "Nothing this time.", w > stake);
   }, 4100);
 };
-
-/* Username + global leaderboard */
-let userName = "", uid = "", lbTimer = 0;
-try {
-  userName = localStorage.getItem("casino_name") || "";
-  uid = localStorage.getItem("casino_uid") || "";
-  if (!uid) { uid = Date.now().toString(36) + Math.random().toString(36).slice(2, 10); localStorage.setItem("casino_uid", uid); }
-} catch (e) {}
-if (!uid) uid = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-const dbBase = () => DB_URL.replace(/\/+$/, "");
-$("#un").value = userName;
-function submitScore() {
-  if (!DB_URL || !userName) return;
-  clearTimeout(lbTimer);
-  lbTimer = setTimeout(() => {
-    fetch(dbBase() + "/scores/" + uid + ".json", { method: "PUT", body: JSON.stringify({ name: userName, score: hs, t: Date.now() }) }).catch(() => {});
-  }, 1500);
-}
-$("#unok").onclick = () => {
-  const n = $("#un").value.trim().replace(/[^\p{L}\p{N} _-]/gu, "");
-  if (n.length < 2) { $("#unmsg").textContent = "Use 2 to 16 letters or digits."; return; }
-  userName = n.slice(0, 16); $("#un").value = userName;
-  try { localStorage.setItem("casino_name", userName); } catch (e) {}
-  $("#unmsg").textContent = DB_URL ? "Saved." : "Saved (leaderboard not set up yet).";
-  submitScore();
-};
-async function loadLB() {
-  const box = $("#lbl");
-  if (!DB_URL) { box.innerHTML = '<p class="lempty">The leaderboard is not set up yet.</p>'; return; }
-  box.innerHTML = '<p class="lempty">Loading …</p>';
-  try {
-    const r = await fetch(dbBase() + '/scores.json?orderBy="score"&limitToLast=10');
-    if (!r.ok) throw new Error("bad response");
-    const rows = Object.entries((await r.json()) || {}).filter(([, v]) => v && typeof v.score === "number").sort((a, b) => b[1].score - a[1].score);
-    if (!rows.length) { box.innerHTML = '<p class="lempty">No scores yet. Be the first!</p>'; return; }
-    box.replaceChildren(...rows.map(([id, v], i) => {
-      const row = document.createElement("div");
-      row.className = "lrow" + (id === uid ? " me" : "");
-      for (const t of [i + 1, String(v.name).slice(0, 16), fmt(v.score)]) { const c = document.createElement("span"); c.textContent = t; row.append(c); }
-      return row;
-    }));
-  } catch (e) { box.innerHTML = '<p class="lempty">Could not load the leaderboard.</p>'; }
-}
-$("#lbr").onclick = loadLB;
-document.querySelector('[data-t="lb"]').addEventListener("click", loadLB);
-submitScore();
 
 showBal();
 </script>
