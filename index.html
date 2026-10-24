@@ -103,7 +103,7 @@ select{font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);
 .ptr{position:absolute;top:-8px;left:50%;margin-left:-10px;border:10px solid transparent;border-top:18px solid var(--gold);z-index:2}
 .hub{position:absolute;inset:0;margin:auto;width:34%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font:italic 600 2rem var(--serif);border:3px solid var(--brass);background:var(--felt2);z-index:1}
 .hub.red{background:var(--wine)}.hub.black{background:var(--ink)}.hub.green{background:#1f7a44}
-.pick[aria-pressed=true],.dpick[aria-pressed=true],.kpick[aria-pressed=true]{background:var(--brass);color:var(--ink);font-weight:600}
+.pick[aria-pressed=true],.dpick[aria-pressed=true],.kpick[aria-pressed=true],.bpick[aria-pressed=true]{background:var(--brass);color:var(--ink);font-weight:600}
 input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);background:var(--ivory);color:var(--ink)}
 #pc{display:block;width:100%;max-width:420px;height:auto;margin:0 auto}
 .lbar{height:8px;border-radius:99px;background:var(--felt2);overflow:hidden;margin:8px 0}
@@ -135,6 +135,36 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
 .ci .ore{width:30px;height:30px}
 .ci.off{opacity:.45}
 .ci small{color:var(--brass)}
+.big.lo{color:#d9a9a0}.big.hot{text-shadow:0 0 22px var(--gold)}
+#cg{display:block;width:100%;max-width:560px;height:auto;margin:6px auto 10px;border-radius:10px;background:rgba(0,0,0,.25)}
+.tot.winh{background:var(--gold);color:var(--ink)}
+.cab{padding:14px;border:4px solid var(--brass);border-radius:16px;background:linear-gradient(#2a0f14,#14060a);box-shadow:inset 0 0 30px #000,0 8px 20px rgba(0,0,0,.5)}
+.marq{text-align:center;font:italic 600 1.3rem var(--serif);letter-spacing:.14em;color:var(--gold);text-shadow:0 0 12px var(--gold)}
+.bulbs{height:12px;margin:6px 0 12px;background:radial-gradient(circle,var(--gold) 0 3px,transparent 4px) 0 0/22px 12px repeat-x;animation:blink 1.4s steps(1) infinite}
+@keyframes blink{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.bulbs{animation:none}}
+.fm{position:relative;display:flex;gap:8px;justify-content:center;align-items:center}
+.fm::after{content:"";position:absolute;left:18px;right:18px;top:50%;height:2px;background:var(--wine);box-shadow:0 0 8px var(--wine);pointer-events:none;z-index:2}
+.arr{color:#ff453a;font-style:normal;font-size:1.3rem;text-shadow:0 0 8px #ff453a}
+.rw{position:relative;width:min(88px,24vw);height:186px;overflow:hidden;border-radius:6px;background:linear-gradient(#b9b095,var(--ivory) 30%,var(--ivory) 70%,#b9b095);box-shadow:inset 0 0 12px rgba(0,0,0,.5)}
+.rw::before{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(rgba(0,0,0,.4),transparent 32%,transparent 68%,rgba(0,0,0,.4))}
+.strip{will-change:transform}
+.cell{height:62px;display:grid;place-items:center;font-size:2.4rem;line-height:1}
+.cell.s7{font:700 2.8rem var(--serif);color:var(--wine);-webkit-text-stroke:1px var(--ink)}
+.fdisp{display:flex;gap:10px;margin-top:12px}
+.led{flex:1;padding:6px 10px;border-radius:6px;background:#140506;border:1px solid var(--line);color:var(--brass);font-size:.75rem}
+.led b{display:block;font:700 1.5rem "Courier New",monospace;color:#ff453a;text-shadow:0 0 8px #ff453a}
+.lad{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin-top:10px}
+.rung{padding:5px 2px;text-align:center;border-radius:4px;background:#140506;color:#7a6a5a;font-size:.72rem;border:1px solid transparent}
+.rung.up{color:var(--brass);border-color:var(--line)}
+.rung.on{background:var(--gold);color:var(--ink);font-weight:600;box-shadow:0 0 12px var(--gold)}
+.lamps{display:flex;gap:8px;justify-content:center;margin-top:8px}
+.lamp{padding:3px 14px;border-radius:99px;font-size:.8rem;font-weight:600;opacity:.3}
+.lamp.w{background:#1f7a44}.lamp.l{background:var(--wine)}
+.lamp.on{opacity:1;box-shadow:0 0 14px var(--gold)}
+.ptb{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:6px;margin-top:14px}
+.prow{display:flex;justify-content:space-between;gap:8px;padding:5px 9px;border-radius:6px;background:rgba(0,0,0,.25);font-size:.85rem}
+.prow.lit{background:var(--gold);color:var(--ink);font-weight:600;box-shadow:0 0 14px var(--gold)}
 .note{color:var(--brass);font-size:.85rem;margin-top:26px;text-align:center}
 </style>
 </head>
@@ -154,6 +184,8 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
       <button class="tab" role="tab" data-t="plinko" aria-selected="false"><span class="ic" aria-hidden="true">⚽</span><span>Plinko</span></button>
       <button class="tab" role="tab" data-t="lotto" aria-selected="false"><span class="ic" aria-hidden="true">🎟️</span><span>Lotto</span></button>
       <button class="tab" role="tab" data-t="packs" aria-selected="false"><span class="ic" aria-hidden="true">⛏️</span><span>Pack Opening</span></button>
+      <button class="tab" role="tab" data-t="bacc" aria-selected="false"><span class="ic" aria-hidden="true">🎴</span><span>Baccarat</span></button>
+      <button class="tab" role="tab" data-t="fruit" aria-selected="false"><span class="ic" aria-hidden="true">🍒</span><span>Fruit Machine</span></button>
     </div>
   </nav>
   <main class="main">
@@ -213,6 +245,8 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
 
   <section id="crash" class="table" hidden>
     <div class="big" id="cm">0.90×</div>
+    <p class="info" id="cpay"></p>
+    <canvas id="cg" width="560" height="260" aria-label="Crash multiplier graph"></canvas>
     <div class="hist" id="ch"></div>
     <div class="row mid"><button class="go" id="cgo">Place bet</button></div>
     <p class="msg" id="cmsg">Cash out before the multiplier crashes.</p>
@@ -266,6 +300,36 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
     <p class="msg" id="pkm">A pack holds 5 ore cards and costs your current bet.</p>
     <p class="info">Your collection</p>
     <div class="coll" id="pkc"></div>
+  </section>
+
+  <section id="bacc" class="table" hidden>
+    <div class="who"><span>Player</span><span class="tot" id="bcpt">–</span></div><div class="hand" id="bcp"></div>
+    <div class="who"><span>Banker</span><span class="tot" id="bcbt">–</span></div><div class="hand" id="bcb"></div>
+    <div class="row mid">
+      <button class="ghost bpick" data-k="P" aria-pressed="false">Player ×2</button>
+      <button class="ghost bpick" data-k="B" aria-pressed="false">Banker ×1.95</button>
+      <button class="ghost bpick" data-k="T" aria-pressed="false">Tie ×9</button>
+    </div>
+    <div class="row mid"><button class="go" id="bcgo">Deal</button></div>
+    <p class="msg" id="bcm">The hand closest to 9 wins. A tie returns Player and Banker bets.</p>
+  </section>
+
+  <section id="fruit" class="table" hidden>
+    <div class="cab">
+      <div class="marq">★ FRUIT MACHINE ★</div>
+      <div class="bulbs"></div>
+      <div class="fm"><i class="arr">►</i><div id="freels" style="display:flex;gap:8px"></div><i class="arr">◄</i></div>
+      <div class="fdisp"><div class="led">WIN<b id="fwin">0</b></div><div class="led">BET<b id="fbet">10</b></div></div>
+      <div class="lad" id="flad"></div>
+      <div class="lamps"><span class="lamp w" id="lw">WIN</span><span class="lamp l" id="ll">LOSE</span></div>
+    </div>
+    <div class="row mid">
+      <button class="go" id="fspin">Spin</button>
+      <button class="ghost" id="frisk" disabled>Risk ×2</button>
+      <button class="ghost" id="fcol" disabled>Collect</button>
+    </div>
+    <p class="msg" id="fm">Three of a kind on the red line wins. After a win, collect it or risk it.</p>
+    <div class="ptb" id="fpt"></div>
   </section>
 
   <p class="note">Play money only. This is for fun, not for real money.</p>
@@ -499,10 +563,51 @@ $("#droll").onclick = () => {
 };
 
 /* Crash */
-let cOn = false, cBet = 0, cPt = 1, cCur = 1, cT0 = 0;
+let cOn = false, cBet = 0, cPt = 1, cCur = 1, cT0 = 0, cEl = 0;
 const cHist = [];
+const gcv = $("#cg"), gx = gcv.getContext("2d"), GW = 560, GH = 260, GD = window.devicePixelRatio || 1;
+gcv.width = GW * GD; gcv.height = GH * GD; gx.scale(GD, GD);
+const tC = () => Math.log(cPt / .9) / .12;
+const niceStep = r => { const q = 10 ** Math.floor(Math.log10(r)), n = r / q; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * q; };
+function cDraw(tNow, mode, tFull) {
+  const c = gx, pl = 46, pr = 14, pt = 14, pb = 24, iw = GW - pl - pr, ih = GH - pt - pb;
+  const tMax = Math.max(8, tFull / .85), yMin = .8, yMax = Math.max(2, .9 * Math.exp(.12 * tFull) / .85);
+  const X = t => pl + t / tMax * iw, Y = m => GH - pb - (m - yMin) / (yMax - yMin) * ih, M = t => .9 * Math.exp(.12 * t);
+  c.clearRect(0, 0, GW, GH);
+  c.font = "11px Figtree, system-ui, sans-serif"; c.textAlign = "right"; c.textBaseline = "middle"; c.lineWidth = 1;
+  const st = niceStep((yMax - yMin) / 4);
+  for (let v = Math.ceil(yMin / st) * st; v <= yMax; v += st) {
+    c.strokeStyle = "rgba(200,162,74,.18)"; c.beginPath(); c.moveTo(pl, Y(v)); c.lineTo(GW - pr, Y(v)); c.stroke();
+    c.fillStyle = "#c8a24a"; c.fillText(+v.toFixed(2) + "×", pl - 6, Y(v));
+  }
+  c.setLineDash([5, 4]); c.strokeStyle = "rgba(242,234,211,.6)"; c.beginPath(); c.moveTo(pl, Y(1)); c.lineTo(GW - pr, Y(1)); c.stroke(); c.setLineDash([]);
+  c.textAlign = "center"; c.textBaseline = "top"; c.fillStyle = "#c8a24a";
+  const ts = tMax <= 12 ? 2 : tMax <= 30 ? 5 : 10;
+  for (let t = 0; t <= tMax; t += ts) c.fillText(t + "s", X(t), GH - pb + 6);
+  if (mode === "idle") {
+    c.fillStyle = "rgba(242,234,211,.55)"; c.textBaseline = "middle"; c.font = "600 14px Figtree, system-ui, sans-serif";
+    c.fillText("Place a bet to launch. The dashed line is break-even (1×).", pl + iw / 2, pt + ih / 2); return;
+  }
+  const path = (t0, t1) => { c.beginPath(); for (let i = 0; i <= 60; i++) { const t = t0 + (t1 - t0) * i / 60; i ? c.lineTo(X(t), Y(M(t))) : c.moveTo(X(t), Y(M(t))); } };
+  const bad = mode === "crash";
+  path(0, tNow); c.lineTo(X(tNow), Y(yMin)); c.lineTo(X(0), Y(yMin)); c.closePath();
+  const g = c.createLinearGradient(0, pt, 0, GH - pb);
+  g.addColorStop(0, bad ? "rgba(224,82,95,.4)" : "rgba(240,207,122,.4)"); g.addColorStop(1, "rgba(240,207,122,0)");
+  c.fillStyle = g; c.fill();
+  path(0, tNow); c.strokeStyle = bad ? "#e0525f" : "#f0cf7a"; c.lineWidth = 3; c.lineJoin = "round"; c.stroke();
+  c.textBaseline = "middle"; c.font = "20px sans-serif";
+  if (mode === "cash" && tFull > tNow) {
+    c.setLineDash([4, 5]); path(tNow, tFull); c.strokeStyle = "rgba(224,82,95,.85)"; c.lineWidth = 2; c.stroke(); c.setLineDash([]);
+    c.fillText("💥", X(tFull), Y(M(tFull)) - 14);
+  }
+  c.fillStyle = bad ? "#e0525f" : "#fff"; c.beginPath(); c.arc(X(tNow), Y(M(tNow)), 6, 0, 7); c.fill();
+  c.fillStyle = "#fff";
+  if (bad) c.fillText("💥", X(tNow), Y(M(tNow)) - 16);
+  if (mode === "cash") c.fillText("💰", X(tNow), Y(M(tNow)) - 16);
+}
+cDraw(0, "idle", 0);
 function cEnd(text, cls, good) {
-  cOn = false; $("#cgo").textContent = "Place bet"; $("#cm").className = "big " + cls; say("#cmsg", text, good);
+  cOn = false; $("#cpay").textContent = ""; $("#cgo").textContent = "Place bet"; $("#cm").className = "big " + cls; say("#cmsg", text, good);
   cHist.unshift(cPt); cHist.length = Math.min(cHist.length, 8);
   $("#ch").innerHTML = cHist.map(x => '<span class="' + (x >= 2 ? "hi" : "") + '">' + x.toFixed(2) + "×</span>").join("");
 }
@@ -510,18 +615,23 @@ $("#cgo").onclick = () => {
   if (cOn) {
     const w = Math.floor(cBet * cCur); bal += w; showBal();
     if (w > cBet) flash();
+    cDraw(cEl, "cash", tC() > cEl * 3 + 5 ? cEl : tC());
     return cEnd("Cashed out at " + cCur.toFixed(2) + "× for " + fmt(w) + ". It would have crashed at " + cPt.toFixed(2) + "×.", "ok", true);
   }
   if (!canPay()) return say("#cmsg", why());
   bal -= bet; cBet = bet; showBal();
   cPt = Math.min(1000, Math.max(1, Math.floor(98 / (1 - Math.random())) / 100));
-  cOn = true; cCur = .9; cT0 = performance.now();
+  cOn = true; cCur = .9; cT0 = performance.now(); cEl = 0;
   $("#cgo").textContent = "Cash out"; $("#cm").className = "big"; say("#cmsg", "Cash out before it crashes!");
   const f = t => {
     if (!cOn) return;
-    const m = Math.max(.9, Math.floor(.9 * Math.exp(.12 * (t - cT0) / 1000) * 100) / 100);
-    if (m >= cPt) { $("#cm").textContent = cPt.toFixed(2) + "×"; return cEnd("Crashed at " + cPt.toFixed(2) + "×. Bet lost.", "bad"); }
-    cCur = m; $("#cm").textContent = m.toFixed(2) + "×"; requestAnimationFrame(f);
+    cEl = Math.max(0, (t - cT0) / 1000);
+    const m = Math.max(.9, Math.floor(.9 * Math.exp(.12 * cEl) * 100) / 100);
+    if (m >= cPt) { $("#cm").textContent = cPt.toFixed(2) + "×"; cDraw(tC(), "crash", tC()); return cEnd("Crashed at " + cPt.toFixed(2) + "×. Bet lost.", "bad"); }
+    cCur = m; $("#cm").textContent = m.toFixed(2) + "×";
+    $("#cm").className = "big" + (m >= 5 ? " ok hot" : m >= 2 ? " ok" : m < 1 ? " lo" : "");
+    $("#cpay").textContent = "Cash out now: " + fmt(Math.floor(cBet * m));
+    cDraw(cEl, "run", cEl); requestAnimationFrame(f);
   };
   requestAnimationFrame(f);
 };
@@ -769,6 +879,147 @@ $("#pkgo").onclick = () => {
     say("#pkm", total > stake ? "Pack worth " + fmt(total) + "! You win " + fmt(total - stake) + "." : total === stake ? "Pack worth " + fmt(total) + ". Bet returned." : "Pack worth " + fmt(total) + ". Better luck with the next one.", total > stake);
   }, 350 + 5 * 450 + 400);
 };
+
+/* Baccarat */
+const bv = c => c.r === "A" ? 1 : "10JQK".includes(c.r) ? 0 : +c.r;
+const bt = h => h.reduce((a, c) => a + bv(c), 0) % 10;
+function bcShoe() {
+  const d = [];
+  for (let k = 0; k < 8; k++) for (const s of "♠♥♦♣") for (const r of "A 2 3 4 5 6 7 8 9 10 J Q K".split(" ")) d.push({ r, s });
+  for (let i = d.length - 1; i > 0; i--) { const j = rnd(i + 1); [d[i], d[j]] = [d[j], d[i]]; }
+  return d;
+}
+function bcDeal() {
+  const d = bcShoe(), P = [d.pop(), d.pop()], B = [d.pop(), d.pop()];
+  if (bt(P) < 8 && bt(B) < 8) {
+    let p3 = null;
+    if (bt(P) <= 5) { p3 = d.pop(); P.push(p3); }
+    const b = bt(B), v = p3 ? bv(p3) : -1;
+    const more = p3 === null ? b <= 5 : b <= 2 || (b === 3 && v !== 8) || (b === 4 && v >= 2 && v <= 7) || (b === 5 && v >= 4 && v <= 7) || (b === 6 && v >= 6 && v <= 7);
+    if (more) B.push(d.pop());
+  }
+  return { P, B };
+}
+let bcPick = null, bcBusy = false;
+document.querySelectorAll(".bpick").forEach(b => b.onclick = () => {
+  bcPick = b.dataset.k;
+  document.querySelectorAll(".bpick").forEach(x => x.setAttribute("aria-pressed", x === b));
+});
+$("#bcgo").onclick = () => {
+  if (bcBusy) return;
+  if (!bcPick) return say("#bcm", "Pick Player, Banker or Tie first.");
+  if (!canPay()) return say("#bcm", why());
+  const stake = bet, pk = bcPick;
+  bal -= stake; showBal(); bcBusy = true; say("#bcm", "Dealing …");
+  const { P, B } = bcDeal();
+  $("#bcp").innerHTML = $("#bcb").innerHTML = ""; $("#bcpt").textContent = $("#bcbt").textContent = "–";
+  $("#bcpt").classList.remove("winh"); $("#bcbt").classList.remove("winh");
+  const order = ["P", "B", "P", "B"]; if (P.length > 2) order.push("P"); if (B.length > 2) order.push("B");
+  let nP = 0, nB = 0;
+  order.forEach((h, k) => setTimeout(() => {
+    const fp = nP, fb = nB;
+    if (h === "P") nP++; else nB++;
+    $("#bcp").innerHTML = P.slice(0, nP).map((c, j) => cardEl(c, j, fp)).join("");
+    $("#bcb").innerHTML = B.slice(0, nB).map((c, j) => cardEl(c, j, fb)).join("");
+    $("#bcpt").textContent = bt(P.slice(0, nP)); $("#bcbt").textContent = bt(B.slice(0, nB));
+  }, 300 + k * 550));
+  setTimeout(() => {
+    bcBusy = false;
+    const p = bt(P), b = bt(B), res = p > b ? "P" : b > p ? "B" : "T";
+    let w = 0;
+    if (res === "T") w = pk === "T" ? stake * 9 : stake;
+    else if (pk === res) w = res === "P" ? stake * 2 : Math.floor(stake * 1.95 + 1e-9);
+    bal += w; showBal();
+    $("#bcpt").classList.toggle("winh", res === "P"); $("#bcbt").classList.toggle("winh", res === "B");
+    if (w > stake) flash();
+    const head = res === "T" ? "Tie at " + p + "." : (res === "P" ? "Player" : "Banker") + " wins " + Math.max(p, b) + " to " + Math.min(p, b) + ".";
+    say("#bcm", head + " " + (w > stake ? "You win " + fmt(w - stake) + "!" : w === stake ? "Bet returned." : "Bet lost."), w > stake);
+  }, 300 + order.length * 550 + 500);
+};
+
+/* Fruit machine */
+const FL = 21, FH = 62;
+const FSTRIP = ["🍋", "🍒", "🍇", "🔔", "🍊", "🍋", "⭐", "🍇", "🍒", "🍊", "🍋", "🔔", "🍇", "7", "🍊", "🍒", "🍋", "🍇", "⭐", "🍊", "🔔"];
+const FR = [0, 1, 2].map(r => FSTRIP.map((_, i) => FSTRIP[(i + r * 7) % FL]));
+const FMUL = { "7": 250, "⭐": 100, "🔔": 60, "🍇": 30, "🍊": 20, "🍋": 10, "🍒": 15, cc: 4, c: 1 };
+function fWin(l) {
+  if (l[0] === l[1] && l[1] === l[2]) return [FMUL[l[0]], l[0]];
+  if (l[0] === "🍒" && l[1] === "🍒") return [FMUL.cc, "cc"];
+  if (l[0] === "🍒") return [FMUL.c, "c"];
+  return [0, null];
+}
+let fBusy = false, fWinAmt = 0, fBase = 0, fStep = 0, fStake = 0;
+const fpos = [0, 0, 0];
+$("#freels").innerHTML = [0, 1, 2].map(r => '<div class="rw"><div class="strip" id="fs' + r + '">' + Array.from({ length: FL * 8 }, (_, i) => { const y = FR[r][i % FL]; return '<div class="cell' + (y === "7" ? " s7" : "") + '">' + y + "</div>"; }).join("") + "</div></div>").join("");
+$("#flad").innerHTML = '<div class="rung"></div>'.repeat(6);
+$("#fpt").innerHTML = [["7", "7 7 7"], ["⭐", "⭐ ⭐ ⭐"], ["🔔", "🔔 🔔 🔔"], ["🍇", "🍇 🍇 🍇"], ["🍊", "🍊 🍊 🍊"], ["🍋", "🍋 🍋 🍋"], ["🍒", "🍒 🍒 🍒"], ["cc", "🍒 🍒 ·"], ["c", "🍒 · ·"]]
+  .map(([k, t]) => '<div class="prow" data-k="' + k + '"><span>' + t + "</span><span>×" + FMUL[k] + "</span></div>").join("");
+function fSet(r, pos, anim, dur) {
+  const st = $("#fs" + r);
+  st.style.transition = anim ? "transform " + dur + "s cubic-bezier(.15,.7,.2,1)" : "none";
+  st.style.transform = "translateY(" + -(pos - 1) * FH + "px)";
+}
+function fLight(key) { document.querySelectorAll(".prow").forEach(r => r.classList.toggle("lit", r.dataset.k === key)); }
+function fLamps(w, l) { $("#lw").classList.toggle("on", w); $("#ll").classList.toggle("on", l); }
+function fRender() {
+  $("#fwin").textContent = fmt(fWinAmt);
+  document.querySelectorAll(".rung").forEach((el, k) => {
+    el.textContent = fWinAmt ? fmt(fBase * 2 ** k) : "–";
+    el.className = "rung" + (fWinAmt ? (k === fStep ? " on" : k > fStep ? " up" : "") : "");
+  });
+  $("#fspin").disabled = fBusy;
+  $("#frisk").disabled = fBusy || !fWinAmt || fStep >= 5;
+  $("#fcol").disabled = fBusy || !fWinAmt;
+}
+function fCollect(silent) {
+  if (!fWinAmt) return;
+  bal += fWinAmt; showBal();
+  if (fWinAmt > fStake) flash();
+  if (!silent) say("#fm", "Collected " + fmt(fWinAmt) + ".", true);
+  fWinAmt = 0; fStep = 0; fLamps(false, false); fRender();
+}
+[0, 1, 2].forEach(r => { fpos[r] = FL + rnd(FL); fSet(r, fpos[r], false); });
+$("#fspin").onclick = () => {
+  if (fBusy) return;
+  fCollect(true);
+  if (!canPay()) return say("#fm", why());
+  fStake = bet; bal -= fStake; showBal(); fBusy = true; $("#fbet").textContent = fmt(fStake);
+  fLight(null); fLamps(false, false); say("#fm", "…"); fRender();
+  const stops = [0, 1, 2].map(() => rnd(FL)), line = stops.map((t, r) => FR[r][t]);
+  stops.forEach((t, r) => {
+    fSet(r, fpos[r] % FL + FL, false); void $("#fs" + r).offsetHeight;
+    fpos[r] = FL * 5 + t; fSet(r, fpos[r], true, 1.3 + .5 * r);
+  });
+  setTimeout(() => {
+    fBusy = false;
+    const [m, key] = fWin(line);
+    if (m > 0) {
+      fWinAmt = fBase = Math.floor(fStake * m); fStep = 0; fLight(key);
+      say("#fm", "Win " + fmt(fWinAmt) + ". Collect it or press Risk to double.", true);
+    } else say("#fm", "No win. Spin again?");
+    fRender();
+  }, 1300 + 500 * 2 + 350);
+};
+$("#fcol").onclick = () => { if (!fBusy) fCollect(); };
+$("#frisk").onclick = () => {
+  if (fBusy || !fWinAmt || fStep >= 5) return;
+  fBusy = true; fRender(); say("#fm", "Risk …");
+  let t = false;
+  const iv = setInterval(() => { t = !t; fLamps(t, !t); }, 90);
+  setTimeout(() => {
+    clearInterval(iv); fBusy = false;
+    if (Math.random() < .5) {
+      fWinAmt *= 2; fStep++; fLamps(true, false);
+      if (fStep >= 5) { say("#fm", "Top of the ladder! Collected " + fmt(fWinAmt) + ".", true); fCollect(true); return; }
+      say("#fm", "Doubled to " + fmt(fWinAmt) + "! Collect or risk again.", true);
+    } else {
+      fWinAmt = 0; fStep = 0; fLamps(false, true); fLight(null); say("#fm", "Risk lost. The win is gone.");
+    }
+    fRender();
+  }, 1000);
+};
+window.addEventListener("pagehide", () => fCollect(true));
+fRender();
 
 showBal();
 </script>
