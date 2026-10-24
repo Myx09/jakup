@@ -106,6 +106,19 @@ select{font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);
 .pick[aria-pressed=true],.dpick[aria-pressed=true],.kpick[aria-pressed=true]{background:var(--brass);color:var(--ink);font-weight:600}
 input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);background:var(--ivory);color:var(--ink)}
 #pc{display:block;width:100%;max-width:420px;height:auto;margin:0 auto}
+.lbar{height:8px;border-radius:99px;background:var(--felt2);overflow:hidden;margin:8px 0}
+.lbar i{display:block;height:100%;background:linear-gradient(90deg,var(--brass),var(--gold))}
+.lballs{display:flex;gap:8px;justify-content:center;min-height:46px;margin:8px 0 12px}
+.lb{width:42px;height:42px;display:grid;place-items:center;border-radius:50%;font:600 1.05rem var(--serif);background:radial-gradient(circle at 35% 30%,#fff,var(--ivory) 60%,#cfc6ad);color:var(--ink);box-shadow:0 3px 6px rgba(0,0,0,.45)}
+.lb.n{animation:deal .35s ease-out both}
+.lgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:320px;margin:10px auto}
+.num{aspect-ratio:1;padding:0;border-radius:50%;border:1px solid var(--brass);background:rgba(0,0,0,.2);font-weight:600}
+.num[aria-pressed=true]{background:var(--brass);color:var(--ink)}
+.tk{display:flex;flex-wrap:wrap;align-items:center;gap:8px;justify-content:space-between;padding:8px 12px;margin-top:8px;border:1px solid var(--line);border-radius:8px;background:rgba(0,0,0,.18);font-size:.9rem}
+.tk.win{border-color:var(--gold)}
+.ns{display:flex;gap:4px}
+.ltn{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;font-size:.75rem;background:var(--felt2)}
+.ltn.hit{background:var(--gold);color:var(--ink);font-weight:600}
 .note{color:var(--brass);font-size:.85rem;margin-top:26px;text-align:center}
 </style>
 </head>
@@ -123,6 +136,7 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
       <button class="tab" role="tab" data-t="mines" aria-selected="false"><span class="ic" aria-hidden="true">💣</span><span>Mines</span></button>
       <button class="tab" role="tab" data-t="fw" aria-selected="false"><span class="ic" aria-hidden="true">🎡</span><span>Prize Wheel</span></button>
       <button class="tab" role="tab" data-t="plinko" aria-selected="false"><span class="ic" aria-hidden="true">⚽</span><span>Plinko</span></button>
+      <button class="tab" role="tab" data-t="lotto" aria-selected="false"><span class="ic" aria-hidden="true">🎟️</span><span>Lotto</span></button>
     </div>
   </nav>
   <main class="main">
@@ -213,6 +227,22 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
     <p class="msg" id="plm">Pick a risk level and drop a ball. You can drop several at once.</p>
   </section>
 
+  <section id="lotto" class="table" hidden>
+    <div class="who"><span>Next draw in</span><span class="tot" id="lcd">20s</span></div>
+    <div class="lbar"><i id="lbar" style="width:100%"></i></div>
+    <div class="who" style="margin-top:14px"><span id="ldraw">Last draw</span></div>
+    <div class="lballs" id="lres"></div>
+    <p class="info">Pick 5 of 25. A new draw every 20 seconds.<br>2 hits ×2 · 3 hits ×8 · 4 hits ×75 · 5 hits ×5,000</p>
+    <div class="lgrid" id="lg"></div>
+    <div class="row mid">
+      <button class="ghost" id="lq">Quick pick</button>
+      <button class="ghost" id="lc">Clear</button>
+      <button class="go" id="lbuy">Buy ticket (0/5)</button>
+    </div>
+    <p class="msg" id="lm">Your ticket costs your current bet.</p>
+    <div id="lt"></div>
+  </section>
+
   <p class="note">Play money only. This is for fun, not for real money.</p>
   </main>
 </div></div>
@@ -245,7 +275,7 @@ const canPay = () => bet >= 1 && bal >= bet;
 const why = () => bet < 1 ? "Enter a bet of at least 1." : "Not enough balance. Lower your bet or restart.";
 
 /* Bet chips */
-[[1, "#e6dcc0", "#221c14"], [5, "#8c2331", "#fff"], [10, "#2d5a8a", "#fff"], [25, "#1f6b4c", "#fff"], [50, "#6b3a8a", "#fff"], [100, "#221c14", "#f2ead3"], [250, "#c8a24a", "#221c14"], [500, "#8a6a1f", "#fff"], [1000, "#f0cf7a", "#221c14"]].forEach(([v, c, t]) => {
+[[1, "#e6dcc0", "#221c14"], [5, "#8c2331", "#fff"], [10, "#2d5a8a", "#fff"], [25, "#1f6b4c", "#fff"], [50, "#6b3a8a", "#fff"], [100, "#221c14", "#f2ead3"], [250, "#c8a24a", "#221c14"], [500, "#8a6a1f", "#fff"], [1000, "#f0cf7a", "#221c14"], [10000, "#7a1f5c", "#fff"]].forEach(([v, c, t]) => {
   const b = document.createElement("button");
   b.className = "chip"; b.textContent = v >= 1000 ? v / 1000 + "K" : v; b.style.setProperty("--c", c); b.style.setProperty("--t", t);
   b.setAttribute("aria-pressed", v === bet); b.setAttribute("aria-label", "Bet " + v);
@@ -595,6 +625,85 @@ $("#pdrop").onclick = () => {
   pBalls.push({ p, t: 0, k, stake, risk: pRisk }); say("#plm", "…"); pStart();
 };
 pDraw(performance.now());
+
+/* Lotto */
+const LP = 20000, LPAY = { 2: 2, 3: 8, 4: 75, 5: 5000 };
+let tickets = [], lSel = new Set(), lShown = -1, lHtml = "";
+try {
+  const t = JSON.parse(localStorage.getItem("casino_lotto") || "[]");
+  tickets = (Array.isArray(t) ? t : []).filter(x => x && Array.isArray(x.n) && x.n.length === 5 && Number.isFinite(x.s) && Number.isFinite(x.d));
+} catch (e) { tickets = []; }
+const lSave = () => { try { localStorage.setItem("casino_lotto", JSON.stringify(tickets.slice(0, 18))); } catch (e) {} };
+function lotto(id) {
+  let a = (Math.imul(id, 2654435761) ^ 0x5bd1e995) >>> 0;
+  const r = () => { a = (a + 0x6D2B79F5) >>> 0; let t = a; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; };
+  r(); r(); r();
+  const pool = Array.from({ length: 25 }, (_, i) => i + 1);
+  for (let i = 24; i > 0; i--) { const j = Math.floor(r() * (i + 1)); [pool[i], pool[j]] = [pool[j], pool[i]]; }
+  return pool.slice(0, 5).sort((x, y) => x - y);
+}
+const curDraw = () => Math.floor(Date.now() / LP);
+const idTxt = id => "#" + String(id).slice(-5);
+function lResolve() {
+  const cur = curDraw(); let paid = 0, stakes = 0, n = 0;
+  tickets.forEach(t => {
+    if (t.done || t.d > cur) return;
+    const win = lotto(t.d), h = t.n.filter(x => win.includes(x)).length, w = Math.floor(t.s * (LPAY[h] || 0));
+    t.done = true; t.h = h; t.w = w; paid += w; stakes += t.s; n++;
+  });
+  if (!n) return;
+  bal += paid; showBal(); lSave();
+  if (paid > stakes) flash();
+  say("#lm", paid > stakes ? "Draw complete: you win " + fmt(paid) + "!" : paid > 0 ? "Draw complete: you get back " + fmt(paid) + "." : "Draw complete: no win this time.", paid > stakes);
+}
+function lRender() {
+  const cur = curDraw();
+  if (lShown !== cur) {
+    lShown = cur;
+    $("#ldraw").textContent = "Last draw " + idTxt(cur);
+    $("#lres").innerHTML = lotto(cur).map((n, i) => '<div class="lb n" style="animation-delay:' + i * 90 + 'ms">' + n + "</div>").join("");
+  }
+  const html = tickets.slice(0, 8).map(t => {
+    const win = t.done ? lotto(t.d) : [];
+    const ns = t.n.map(x => '<span class="ltn' + (win.includes(x) ? " hit" : "") + '">' + x + "</span>").join("");
+    const info = t.done ? t.h + (t.h === 1 ? " hit" : " hits") + " · " + (t.w > 0 ? "+" + fmt(t.w) : "no win") + " · " + idTxt(t.d)
+      : "Draw " + idTxt(t.d) + " in " + Math.max(0, Math.ceil((t.d * LP - Date.now()) / 1000)) + "s · bet " + fmt(t.s);
+    return '<div class="tk' + (t.done && t.w > t.s ? " win" : "") + '"><span class="ns">' + ns + "</span><span>" + info + "</span></div>";
+  }).join("");
+  if (html !== lHtml) { lHtml = html; $("#lt").innerHTML = html; }
+}
+function lTick() {
+  lResolve(); lRender();
+  const rem = LP - (Date.now() % LP);
+  $("#lcd").textContent = Math.ceil(rem / 1000) + "s";
+  $("#lbar").style.width = rem / LP * 100 + "%";
+}
+function lSync() {
+  document.querySelectorAll(".num").forEach(b => b.setAttribute("aria-pressed", lSel.has(+b.textContent)));
+  $("#lbuy").textContent = "Buy ticket (" + lSel.size + "/5)";
+}
+$("#lg").innerHTML = Array.from({ length: 25 }, (_, i) => '<button class="num" aria-pressed="false">' + (i + 1) + "</button>").join("");
+$("#lg").onclick = e => {
+  const b = e.target.closest(".num");
+  if (!b) return;
+  const n = +b.textContent;
+  if (lSel.has(n)) lSel.delete(n);
+  else if (lSel.size < 5) lSel.add(n);
+  else return say("#lm", "Only 5 numbers per ticket.");
+  lSync();
+};
+$("#lq").onclick = () => { lSel = new Set(); while (lSel.size < 5) lSel.add(1 + rnd(25)); lSync(); };
+$("#lc").onclick = () => { lSel = new Set(); lSync(); };
+$("#lbuy").onclick = () => {
+  if (lSel.size !== 5) return say("#lm", "Pick exactly 5 numbers.");
+  if (tickets.filter(t => !t.done).length >= 10) return say("#lm", "You can hold up to 10 open tickets.");
+  if (!canPay()) return say("#lm", why());
+  const rem = LP - (Date.now() % LP), d = curDraw() + (rem >= 1500 ? 1 : 2);
+  bal -= bet; showBal();
+  tickets.unshift({ n: [...lSel].sort((a, b) => a - b), s: bet, d, done: false });
+  lSave(); say("#lm", "Ticket bought for draw " + idTxt(d) + ". Good luck!"); lRender();
+};
+lSync(); lTick(); setInterval(lTick, 250);
 
 showBal();
 </script>
