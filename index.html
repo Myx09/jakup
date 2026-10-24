@@ -119,6 +119,22 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
 .ns{display:flex;gap:4px}
 .ltn{width:24px;height:24px;display:grid;place-items:center;border-radius:50%;font-size:.75rem;background:var(--felt2)}
 .ltn.hit{background:var(--gold);color:var(--ink);font-weight:600}
+.pkrow{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:6px}
+.pc{width:84px;height:120px;perspective:700px}
+.pi{position:relative;width:100%;height:100%;transition:transform .6s;transform-style:preserve-3d}
+.pc.up .pi{transform:rotateY(180deg)}
+.pf{position:absolute;inset:0;backface-visibility:hidden;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 4px 10px rgba(0,0,0,.5)}
+.pb{background:repeating-linear-gradient(45deg,var(--wine) 0 6px,#6d1a26 6px 12px);border:3px solid var(--ivory);font-size:1.8rem}
+.pfr{transform:rotateY(180deg);background:linear-gradient(160deg,var(--ivory),#d8cfb5);color:var(--ink);border:2px solid var(--oc)}
+.pfr b{font-size:.78rem}
+.pfr span{font:italic 600 .95rem var(--serif)}
+.pc.rare .pfr{box-shadow:0 0 18px var(--oc),0 4px 10px rgba(0,0,0,.5)}
+.ore{display:block;width:44px;height:44px;clip-path:polygon(50% 0,100% 38%,80% 100%,20% 100%,0 38%);background:linear-gradient(135deg,rgba(255,255,255,.7),var(--oc) 45%,rgba(0,0,0,.35))}
+.coll{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.ci{display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px;border:1px solid var(--line);border-radius:8px;background:rgba(0,0,0,.18);font-size:.8rem}
+.ci .ore{width:30px;height:30px}
+.ci.off{opacity:.45}
+.ci small{color:var(--brass)}
 .note{color:var(--brass);font-size:.85rem;margin-top:26px;text-align:center}
 </style>
 </head>
@@ -137,6 +153,7 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
       <button class="tab" role="tab" data-t="fw" aria-selected="false"><span class="ic" aria-hidden="true">🎡</span><span>Prize Wheel</span></button>
       <button class="tab" role="tab" data-t="plinko" aria-selected="false"><span class="ic" aria-hidden="true">⚽</span><span>Plinko</span></button>
       <button class="tab" role="tab" data-t="lotto" aria-selected="false"><span class="ic" aria-hidden="true">🎟️</span><span>Lotto</span></button>
+      <button class="tab" role="tab" data-t="packs" aria-selected="false"><span class="ic" aria-hidden="true">⛏️</span><span>Pack Opening</span></button>
     </div>
   </nav>
   <main class="main">
@@ -241,6 +258,14 @@ input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-r
     </div>
     <p class="msg" id="lm">Your ticket costs your current bet.</p>
     <div id="lt"></div>
+  </section>
+
+  <section id="packs" class="table" hidden>
+    <div class="pkrow" id="pk"></div>
+    <div class="row mid"><button class="go" id="pkgo">Open pack</button></div>
+    <p class="msg" id="pkm">A pack holds 5 ore cards and costs your current bet.</p>
+    <p class="info">Your collection</p>
+    <div class="coll" id="pkc"></div>
   </section>
 
   <p class="note">Play money only. This is for fun, not for real money.</p>
@@ -704,6 +729,46 @@ $("#lbuy").onclick = () => {
   lSave(); say("#lm", "Ticket bought for draw " + idTxt(d) + ". Good luck!"); lRender();
 };
 lSync(); lTick(); setInterval(lTick, 250);
+
+/* Pack opening */
+const ORES = [
+  { n: "Coal", w: 360, m: .03, c: "#3a3a3a" }, { n: "Copper", w: 250, m: .05, c: "#c8693a" },
+  { n: "Iron", w: 170, m: .09, c: "#9aa5ad" }, { n: "Silver", w: 110, m: .18, c: "#dfe6ea" },
+  { n: "Gold", w: 60, m: .4, c: "#f0cf7a" }, { n: "Emerald", w: 30, m: 1, c: "#2fb36a" },
+  { n: "Diamond", w: 17, m: 2.5, c: "#7fe3f5" }, { n: "Mythril", w: 3, m: 12.5, c: "#b58cff" }
+];
+let own = Array(ORES.length).fill(0), pkBusy = false;
+try {
+  const o = JSON.parse(localStorage.getItem("casino_ores") || "[]");
+  if (Array.isArray(o) && o.length === ORES.length && o.every(Number.isFinite)) own = o;
+} catch (e) {}
+const saveOwn = () => { try { localStorage.setItem("casino_ores", JSON.stringify(own)); } catch (e) {} };
+const fmtv = v => v.toLocaleString("en-US", { maximumFractionDigits: 2 });
+function pull() { let r = rnd(1000), i = 0; while (r >= ORES[i].w) { r -= ORES[i].w; i++; } return i; }
+function pcHtml(o, stake) {
+  return '<div class="pc' + (o.m >= 1 ? " rare" : "") + '" style="--oc:' + o.c + '"><div class="pi"><div class="pf pb">⛏️</div><div class="pf pfr"><i class="ore"></i><b>' + o.n + "</b><span>" + fmtv(stake * o.m) + "</span></div></div></div>";
+}
+function renderColl() {
+  $("#pkc").innerHTML = ORES.map((o, i) => '<div class="ci' + (own[i] ? "" : " off") + '" style="--oc:' + o.c + '"><i class="ore"></i><b>' + o.n + "</b><span>×" + fmt(own[i]) + "</span><small>" + o.m + "× · " + o.w / 10 + "%</small></div>").join("");
+}
+$("#pk").innerHTML = '<div class="pc"><div class="pi"><div class="pf pb">⛏️</div></div></div>'.repeat(5);
+renderColl();
+$("#pkgo").onclick = () => {
+  if (pkBusy) return;
+  if (!canPay()) return say("#pkm", why());
+  const stake = bet; bal -= stake; showBal(); pkBusy = true; say("#pkm", "Opening …");
+  const pulls = Array.from({ length: 5 }, pull);
+  $("#pk").innerHTML = pulls.map(i => pcHtml(ORES[i], stake)).join("");
+  [...document.querySelectorAll("#pk .pc")].forEach((el, k) => setTimeout(() => el.classList.add("up"), 350 + k * 450));
+  setTimeout(() => {
+    pkBusy = false;
+    const total = Math.floor(stake * pulls.reduce((a, i) => a + ORES[i].m, 0) + 1e-9);
+    pulls.forEach(i => own[i]++); saveOwn(); renderColl();
+    bal += total; showBal();
+    if (total > stake) flash();
+    say("#pkm", total > stake ? "Pack worth " + fmt(total) + "! You win " + fmt(total - stake) + "." : total === stake ? "Pack worth " + fmt(total) + ". Bet returned." : "Pack worth " + fmt(total) + ". Better luck with the next one.", total > stake);
+  }, 350 + 5 * 450 + 400);
+};
 
 showBal();
 </script>
