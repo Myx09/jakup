@@ -10,10 +10,10 @@
 *{box-sizing:border-box}
 [hidden]{display:none!important}
 body{margin:0;min-height:100vh;color:var(--ivory);font:400 16px/1.5 Figtree,system-ui,sans-serif;background:radial-gradient(ellipse at 50% 0,#14604a,transparent 70%),repeating-linear-gradient(45deg,rgba(255,255,255,.018) 0 2px,transparent 2px 7px),var(--felt2)}
-.wrap{max-width:660px;margin:0 auto;padding:24px 16px 44px}
+.wrap{max-width:980px;margin:0 auto;padding:24px 16px 44px}
 h1{font:italic 600 2.3rem/1 var(--serif);margin:0;color:var(--gold)}
 .sub{margin:6px 0 0;color:var(--brass);font-size:.9rem}
-.plate{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:22px 0 18px;padding:14px 20px;border:1px solid var(--brass);outline:1px solid var(--line);outline-offset:4px;border-radius:6px;background:linear-gradient(#06201a,var(--felt2));box-shadow:inset 0 2px 12px rgba(0,0,0,.6)}
+.plate{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:0 0 18px;padding:14px 20px;border:1px solid var(--brass);outline:1px solid var(--line);outline-offset:4px;border-radius:6px;background:linear-gradient(#06201a,var(--felt2));box-shadow:inset 0 2px 12px rgba(0,0,0,.6)}
 .plate small{display:block;color:var(--brass)}
 #bal{font:italic 600 3.4rem/1 var(--serif);color:var(--ivory)}
 .best{margin-top:6px;color:var(--brass);font-size:.9rem}
@@ -32,13 +32,26 @@ button:disabled{opacity:.4;cursor:default}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
 .mid{justify-content:center}
 .lbl{color:var(--brass)}
-.chip{--t:#fff;width:58px;height:58px;border:0;padding:0;border-radius:50%;font-weight:600;color:var(--t);background:radial-gradient(circle,var(--c) 0 57%,transparent 58%),repeating-conic-gradient(var(--ivory) 0 18deg,var(--c) 18deg 36deg);box-shadow:0 4px 0 rgba(0,0,0,.45);transition:transform .15s}
+.chip{--t:#fff;width:52px;height:52px;border:0;padding:0;border-radius:50%;font-weight:600;font-size:.8rem;color:var(--t);background:radial-gradient(circle,var(--c) 0 57%,transparent 58%),repeating-conic-gradient(var(--ivory) 0 18deg,var(--c) 18deg 36deg);box-shadow:0 4px 0 rgba(0,0,0,.45);transition:transform .15s}
 .chip[aria-pressed=true]{transform:translateY(-5px);outline:2px solid var(--gold);outline-offset:3px}
 .chip.custom{background:transparent;border:2px dashed var(--brass);color:var(--gold);font-size:.85rem;box-shadow:none}
 #cb{width:108px}
-.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 14px}
-.tab{flex:1 1 auto;background:transparent;border:1px solid var(--brass);border-radius:6px;padding:8px 12px}
-.tab[aria-selected=true]{background:var(--brass);color:var(--ink);font-weight:600}
+.layout{display:grid;grid-template-columns:200px minmax(0,1fr);gap:24px;align-items:start}
+.side{position:sticky;top:16px;padding:18px 12px 12px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(#06201a,var(--felt2));box-shadow:inset 0 0 20px rgba(0,0,0,.5),0 10px 24px rgba(0,0,0,.35)}
+.side h1{padding:0 8px}
+.side .sub{margin:4px 8px 16px}
+.tabs{display:flex;flex-direction:column;gap:4px}
+.tab{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:transparent;border:0;border-radius:10px;padding:7px 10px;transition:background .15s}
+.tab:hover{background:rgba(200,162,74,.14)}
+.ic{flex:none;width:36px;height:36px;display:grid;place-items:center;border-radius:10px;font-size:1.25rem;background:rgba(255,255,255,.07)}
+.tab[aria-selected=true]{background:linear-gradient(var(--brass),#a8863a);color:var(--ink);font-weight:600}
+.tab[aria-selected=true] .ic{background:rgba(255,255,255,.35)}
+@media (max-width:780px){
+.layout{grid-template-columns:1fr;gap:16px}
+.side{position:static;padding:14px 10px 10px}
+.tabs{flex-direction:row;overflow-x:auto;padding-bottom:4px}
+.tab{flex:0 0 auto;width:auto;min-width:78px;flex-direction:column;gap:4px;text-align:center;font-size:.8rem;padding:6px 8px}
+}
 .table{position:relative;border:1px solid var(--line);border-radius:16px;padding:26px 18px;background:radial-gradient(ellipse at 50% 0,rgba(255,255,255,.08),transparent 60%),var(--felt);box-shadow:inset 0 0 70px rgba(0,0,0,.5),0 12px 30px rgba(0,0,0,.4)}
 .table::before{content:"";position:absolute;inset:8px;border:1px solid var(--line);border-radius:10px;pointer-events:none}
 .msg{min-height:1.7em;margin:14px 0 0;font-weight:600;text-align:center}
@@ -90,15 +103,29 @@ select{font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);
 .ptr{position:absolute;top:-8px;left:50%;margin-left:-10px;border:10px solid transparent;border-top:18px solid var(--gold);z-index:2}
 .hub{position:absolute;inset:0;margin:auto;width:34%;aspect-ratio:1;border-radius:50%;display:grid;place-items:center;font:italic 600 2rem var(--serif);border:3px solid var(--brass);background:var(--felt2);z-index:1}
 .hub.red{background:var(--wine)}.hub.black{background:var(--ink)}.hub.green{background:#1f7a44}
-.pick[aria-pressed=true],.dpick[aria-pressed=true]{background:var(--brass);color:var(--ink);font-weight:600}
-input[type=number]{width:76px;font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);background:var(--ivory);color:var(--ink)}
+.pick[aria-pressed=true],.dpick[aria-pressed=true],.kpick[aria-pressed=true]{background:var(--brass);color:var(--ink);font-weight:600}
+input[type=number],input[type=text]{width:76px;font:inherit;padding:8px;border-radius:4px;border:1px solid var(--brass);background:var(--ivory);color:var(--ink)}
+#pc{display:block;width:100%;max-width:420px;height:auto;margin:0 auto}
 .note{color:var(--brass);font-size:.85rem;margin-top:26px;text-align:center}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>jakup</h1>
-  <p class="sub">A little casino for play money.</p>
+<div class="wrap"><div class="layout">
+  <nav class="side">
+    <h1>jakup</h1>
+    <p class="sub">A little casino for play money.</p>
+    <div class="tabs" role="tablist">
+      <button class="tab" role="tab" data-t="slots" aria-selected="true"><span class="ic" aria-hidden="true">🎰</span><span>Slots</span></button>
+      <button class="tab" role="tab" data-t="bj" aria-selected="false"><span class="ic" aria-hidden="true">🃏</span><span>Blackjack</span></button>
+      <button class="tab" role="tab" data-t="rl" aria-selected="false"><span class="ic" aria-hidden="true">🎯</span><span>Roulette</span></button>
+      <button class="tab" role="tab" data-t="dice" aria-selected="false"><span class="ic" aria-hidden="true">🎲</span><span>Dice</span></button>
+      <button class="tab" role="tab" data-t="crash" aria-selected="false"><span class="ic" aria-hidden="true">🚀</span><span>Crash</span></button>
+      <button class="tab" role="tab" data-t="mines" aria-selected="false"><span class="ic" aria-hidden="true">💣</span><span>Mines</span></button>
+      <button class="tab" role="tab" data-t="fw" aria-selected="false"><span class="ic" aria-hidden="true">🎡</span><span>Prize Wheel</span></button>
+      <button class="tab" role="tab" data-t="plinko" aria-selected="false"><span class="ic" aria-hidden="true">⚽</span><span>Plinko</span></button>
+    </div>
+  </nav>
+  <main class="main">
 
   <div class="plate" id="plate">
     <div><small>Balance</small><span id="bal">1,000</span><div class="best">Highscore <b id="hs">1,000</b></div></div>
@@ -106,16 +133,6 @@ input[type=number]{width:76px;font:inherit;padding:8px;border-radius:4px;border:
   </div>
 
   <div class="row" id="chips"><span class="lbl">Bet</span></div>
-
-  <div class="tabs" role="tablist">
-    <button class="tab" role="tab" data-t="slots" aria-selected="true">Slots</button>
-    <button class="tab" role="tab" data-t="bj" aria-selected="false">Blackjack</button>
-    <button class="tab" role="tab" data-t="rl" aria-selected="false">Roulette</button>
-    <button class="tab" role="tab" data-t="dice" aria-selected="false">Dice</button>
-    <button class="tab" role="tab" data-t="crash" aria-selected="false">Crash</button>
-    <button class="tab" role="tab" data-t="mines" aria-selected="false">Mines</button>
-    <button class="tab" role="tab" data-t="fw" aria-selected="false">Prize Wheel</button>
-  </div>
 
   <section id="slots" class="table">
     <div class="machine"><div class="reels"><div class="reel">7</div><div class="reel">7</div><div class="reel">7</div></div></div>
@@ -185,8 +202,20 @@ input[type=number]{width:76px;font:inherit;padding:8px;border-radius:4px;border:
     <p class="msg" id="pm">Spin for up to 5× your bet.</p>
   </section>
 
+  <section id="plinko" class="table" hidden>
+    <canvas id="pc" width="420" height="350" aria-label="Plinko board"></canvas>
+    <div class="row mid">
+      <button class="ghost kpick" data-r="low" aria-pressed="false">Low risk</button>
+      <button class="ghost kpick" data-r="med" aria-pressed="true">Medium risk</button>
+      <button class="ghost kpick" data-r="high" aria-pressed="false">High risk</button>
+    </div>
+    <div class="row mid"><button class="go" id="pdrop">Drop ball</button></div>
+    <p class="msg" id="plm">Pick a risk level and drop a ball. You can drop several at once.</p>
+  </section>
+
   <p class="note">Play money only. This is for fun, not for real money.</p>
-</div>
+  </main>
+</div></div>
 
 <script>
 const $ = s => document.querySelector(s);
@@ -216,9 +245,9 @@ const canPay = () => bet >= 1 && bal >= bet;
 const why = () => bet < 1 ? "Enter a bet of at least 1." : "Not enough balance. Lower your bet or restart.";
 
 /* Bet chips */
-[[10, "#e6dcc0", "#221c14"], [50, "#8c2331", "#fff"], [100, "#1f6b4c", "#fff"], [250, "#c8a24a", "#221c14"]].forEach(([v, c, t]) => {
+[[1, "#e6dcc0", "#221c14"], [5, "#8c2331", "#fff"], [10, "#2d5a8a", "#fff"], [25, "#1f6b4c", "#fff"], [50, "#6b3a8a", "#fff"], [100, "#221c14", "#f2ead3"], [250, "#c8a24a", "#221c14"], [500, "#8a6a1f", "#fff"], [1000, "#f0cf7a", "#221c14"]].forEach(([v, c, t]) => {
   const b = document.createElement("button");
-  b.className = "chip"; b.textContent = v; b.style.setProperty("--c", c); b.style.setProperty("--t", t);
+  b.className = "chip"; b.textContent = v >= 1000 ? v / 1000 + "K" : v; b.style.setProperty("--c", c); b.style.setProperty("--t", t);
   b.setAttribute("aria-pressed", v === bet); b.setAttribute("aria-label", "Bet " + v);
   b.onclick = () => { bet = v; $("#cb").hidden = true; document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === b)); };
   $("#chips").append(b);
@@ -234,7 +263,15 @@ cc.onclick = () => {
   cb.hidden = false; if (!cb.value) cb.value = 25; setCustom(); cb.focus(); cb.select();
 };
 cb.oninput = setCustom;
-$("#chips").append(cc, cb);
+function useCustom(v) {
+  bet = Math.max(0, Math.floor(v)); cb.value = bet || ""; cb.hidden = false;
+  document.querySelectorAll(".chip").forEach(x => x.setAttribute("aria-pressed", x === cc));
+}
+const quick = [["½", () => useCustom(Math.max(1, bet / 2))], ["2×", () => useCustom(Math.max(1, bet * 2))], ["Max", () => useCustom(bal)]].map(([l, f]) => {
+  const q = document.createElement("button");
+  q.className = "ghost"; q.textContent = l; q.onclick = f; return q;
+});
+$("#chips").append(cc, cb, ...quick);
 $("#reset").onclick = () => { bal = 1000; showBal(); };
 
 /* Tabs */
@@ -250,24 +287,24 @@ let spinning = false;
 $("#spin").onclick = () => {
   if (spinning) return;
   if (!canPay()) return say("#sm", why());
-  bal -= bet; showBal(); spinning = true; say("#sm", "…");
+  const stake = bet; bal -= stake; showBal(); spinning = true; say("#sm", "…");
   const reels = [...document.querySelectorAll(".reel")];
   reels.forEach(r => r.classList.remove("win"));
   const res = reels.map(() => SY[rnd(SY.length)]);
   reels.forEach((el, i) => {
     el.classList.add("spin");
     const t = setInterval(() => el.textContent = SY[rnd(SY.length)], 70);
-    setTimeout(() => { clearInterval(t); el.classList.remove("spin"); el.textContent = res[i]; if (i === 2) endSpin(res, reels); }, 700 + i * 450);
+    setTimeout(() => { clearInterval(t); el.classList.remove("spin"); el.textContent = res[i]; if (i === 2) endSpin(res, reels, stake); }, 700 + i * 450);
   });
 };
-function endSpin(r, reels) {
+function endSpin(r, reels, stake) {
   spinning = false;
   let w = 0;
-  if (r[0] === r[1] && r[1] === r[2]) { w = bet * PAY[r[0]]; reels.forEach(x => x.classList.add("win")); }
-  else if (r.filter(x => x === "🍒").length === 2) w = bet;
+  if (r[0] === r[1] && r[1] === r[2]) { w = stake * PAY[r[0]]; reels.forEach(x => x.classList.add("win")); }
+  else if (r.filter(x => x === "🍒").length === 2) w = stake;
   bal += w; showBal();
-  if (w > bet) flash();
-  say("#sm", w > bet ? "You win " + fmt(w) + "!" : w === bet ? "Two cherries: bet returned." : "No luck. Spin again?", w > bet);
+  if (w > stake) flash();
+  say("#sm", w > stake ? "You win " + fmt(w) + "!" : w === stake ? "Two cherries: bet returned." : "No luck. Spin again?", w > stake);
 }
 
 /* Blackjack */
@@ -356,7 +393,7 @@ $("#rgo").onclick = () => {
   const guess = +$("#rn").value;
   if (pick === "num" && !(Number.isInteger(guess) && guess >= 0 && guess <= 36)) return say("#rm", "Enter a whole number from 0 to 36.");
   if (!canPay()) return say("#rm", why());
-  bal -= bet; showBal(); rolling = true; say("#rm", "No more bets …");
+  const stake = bet, pk = pick; bal -= stake; showBal(); rolling = true; say("#rm", "No more bets …");
   const n = rnd(37), hub = $("#hub");
   hub.textContent = "…"; hub.className = "hub";
   turnTo($("#wheel"), WH.indexOf(n));
@@ -364,12 +401,12 @@ $("#rgo").onclick = () => {
   setTimeout(() => {
     rolling = false;
     hub.textContent = n; hub.className = "hub " + col(n);
-    const win = pick === "red" ? col(n) === "red"
-      : pick === "black" ? col(n) === "black"
-      : pick === "even" ? n > 0 && n % 2 === 0
-      : pick === "odd" ? n % 2 === 1
+    const win = pk === "red" ? col(n) === "red"
+      : pk === "black" ? col(n) === "black"
+      : pk === "even" ? n > 0 && n % 2 === 0
+      : pk === "odd" ? n % 2 === 1
       : n === guess;
-    const w = win ? bet * (pick === "num" ? 36 : 2) : 0;
+    const w = win ? stake * (pk === "num" ? 36 : 2) : 0;
     bal += w; showBal();
     if (win) flash();
     say("#rm", win ? "Hit! You win " + fmt(w) + "." : "It’s " + n + ". Bet lost.", win);
@@ -391,14 +428,14 @@ $("#dc").oninput = dInfo; dInfo();
 $("#droll").onclick = () => {
   if (dRolling) return;
   if (!canPay()) return say("#dm", why());
-  const stake = bet; bal -= stake; showBal(); dRolling = true; say("#dm", "Rolling …");
+  const stake = bet, mode = dmode; bal -= stake; showBal(); dRolling = true; say("#dm", "Rolling …");
   const c = +$("#dc").value, r = Math.floor(Math.random() * 10000) / 100, el = $("#dres");
   el.className = "big";
   const t = setInterval(() => el.textContent = (Math.random() * 100).toFixed(2), 60);
   setTimeout(() => {
     clearInterval(t); dRolling = false; el.textContent = r.toFixed(2);
     const mk = $("#dmk"); mk.hidden = false; mk.style.left = r + "%";
-    const win = dmode === "under" ? r < c : r >= 100 - c;
+    const win = mode === "under" ? r < c : r >= 100 - c;
     const w = win ? Math.round(stake * 98 / c) : 0;
     bal += w; showBal(); el.classList.add(win ? "ok" : "bad");
     if (w > stake) flash();
@@ -494,6 +531,70 @@ $("#pgo").onclick = () => {
     say("#pm", w > stake ? "You win " + fmt(w) + "!" : w === stake ? "Bet returned." : w > 0 ? "You get back " + fmt(w) + "." : "Nothing this time.", w > stake);
   }, 4100);
 };
+
+/* Plinko */
+const PR = 12, PWD = 420, PHT = 350, PDX = 28, PDY = 24, PTOP = 30;
+const PT = { low: [5.6, 3.2, 1.6, 1.1, 1, .9, .9], med: [24, 8.2, 3.2, 1.5, 1.1, .7, .5], high: [170, 24, 6, 1.6, .7, .4, .3] };
+let pRisk = "med", pLast = 0, pLoop = false;
+const pMult = r => Array.from({ length: PR + 1 }, (_, k) => PT[r][Math.min(k, PR - k)]);
+const pcv = $("#pc"), pctx = pcv.getContext("2d"), DPR = window.devicePixelRatio || 1;
+pcv.width = PWD * DPR; pcv.height = PHT * DPR; pctx.scale(DPR, DPR);
+const pBalls = [], pHit = {};
+function pPos(b) {
+  const i = Math.max(0, Math.min(Math.floor(b.t), b.p.length - 2)), u = Math.max(0, Math.min(1, b.t - i)), a = b.p[i], d = b.p[i + 1];
+  return { x: a.x + (d.x - a.x) * u, y: a.y + (d.y - a.y) * u - 9 * Math.sin(Math.PI * u) };
+}
+function pDraw(now) {
+  const c = pctx, ms = pMult(pRisk);
+  c.clearRect(0, 0, PWD, PHT);
+  c.fillStyle = "#f2ead3";
+  for (let i = 0; i < PR; i++) for (let j = 0; j < i + 3; j++) {
+    c.beginPath(); c.arc(PWD / 2 + (j - (i + 2) / 2) * PDX, PTOP + i * PDY, 3, 0, 7); c.fill();
+  }
+  const by = PTOP + (PR - 1) * PDY + 18;
+  ms.forEach((m, k) => {
+    const x = PWD / 2 + (k - PR / 2) * PDX, lit = pHit[k] && now - pHit[k] < 600;
+    c.fillStyle = m >= 5 ? "#c8a24a" : m >= 1 ? "#1f6b4c" : "#6d1a26";
+    if (lit) { c.shadowColor = "#f0cf7a"; c.shadowBlur = 16; }
+    c.fillRect(x - PDX / 2 + 1.5, by, PDX - 3, 30);
+    c.shadowBlur = 0;
+    c.fillStyle = m >= 5 ? "#221c14" : "#fff"; c.font = "600 9px Figtree, system-ui, sans-serif"; c.textAlign = "center";
+    c.fillText(m + "×", x, by + 19);
+  });
+  c.fillStyle = "#f0cf7a";
+  pBalls.forEach(b => { const q = pPos(b); c.beginPath(); c.arc(q.x, q.y, 6, 0, 7); c.fill(); });
+}
+function pLand(b, now) {
+  pHit[b.k] = now;
+  const m = pMult(b.risk)[b.k], w = Math.floor(b.stake * m);
+  bal += w; showBal();
+  if (w > b.stake) flash();
+  say("#plm", "Landed on " + m + "×. " + (w > b.stake ? "You win " + fmt(w) + "!" : w === b.stake ? "Bet returned." : "You get back " + fmt(w) + "."), w > b.stake);
+}
+function pTick(now) {
+  const dt = Math.max(0, Math.min(.05, (now - pLast) / 1000)); pLast = now;
+  for (let i = pBalls.length - 1; i >= 0; i--) {
+    const b = pBalls[i]; b.t += dt / .17;
+    if (b.t >= b.p.length - 1) { pBalls.splice(i, 1); pLand(b, now); }
+  }
+  pDraw(now);
+  if (pBalls.length || Object.values(pHit).some(t => now - t < 600)) requestAnimationFrame(pTick); else pLoop = false;
+}
+function pStart() { if (!pLoop) { pLoop = true; pLast = performance.now(); requestAnimationFrame(pTick); } }
+document.querySelectorAll(".kpick").forEach(b => b.onclick = () => {
+  pRisk = b.dataset.r;
+  document.querySelectorAll(".kpick").forEach(x => x.setAttribute("aria-pressed", x === b));
+  pDraw(performance.now());
+});
+$("#pdrop").onclick = () => {
+  if (!canPay()) return say("#plm", why());
+  const stake = bet; bal -= stake; showBal();
+  const p = [{ x: PWD / 2, y: 6 }]; let k = 0;
+  for (let i = 0; i < PR; i++) { p.push({ x: PWD / 2 + (k - i / 2) * PDX, y: PTOP + i * PDY - 9 }); k += rnd(2); }
+  p.push({ x: PWD / 2 + (k - PR / 2) * PDX, y: PTOP + (PR - 1) * PDY + 33 });
+  pBalls.push({ p, t: 0, k, stake, risk: pRisk }); say("#plm", "…"); pStart();
+};
+pDraw(performance.now());
 
 showBal();
 </script>
