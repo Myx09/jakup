@@ -74,7 +74,7 @@ select{font:inherit;padding:4px 8px;border-radius:8px;border:1px solid var(--bra
 </div>
 
 <div id="pkv" hidden>
-  <div class="top"><b>♠ Poker</b><button id="pkx">Back to casino (Esc)</button></div>
+  <div class="top"><b id="pkt">♠ Poker</b><button id="pkx">Back to casino (Esc)</button></div>
   <div id="pkb"></div>
 </div>
 
@@ -134,6 +134,7 @@ fr.onload = () => {
 };
 function openGame(q) {
   if (q.id === "poker") return openPk();
+  if (SHARED.includes(q.id)) return openTb(q);
   me.g = ST.indexOf(q); pend = q.id; $("#ot").textContent = q.ic + " " + q.nm; ov.hidden = false;
   if (!fr.getAttribute("src")) fr.src = "casino.html"; else pickTab();
 }
@@ -286,6 +287,7 @@ function drawSt(q, T) {
   g.fillStyle = "rgba(0,0,0,.35)"; g.beginPath(); g.ellipse(x, y + 36, 46, 10, 0, 0, 7); g.fill();
   DR[q.id](x, y, T);
   txt(q.nm, x, y + q.ly, 13, sel ? "#f0cf7a" : "#f2ead3");
+  if (q.id === "poker" || SHARED.includes(q.id)) txt("👥 shared table", x, y + q.ly + 14, 10, "#c8a24a");
   if (sel) { g.setLineDash([6, 6]); g.strokeStyle = "#f0cf7a"; g.lineWidth = 2; g.beginPath(); g.ellipse(x, y + 8, q.r + 2, q.r - 2, 0, 0, 7); g.stroke(); g.setLineDash([]); }
 }
 
@@ -454,19 +456,20 @@ function pkReset() {
   let n = 0; const id = net && net.id;
   if (mode === "host") { const p = S.seats.find(x => x.id === id); n = p ? p.stack : 0; clearTimeout(S.tm); clearTimeout(S.nx); S = freshS(); }
   else if (pk && id) { const p = pk.seats.find(x => x.id === id); n = p ? p.st : 0; }
-  if (n > 0) addBal(n); pk = null; hole = []; pkUI();
+  if (n > 0) addBal(n); pk = null; hole = []; tbClear(); pkUI();
 }
 function pkDo(a, amt) { const m = { t: "pa", a, amt, n: me.n }; if (mode === "host") pkAct(net.id, m); else if (conns[0] && conns[0].open) conns[0].send(m); }
 function pkSit(amt) { if (me.b < amt) return; addBal(-amt); pkDo("sit", amt); }
-function openPk() { me.g = ST.findIndex(q => q.id === "poker"); $("#pkv").hidden = false; if (mode === "host") pk = pkPub(); pkUI(); }
-function closePk() { $("#pkv").hidden = true; me.g = -1; }
+function openPk() { curG = "poker"; $("#pkt").textContent = "♠ Poker"; me.g = ST.findIndex(q => q.id === "poker"); $("#pkv").hidden = false; if (mode === "host") pk = pkPub(); pkUI(); }
+function closePk() { $("#pkv").hidden = true; me.g = -1; curG = null; }
 $("#pkx").onclick = closePk;
 $("#pkb").onclick = e => {
   const b = e.target.closest("button"); if (!b) return;
+  if (curG !== "poker") return tbClick(b);
   if (b.dataset.sit) pkSit(+b.dataset.sit); else if (b.dataset.a === "raise") pkDo("raise", +$("#pkr").value); else if (b.dataset.a) pkDo(b.dataset.a);
 };
 function pkUI() {
-  if ($("#pkv").hidden) return; const box = $("#pkb");
+  if ($("#pkv").hidden) return; if (curG && curG !== "poker") return tbUI(); const box = $("#pkb");
   if (!net || !net.id || mode === "solo") { box.innerHTML = '<p class="pkm">Poker is played against other players. Host a room or join one with a code (top bar), then sit down here.</p>'; return; }
   const P = pk || { seats: [], board: [], ph: "wait", pot: 0, msg: "Connecting …" }, id = net.id, my = P.seats.find(p => p.id === id);
   const cd = c => '<span class="cd' + (cs(c) === 1 || cs(c) === 2 ? " r" : "") + '">' + RK[cr(c) - 2].replace("T", "10") + SU[cs(c)] + "</span>", bk = '<span class="cd b"></span>';
@@ -483,6 +486,127 @@ function pkUI() {
   box.innerHTML = '<div class="pkm">' + PHN[P.ph] + " · Pot <b>" + fmt(P.pot) + "</b></div><div>" + P.board.map(cd).join("") + '<span class="cd e"></span>'.repeat(5 - P.board.length) + '</div><div class="pkm">' + esc(P.msg) + '</div><div class="pks">' + seats + "</div><div>" + ctl + "</div>";
 }
 
+/* Shared tables: Roulette, Baccarat, Crash, Blackjack. The room host runs each table; every player bets from their own balance */
+const SHARED = ["rl", "bacc", "crash", "bj"], HT = {}, TS = {}; let curG = null;
+const RED = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
+const KL = { red: "Red", black: "Black", even: "Even", odd: "Odd", P: "Player", B: "Banker", T: "Tie", c: "Bet", b: "Bet" };
+const klab = k => KL[k] || (k[0] === "n" ? "Number " + k.slice(1) : k);
+const shuf = () => { const d = Array.from({ length: 52 }, (_, i) => i); for (let i = 51; i > 0; i--) { const j = rnd(i + 1); [d[i], d[j]] = [d[j], d[i]]; } return d; };
+const bvv = c => { const r = c % 13; return r === 12 ? 1 : r >= 8 ? 0 : r + 2; }, btt = h => h.reduce((a, c) => a + bvv(c), 0) % 10;
+const b21 = h => { let t = 0, a = 0; h.forEach(c => { const r = c % 13; if (r === 12) { a++; t += 11; } else t += r >= 8 ? 10 : r + 2; }); while (t > 21 && a) { t -= 10; a--; } return t; };
+const cm = t => Math.max(.9, Math.floor(.9 * Math.exp(.12 * t) * 100) / 100);
+const cdh = c => c < 0 ? '<span class="cd b"></span>' : '<span class="cd' + (cs(c) === 1 || cs(c) === 2 ? " r" : "") + '">' + RK[cr(c) - 2].replace("T", "10") + SU[cs(c)] + "</span>";
+const BIG = t => '<div style="font:italic 600 2.8rem \'Bodoni Moda\',Georgia,serif;color:#f0cf7a;margin:8px">' + t + "</div>";
+const at = (T, ms, f) => T.tms.push(setTimeout(f, ms));
+function bcDeal() {
+  const d = shuf(), P = [d.pop(), d.pop()], B = [d.pop(), d.pop()];
+  if (btt(P) < 8 && btt(B) < 8) {
+    let p3 = null; if (btt(P) <= 5) { p3 = d.pop(); P.push(p3); }
+    const b = btt(B), v = p3 === null ? -1 : bvv(p3);
+    if (p3 === null ? b <= 5 : b <= 2 || (b === 3 && v !== 8) || (b === 4 && v >= 2 && v <= 7) || (b === 5 && v >= 4 && v <= 7) || (b === 6 && v >= 6 && v <= 7)) B.push(d.pop());
+  }
+  return { P, B };
+}
+function tbPub(g) {
+  const T = HT[g]; if (!T) return { ph: "idle", ms: 0, bets: [], hist: [], msg: "" };
+  const o = { ph: T.ph, ms: T.end ? Math.max(0, T.end - Date.now()) : 0, hist: T.hist, msg: T.msg, bets: T.bets.map(b => ({ id: b.id, n: b.n, k: b.k, a: b.a, w: b.w, o: b.out, h: b.h, st: b.st })) };
+  if (T.ph === "res" && (g === "rl" || g === "bacc")) o.res = T.res;
+  if (g === "crash") { o.el = T.t0 ? Date.now() - T.t0 : 0; if (T.ph === "res") o.cp = T.cp; }
+  if (g === "bj") { o.dl = T.ph === "play" ? [T.dl[0], -1] : T.dl; o.turn = T.bets[T.turn] ? T.bets[T.turn].id : null; }
+  return o;
+}
+function tbSend(g, only) {
+  const s = tbPub(g);
+  if (only && only !== net.id) { const c = conns.find(x => x.peer === only); if (c && c.open) c.send({ t: "tb", g, s }); return; }
+  if (!only) conns.forEach(c => c.open && c.send({ t: "tb", g, s }));
+  s.rt = performance.now(); TS[g] = s; if (curG === g) tbUI();
+}
+function tbPay(T, f) { const tot = {}; T.bets.forEach(b => { b.w = Math.floor(f(b)); tot[b.id] = (tot[b.id] || 0) + b.w; }); for (const id in tot) cash(id, tot[id]); }
+function tbReset(g) { const T = HT[g]; if (!T) return; T.ph = "idle"; T.bets = []; T.res = null; T.msg = ""; T.end = 0; T.tms = []; tbSend(g); }
+function tbGo(g) {
+  const T = HT[g]; if (!T.bets.length) return tbReset(g); T.end = 0;
+  if (g === "rl") {
+    const n = rnd(37); T.res = n; T.ph = "spin"; tbSend(g);
+    at(T, 3500, () => { tbPay(T, b => b.k === "red" ? (RED.includes(n) ? 2 : 0) : b.k === "black" ? (n && !RED.includes(n) ? 2 : 0) : b.k === "even" ? (n && n % 2 === 0 ? 2 : 0) : b.k === "odd" ? (n % 2 ? 2 : 0) : +b.k.slice(1) === n ? 36 : 0);
+      T.hist.unshift(String(n)); T.hist.length = Math.min(T.hist.length, 12); T.ph = "res"; T.msg = "Result: " + n + (n ? (RED.includes(n) ? " red" : " black") : " green"); tbSend(g); at(T, 6000, () => tbReset(g)); });
+  } else if (g === "bacc") {
+    T.res = bcDeal(); T.ph = "spin"; tbSend(g);
+    at(T, 2500, () => { const p = btt(T.res.P), b = btt(T.res.B), r = p > b ? "P" : b > p ? "B" : "T";
+      tbPay(T, x => r === "T" ? (x.k === "T" ? 9 : x.k === "T" ? 0 : 1) : x.k === r ? (r === "P" ? 2 : 1.95) : 0);
+      T.hist.unshift(r); T.hist.length = Math.min(T.hist.length, 12); T.ph = "res"; T.msg = (r === "T" ? "Tie" : r === "P" ? "Player wins" : "Banker wins") + " " + p + " – " + b; tbSend(g); at(T, 6000, () => tbReset(g)); });
+  } else if (g === "crash") {
+    T.cp = Math.min(1000, Math.max(1, Math.floor(98 / (1 - Math.random())) / 100)); T.t0 = Date.now(); T.ph = "run"; tbSend(g);
+    at(T, Math.ceil(Math.log(T.cp / .9) / .12 * 1000) + 30, () => { T.bets.forEach(b => { if (!b.out) b.w = 0; }); T.hist.unshift(T.cp.toFixed(2) + "×"); T.hist.length = Math.min(T.hist.length, 12); T.ph = "res"; T.msg = "Crashed at " + T.cp.toFixed(2) + "×"; tbSend(g); at(T, 5000, () => tbReset(g)); });
+  } else if (g === "bj") {
+    T.deck = shuf(); T.dl = [T.deck.pop(), T.deck.pop()]; T.turn = -1; T.ph = "play";
+    T.bets.forEach(b => { b.h = [T.deck.pop(), T.deck.pop()]; b.st = b21(b.h) === 21 ? "bj" : "play"; }); bjNext(T);
+  }
+}
+function bjNext(T) {
+  for (let i = T.turn + 1; i < T.bets.length; i++) if (T.bets[i].st === "play") { T.turn = i; const id = T.bets[i].id; at(T, 30000, () => bjAct(T, id, { a: "stand" })); return tbSend("bj"); }
+  T.turn = -1; while (b21(T.dl) < 17) T.dl.push(T.deck.pop());
+  const d = b21(T.dl), dn = T.dl.length === 2 && d === 21;
+  tbPay(T, b => { const p = b21(b.h); if (p > 21) return 0; if (b.h.length === 2 && p === 21) return dn ? b.a : b.a * 2.5; if (dn) return 0; return d > 21 || p > d ? b.a * 2 : p === d ? b.a : 0; });
+  T.ph = "res"; T.msg = "Dealer has " + (d > 21 ? "bust (" + d + ")" : d); tbSend("bj"); at(T, 7000, () => tbReset("bj"));
+}
+function bjAct(T, id, m) {
+  const s = T.bets[T.turn]; if (T.ph !== "play" || !s || s.id !== id) return;
+  if (m.a === "hit") { s.h.push(T.deck.pop()); const v = b21(s.h); if (v > 21) s.st = "bust"; else if (v === 21) s.st = "stand"; else return tbSend("bj"); }
+  else if (m.a === "stand") s.st = "stand"; else return;
+  bjNext(T);
+}
+function tbAct(id, m) {
+  const g = m.g; if (!SHARED.includes(g)) return;
+  const T = HT[g] || (HT[g] = { ph: "idle", bets: [], hist: [], tms: [], end: 0, msg: "", res: null });
+  if (m.a === "view") return tbSend(g, id);
+  if (m.a === "hit" || m.a === "stand") return g === "bj" && bjAct(T, id, m);
+  if (m.a === "out") { if (g !== "crash" || T.ph !== "run") return; const b = T.bets.find(x => x.id === id); if (!b || b.out) return; const x = cm((Date.now() - T.t0) / 1000); if (x >= T.cp) return; b.out = x; b.w = Math.floor(b.a * x); cash(id, b.w); return tbSend(g); }
+  if (m.a !== "bet") return;
+  const amt = m.amt | 0, k = String(m.k || ""), mine = T.bets.filter(b => b.id === id).length;
+  const kind = g === "rl" ? /^(red|black|even|odd|n([0-9]|[12][0-9]|3[0-6]))$/.test(k) && mine < 8 : g === "bacc" ? /^[PBT]$/.test(k) && mine < 3 : k === (g === "crash" ? "c" : "b") && !mine;
+  if (!((T.ph === "idle" || T.ph === "bet") && amt >= 1 && amt <= 1e6 && kind)) return cash(id, amt);
+  T.bets.push({ id, n: String(m.n || "Guest").slice(0, 12), k, a: amt });
+  if (T.ph === "idle") { T.ph = "bet"; T.end = Date.now() + 15000; at(T, 15000, () => tbGo(g)); }
+  tbSend(g);
+}
+function tbClear() { for (const g in HT) { HT[g].tms.forEach(clearTimeout); delete HT[g]; } for (const k in TS) delete TS[k]; }
+function tbDo(g, a, x) { const m = Object.assign({ t: "ta", g, a, n: me.n }, x || {}); if (mode === "host") tbAct(net.id, m); else if (conns[0] && conns[0].open) conns[0].send(m); }
+function openTb(q) { curG = q.id; $("#pkt").textContent = q.ic + " " + q.nm + " · shared table"; me.g = ST.indexOf(q); $("#pkv").hidden = false; tbDo(q.id, "view"); tbUI(); }
+function tbClick(b) {
+  const d = b.dataset;
+  if (d.bk) {
+    let k = d.bk; if (k === "num") { const n = +$("#tbn").value; if (!Number.isInteger(n) || n < 0 || n > 36) return; k = "n" + n; }
+    const amt = Math.floor(+$("#tba").value) || 0; if (amt < 1 || me.b < amt) return; addBal(-amt); tbDo(curG, "bet", { k, amt });
+  } else if (d.ta) tbDo(curG, d.ta);
+}
+function tbUI() {
+  if ($("#pkv").hidden || !curG || curG === "poker") return;
+  const g = curG, P = TS[g], box = $("#pkb"), ka = $("#tba") ? $("#tba").value : "10", kn = $("#tbn") ? $("#tbn").value : "7";
+  if (!P) { box.innerHTML = '<p class="pkm">Loading table …</p>'; return; }
+  const open = P.ph === "idle" || P.ph === "bet", mine = P.bets.filter(b => b.id === net.id), lim = (g === "crash" || g === "bj") && mine.length;
+  let mid = "";
+  if (g === "rl") mid = P.ph === "spin" ? BIG("🎡 Spinning …") : P.ph === "res" ? BIG(P.res) : "";
+  else if (g === "bacc") mid = P.ph === "spin" ? BIG("Dealing …") : P.ph === "res" ? '<div>Player ' + btt(P.res.P) + "<br>" + P.res.P.map(cdh).join("") + "</div><div>Banker " + btt(P.res.B) + "<br>" + P.res.B.map(cdh).join("") + "</div>" : "";
+  else if (g === "crash") mid = '<div id="cmv" style="font:italic 600 3.4rem \'Bodoni Moda\',Georgia,serif;color:' + (P.ph === "res" ? "#e0525f" : "#f0cf7a") + '">' + (P.ph === "run" ? cm(P.el / 1000 + (performance.now() - P.rt) / 1000).toFixed(2) + "×" : P.ph === "res" ? P.cp.toFixed(2) + "×" : "–") + "</div>";
+  else if (g === "bj" && P.dl) mid = "<div>Dealer " + (P.ph === "res" ? b21(P.dl) : "") + "<br>" + P.dl.map(cdh).join("") + "</div>" + '<div class="pks">' + P.bets.filter(b => b.h).map(b => '<div class="pkp' + (P.turn === b.id ? " t" : "") + (b.st === "bust" ? " f" : "") + '"><b>' + esc(b.n) + (b.id === net.id ? " (you)" : "") + "</b> · " + fmt(b.a) + "<br>" + b.h.map(cdh).join("") + "<br>" + b21(b.h) + (b.st === "bj" ? " · blackjack" : b.st === "bust" ? " · bust" : "") + (b.w !== undefined ? (b.w > 0 ? " · +" + fmt(b.w) : " · lost") : "") + "</div>").join("") + "</div>";
+  let ctl = "";
+  if (open && !lim) {
+    const amt = '<input type="number" id="tba" min="1" value="' + esc(ka) + '" aria-label="Bet amount">';
+    ctl = g === "rl" ? amt + ["red", "black", "even", "odd"].map(k => '<button data-bk="' + k + '">' + klab(k) + " ×2</button>").join("") + '<br><input type="number" id="tbn" min="0" max="36" value="' + esc(kn) + '" aria-label="Number"><button data-bk="num">Number ×36</button>'
+      : g === "bacc" ? amt + '<button data-bk="P">Player ×2</button><button data-bk="B">Banker ×1.95</button><button data-bk="T">Tie ×9</button>'
+      : amt + '<button data-bk="' + (g === "crash" ? "c" : "b") + '">Place bet</button>';
+  } else if (g === "crash" && P.ph === "run" && mine[0] && !mine[0].o) ctl = '<button data-ta="out">Cash out</button>';
+  else if (g === "bj" && P.ph === "play" && P.turn === net.id) ctl = '<button data-ta="hit">Hit</button><button data-ta="stand">Stand</button>';
+  else ctl = '<span class="pkm">' + (lim && open ? "Bet placed. Waiting for the round …" : "Round in progress …") + "</span>";
+  const rows = g === "bj" ? "" : P.bets.map(b => '<div class="pkm">' + esc(b.n) + " · " + klab(b.k) + " · " + fmt(b.a) + (b.o ? " @" + b.o.toFixed(2) + "×" : "") + (b.w !== undefined ? (b.w > 0 ? " → +" + fmt(b.w) : " → lost") : "") + "</div>").join("");
+  box.innerHTML = '<div class="pkm" id="tcd"></div>' + mid + '<div class="pkm">' + esc(P.msg) + "</div><div>" + ctl + "</div>" + rows + '<div class="pkm">' + (P.hist.length ? "History: " + P.hist.map(esc).join(" · ") : "") + "</div>";
+}
+setInterval(() => {
+  const P = curG && TS[curG]; if (!P || $("#pkv").hidden) return; const el = (performance.now() - P.rt) / 1000;
+  const c = $("#tcd"); if (c) c.textContent = P.ph === "idle" ? "Place a bet to start the round" : P.ph === "bet" ? "Bets close in " + Math.max(0, Math.ceil(P.ms / 1000 - el)) + "s" : "";
+  const m = $("#cmv"); if (m && curG === "crash" && P.ph === "run") m.textContent = cm(P.el / 1000 + el).toFixed(2) + "×";
+}, 100);
+
 /* Peer-to-peer (PeerJS: host relays between guests) */
 const PRE = "jakup-casino-";
 let net = null, mode = "solo", conns = [], base = "Not connected", link = "";
@@ -491,7 +615,8 @@ $("#lv").onclick = () => leave();
 function recv(m, from) {
   if (!m) return;
   if (m.t === "pa" && mode === "host" && from) return pkAct(from.peer, m);
-  if (mode === "guest") { if (m.t === "pk") { pk = m.s; return pkUI(); } if (m.t === "pc") { hole = Array.isArray(m.c) ? m.c : []; return pkUI(); } if (m.t === "pcash") return addBal(+m.n || 0); }
+  if (m.t === "ta" && mode === "host" && from) return tbAct(from.peer, m);
+  if (mode === "guest") { if (m.t === "tb") { TS[m.g] = m.s; m.s.rt = performance.now(); if (curG === m.g) tbUI(); return; } if (m.t === "pk") { pk = m.s; return pkUI(); } if (m.t === "pc") { hole = Array.isArray(m.c) ? m.c : []; return pkUI(); } if (m.t === "pcash") return addBal(+m.n || 0); }
   if (m.t !== "s" || m.id === myid) return;
   const p = peers[m.id] || (peers[m.id] = { x: m.x, y: m.y });
   Object.assign(p, { tx: +m.x || 0, ty: +m.y || 0, n: String(m.n || "").slice(0, 12), a: Array.isArray(m.a) ? m.a.slice(0, 5).map(v => v | 0) : [0, 0, 0, 0, 0], f: m.f | 0, m: m.m | 0, b: +m.b || 0, g: m.g | 0, seen: performance.now() });
