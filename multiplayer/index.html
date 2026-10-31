@@ -93,6 +93,7 @@ for (let i = 0; i < 6; i++) OBS.push({ x: 125 + i * 84, y: 640, r: 36, k: "c" })
 OBS.push({ x: 800, y: 860, r: 52, k: "f" });
 for (let i = 0; i < 7; i++) OBS.push({ x: 1290 + i * 38, y: 218, r: 19, k: "b" });
 const COL = ST.concat(OBS);
+const SHARED = ["rl", "bacc", "crash", "bj"];
 
 /* Player */
 const SK = ["#f5d3b3", "#e0ac84", "#b97a50", "#7a4a2c", "#4b2e1e"], HC = ["#2b1a10", "#6b3a1a", "#d9b25a", "#b5382c", "#2a2a2a", "#cfcfcf"], SH = ["#c0392b", "#2d5a8a", "#1f6b4c", "#6b3a8a", "#e0a100", "#222222"], PN = ["#2a2f4a", "#3a3a3a", "#6b5a3a", "#8c2331"];
@@ -487,7 +488,7 @@ function pkUI() {
 }
 
 /* Shared tables: Roulette, Baccarat, Crash, Blackjack. The room host runs each table; every player bets from their own balance */
-const SHARED = ["rl", "bacc", "crash", "bj"], HT = {}, TS = {}; let curG = null;
+const HT = {}, TS = {}; let curG = null;
 const RED = [1, 3, 5, 7, 9, 12, 14, 16, 18, 19, 21, 23, 25, 27, 30, 32, 34, 36];
 const KL = { red: "Red", black: "Black", even: "Even", odd: "Odd", P: "Player", B: "Banker", T: "Tie", c: "Bet", b: "Bet" };
 const klab = k => KL[k] || (k[0] === "n" ? "Number " + k.slice(1) : k);
