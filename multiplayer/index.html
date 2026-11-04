@@ -85,8 +85,8 @@ const fmt = n => Math.round(n).toLocaleString("en-US");
 const cv = $("#cv"), ov = $("#ov"), fr = $("#fr");
 let g = cv.getContext("2d");
 const W = 1600, H = 1040;
-const ST = [["slots", "🎰", "Slots", 170, 230], ["fruit", "🍒", "Fruit Machine", 330, 230], ["crash", "🚀", "Crash", 490, 230], ["mines", "💣", "Mines", 170, 430], ["packs", "⛏️", "Pack Opening", 330, 430], ["lotto", "🎟️", "Lotto", 490, 430], ["bj", "🃏", "Blackjack", 720, 250], ["bacc", "🎴", "Baccarat", 900, 250], ["rl", "🎯", "Roulette", 1080, 250], ["dice", "🎲", "Dice", 740, 520], ["poker", "♠️", "Poker", 960, 520], ["plinko", "⚽", "Plinko", 1330, 520], ["fw", "🎡", "Prize Wheel", 1470, 520]]
-  .map(a => ({ id: a[0], ic: a[1], nm: a[2], x: a[3], y: a[4], r: a[0] === "poker" ? 84 : 54, ly: a[0] === "poker" ? 78 : 54 }));
+const ST = [["slots", "🎰", "Slots", 170, 230], ["fruit", "🍒", "Fruit Machine", 330, 230], ["crash", "🚀", "Crash", 490, 230], ["mines", "💣", "Mines", 170, 430], ["packs", "⛏️", "Pack Opening", 330, 430], ["lotto", "🎟️", "Lotto", 490, 430], ["bj", "🃏", "Blackjack", 720, 250], ["bacc", "🎴", "Baccarat", 900, 250], ["rl", "🎯", "Roulette", 1080, 250], ["dice", "🎲", "Dice", 740, 520], ["poker", "♠️", "Poker", 960, 520], ["plinko", "⚽", "Plinko", 1330, 520], ["fw", "🎡", "Prize Wheel", 1470, 520], ["arcade", "🕹️", "Arcade", 1520, 935]]
+  .map(a => ({ id: a[0], ic: a[1], nm: a[2], x: a[3], y: a[4], r: a[0] === "poker" ? 84 : a[0] === "arcade" ? 40 : 54, ly: a[0] === "poker" ? 78 : 54 }));
 const OBS = [];
 [160, 420, 680].forEach(y => [590, 1220].forEach(x => OBS.push({ x, y, r: 20, k: "p" })));
 for (let i = 0; i < 6; i++) OBS.push({ x: 125 + i * 84, y: 640, r: 36, k: "c" });
@@ -133,6 +133,7 @@ fr.onload = () => {
   } catch (e) { $("#ot").textContent = "Could not load casino.html (use GitHub Pages or a local server)"; }
 };
 function openGame(q) {
+  if (q.id === "arcade") { location.href = "../arcade/"; return; }
   if (q.id === "poker") return openPk();
   me.g = ST.indexOf(q); pend = q.id; $("#ot").textContent = q.ic + " " + q.nm; ov.hidden = false;
   if (!fr.getAttribute("src")) fr.src = "casino.html"; else pickTab();
@@ -324,7 +325,7 @@ function paintMap() {
     else if (o.k === "f") { [[52, "#8a7a5a"], [46, "#c8bfa8"], [40, "#2d7aa8"], [30, "#3d9bd0"], [10, "#c8bfa8"], [5, "#cfeeff"]].forEach(a => ci(o.x, o.y, a[0], a[1])); for (let i = 0; i < 8; i++) ci(o.x + Math.cos(i * .785) * 22, o.y + Math.sin(i * .785) * 22, 3, "#cfeeff"); }
     else if (o.k === "c") { const i = Math.round(o.x / 84) % 6; cab(o.x, o.y, ["#2a0f14", "#10242e", "#1c1030", "#7a1220", "#0f2a4a", "#2b2216"][i], 0, "SLOTS", (a, b) => reels(a, b, i * .7, SYM)); }
   });
-  [[70, 140], [555, 140], [625, 140], [1195, 140], [70, 745], [555, 745], [625, 745], [1195, 745], [1535, 745], [60, 985], [1540, 985], [690, 985], [910, 985], [350, 985], [1250, 985]].forEach(a => plant(...a));
+  [[70, 140], [555, 140], [625, 140], [1195, 140], [70, 745], [555, 745], [625, 745], [1195, 745], [1535, 745], [60, 985], [690, 985], [910, 985], [350, 985], [1250, 985]].forEach(a => plant(...a));
 }
 function buildMap() { const c = document.createElement("canvas"); c.width = W * 2; c.height = H * 2; const old = g; g = c.getContext("2d"); g.scale(2, 2); paintMap(); g = old; return c; }
 DR.poker = (x, y) => {
@@ -333,6 +334,13 @@ DR.poker = (x, y) => {
   g.beginPath(); g.ellipse(x, y, 70, 41, 0, 0, 7); g.fillStyle = "#0f4a36"; g.fill(); g.strokeStyle = "#c8a24a"; g.lineWidth = 2; g.stroke();
   for (let i = 0; i < 5; i++) rr(x - 38 + i * 16, y - 9, 13, 18, 2, "#f2ead3");
   ci(x - 30, y + 26, 4.5, "#8c2331"); ci(x - 30, y + 23, 4.5, "#8c2331"); ci(x + 26, y + 26, 4.5, "#2d5a8a"); ci(x + 26, y + 23, 4.5, "#1f6b4c"); txt("♠", x, y - 26, 12, "#c8a24a");
+};
+DR.arcade = (x, y, T) => {
+  rr(x - 28, y - 50, 56, 92, 6, "#140506", "#c8a24a");
+  const gr = g.createLinearGradient(0, y - 44, 0, y + 38); gr.addColorStop(0, "#5a2a9a"); gr.addColorStop(1, "#ff7aa8");
+  rr(x - 21, y - 43, 42, 80, 4, gr); txt("🕹️", x, y - 4, 24);
+  rr(x - 42, y - 84, 84, 26, 8, "#140506", "#ff7aa8"); g.shadowColor = "#ff7aa8"; g.shadowBlur = 12; txt("ARCADE", x, y - 71, 12, "#ff7aa8"); g.shadowBlur = 0;
+  for (let i = 0; i < 5; i++) ci(x - 20 + i * 10, y - 56, 2.2, (Math.floor(T * 3) + i) % 2 ? "#ff7aa8" : "#6b2a4a");
 };
 let MAP = null, camx = 0, camy = 0;
 function draw() {
