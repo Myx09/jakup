@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>jakup arcade</title>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,600;1,600&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,600;1,600&family=Figtree:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
 <style>
 :root{--brass:#c8a24a;--gold:#f0cf7a;--ivory:#f2ead3;--wine:#8c2331;--felt2:#092b21;--pink:#ff7aa8}
 *{box-sizing:border-box}
 [hidden]{display:none!important}
-body{margin:0;min-height:100vh;color:var(--ivory);font:400 16px/1.5 Figtree,system-ui,sans-serif;background:radial-gradient(ellipse at 50% 0,#3a1a6a,transparent 70%),repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0 2px,transparent 2px 8px),#10081f}
+body{margin:0;min-height:100vh;color:var(--ivory);font:400 16px/1.5 Figtree,system-ui,sans-serif;background:radial-gradient(ellipse at 50% 0,#3a1a6a,transparent 70%),linear-gradient(rgba(255,122,168,.05) 1px,transparent 1px) 0 0/44px 44px,linear-gradient(90deg,rgba(255,122,168,.05) 1px,transparent 1px) 0 0/44px 44px,#10081f}
 #note{position:fixed;top:0;left:0;right:0;z-index:5;padding:3px 8px;text-align:center;font-size:.8rem;font-weight:600;background:var(--wine)}
-.wrap{max-width:760px;margin:0 auto;padding:44px 14px 40px}
+.wrap{max-width:980px;margin:0 auto;padding:44px 14px 40px}
 h1{margin:0;font:italic 600 2.4rem/1 "Bodoni Moda",Georgia,serif;color:var(--pink);text-shadow:0 0 18px var(--pink)}
 .top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
 .pill{padding:6px 14px;border:1px solid var(--brass);border-radius:99px;background:rgba(6,32,26,.92)}
@@ -28,10 +28,25 @@ input{width:90px;padding:8px 12px;border-radius:99px;border:1px solid var(--bras
 .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:18px}
 .gc{display:grid;gap:4px;padding:22px 12px;border-radius:16px;border:2px solid var(--brass);background:linear-gradient(#1b0f33,#10081f);box-shadow:0 8px 20px rgba(0,0,0,.4)}
 .gc span{font-size:3rem}.gc b{font:italic 600 1.4rem "Bodoni Moda",Georgia,serif;color:var(--gold)}.gc small{color:var(--brass)}
-.gc:hover{transform:translateY(-3px);border-color:var(--pink)}
+.gc{transition:transform .15s,box-shadow .15s}.gc:hover{transform:translateY(-4px);border-color:var(--pink);box-shadow:0 0 26px rgba(255,122,168,.45)}
 .msg{min-height:1.6em;margin:8px 0;text-align:center;font-weight:600;color:var(--gold)}
 .hint{text-align:center;color:var(--brass);font-size:.9rem}
-canvas{display:block;margin:10px auto;max-width:100%;height:auto;border:2px solid var(--brass);border-radius:10px;background:#000;touch-action:none}
+canvas{display:block;margin:12px auto;max-width:100%;border:3px solid var(--pink);border-radius:14px;background:#000;box-shadow:0 0 0 5px #1b0f33,0 0 38px rgba(255,122,168,.35);touch-action:none}
+.hero{text-align:center;padding:20px 14px;margin:12px 0 20px;border:2px solid var(--pink);border-radius:20px;background:linear-gradient(#1b0f33,#10081f);box-shadow:0 0 34px rgba(255,122,168,.28),inset 0 0 34px rgba(0,0,0,.45)}
+.hero p{margin:8px 0 0;color:var(--ivory)}
+.marq{font:italic 600 1.15rem "Bodoni Moda",Georgia,serif;letter-spacing:.3em;color:var(--gold);text-shadow:0 0 12px var(--gold);animation:blink 1.6s steps(2) infinite}
+@keyframes blink{50%{opacity:.45}}
+@media (prefers-reduced-motion:reduce){.marq{animation:none}.gc{transition:none}}
+.steps{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px}
+.steps div{padding:6px 14px;border-radius:99px;background:rgba(255,255,255,.07);font-size:.9rem}
+.steps span{display:inline-grid;place-items:center;width:22px;height:22px;margin-right:8px;border-radius:50%;background:var(--pink);color:#10081f;font-weight:700}
+.cards{grid-template-columns:repeat(auto-fill,minmax(200px,1fr))}
+.gc{position:relative;justify-items:center;text-align:center;padding:20px 12px 16px;background:linear-gradient(160deg,var(--c1),var(--c2));border-color:rgba(255,255,255,.35)}
+.gc .ic{font-style:normal;font-size:2.5rem;width:78px;height:78px;display:grid;place-items:center;margin-bottom:6px;border-radius:50%;background:rgba(255,255,255,.14);box-shadow:0 0 26px rgba(255,255,255,.25),inset 0 0 14px rgba(255,255,255,.18)}
+.gc b{color:#fff;font-size:1.3rem}.gc small{color:rgba(255,255,255,.8)}
+.gc em{font-style:normal;margin-top:6px;padding:2px 10px;border-radius:99px;background:rgba(0,0,0,.35);font-size:.78rem;color:var(--gold)}
+.gc u{text-decoration:none;margin-top:2px;font-size:.8rem;color:#fff}
+#inv{gap:8px}#lnk{width:min(430px,100%);border-radius:10px;font-size:.9rem}
 </style>
 </head>
 <body>
@@ -44,7 +59,11 @@ canvas{display:block;margin:10px auto;max-width:100%;height:auto;border:2px soli
   <p class="hint"><a href="../multiplayer/">← Casino (multiplayer)</a> · <a href="../">Casino (singleplayer)</a></p>
 
   <section id="menu">
-    <p class="hint">Pick a game. Play alone, or play online with a friend and bet your casino play money: the winner takes the loser’s stake.</p>
+    <div class="hero">
+      <div class="marq">★ INSERT COIN ★</div>
+      <p>Play alone, or challenge a friend online and bet your casino play money. <b>The winner takes the stake.</b></p>
+      <div class="steps"><div><span>1</span>Pick a game</div><div><span>2</span>Solo, or host / join online</div><div><span>3</span>Winner takes the stake</div></div>
+    </div>
     <div class="cards"></div>
   </section>
 
@@ -60,7 +79,8 @@ canvas{display:block;margin:10px auto;max-width:100%;height:auto;border:2px soli
       </div>
     </div>
     <p class="msg" id="st"></p>
-    <div class="row"><button id="cp" hidden>Copy invite link</button><button class="go" id="acc" hidden></button><button class="go" id="again" hidden>Play again</button></div>
+    <div class="row" id="inv" hidden><span class="pill">Room code <b id="rc"></b></span><input id="lnk" readonly aria-label="Invite link"><button id="cp">Copy link</button></div>
+    <div class="row"><button class="go" id="acc" hidden></button><button class="go" id="again" hidden>Play again</button></div>
     <canvas id="cv" width="360" height="560" aria-label="Game"></canvas>
     <p class="hint" id="help"></p>
   </section>
@@ -83,40 +103,58 @@ function addBal(d) {
 addEventListener("storage", show); addEventListener("focus", show); show();
 
 const GN = {
-  flappy: ["🐦", "Flappy Bird", "Tap, click or press Space to flap. Online, both players get the same pipes and the higher score wins."],
-  ttt: ["❌", "Tic Tac Toe", "Click a square. Three in a row wins. Online, who starts is random."],
-  pong: ["🏓", "Pong", "Move with W/S or the arrow keys, or drag on the screen. First to 5 points wins."]
+  flappy: ["🐦", "Flappy Bird", "Tap, click or press Space to flap. Online, both players get the same pipes and the higher score wins.", "Dodge the neon pipes", "#3a1a7a", "#a0306a", "Solo · 2 online", "arc_flappy"],
+  snake: ["🐍", "Snake", "Arrow keys, WASD or swipe. Eat apples, avoid the walls and yourself. Online, both get the same apples and the higher score wins.", "Eat, grow, survive", "#0f4a36", "#2a7a3a", "Solo · 2 online", "arc_snake"],
+  breakout: ["🧱", "Breakout", "Move the paddle with the mouse, your finger or the arrow keys. Smash every brick. Online, both get the same bricks and the higher score wins.", "Smash every brick", "#5a2a0a", "#a02a3a", "Solo · 2 online", "arc_breakout"],
+  pong: ["🏓", "Pong", "Move with W/S or the arrow keys, or drag on the screen. First to 5 points wins.", "The retro classic", "#0b2a4a", "#2a2a6a", "Solo · 2 online", null],
+  ttt: ["❌", "Tic Tac Toe", "Click a square. Three in a row wins. Online, who starts is random.", "Three in a row wins", "#143a6a", "#1a7a8a", "Solo · 2 online", null],
+  c4: ["🔴", "Connect Four", "Click a column to drop a disc. Four in a row wins. Online, who starts is random.", "Drop four in a row", "#10306a", "#6a1a6a", "Solo · 2 online", null]
 };
-$("#menu .cards").innerHTML = Object.keys(GN).map(g => '<button class="gc" data-g="' + g + '"><span>' + GN[g][0] + "</span><b>" + GN[g][1] + "</b><small>Solo or online</small></button>").join("");
+function renderMenu() {
+  $("#menu .cards").innerHTML = Object.keys(GN).map(g => {
+    const a = GN[g]; let b = ""; try { const v = a[7] && +localStorage.getItem(a[7]); if (v) b = "<u>Best: " + v + "</u>"; } catch (e) {}
+    return '<button class="gc" data-g="' + g + '" style="--c1:' + a[4] + ";--c2:" + a[5] + '"><i class="ic">' + a[0] + "</i><b>" + a[1] + "</b><small>" + a[3] + "</small><em>" + a[6] + "</em>" + b + "</button>";
+  }).join("");
+}
+renderMenu();
 $("#menu").onclick = e => { const b = e.target.closest("[data-g]"); if (b) openGame(b.dataset.g); };
 
 let G = null, net = null, conn = null, role = "solo", stake = 0, escrow = 0, on = false, cur = null, raf = 0, last = 0, link = "";
 const st = t => $("#st").textContent = t;
-const SIZE = { flappy: [360, 560], ttt: [420, 420], pong: [640, 400] };
+const SIZE = { flappy: [360, 560], ttt: [420, 480], pong: [640, 400], snake: [400, 450], breakout: [400, 520], c4: [448, 500] };
+let LW = 360, LH = 560, SC = 1;
+function fit() {
+  const [w, h] = SIZE[G], d = Math.min(devicePixelRatio || 1, 2), aw = Math.min($("#gp").clientWidth || innerWidth, 920), ah = Math.max(280, innerHeight - 250), k = Math.min(aw / w, ah / h);
+  const cw = Math.max(200, Math.floor(w * k)), ch = Math.floor(cw * h / w); LW = w; LH = h;
+  cv.style.width = cw + "px"; cv.style.height = ch + "px"; cv.width = Math.round(cw * d); cv.height = Math.round(ch * d); SC = cv.width / w;
+}
+function idle() {
+  const g = ctx; g.setTransform(SC, 0, 0, SC, 0, 0); const gr = g.createLinearGradient(0, 0, 0, LH); gr.addColorStop(0, "#1b1038"); gr.addColorStop(1, "#0a0614");
+  g.fillStyle = gr; g.fillRect(0, 0, LW, LH); g.textAlign = "center"; g.fillStyle = "#f0cf7a"; g.font = "64px sans-serif"; g.fillText(GN[G][0], LW / 2, LH / 2 - 10);
+  g.font = "700 26px Figtree,sans-serif"; g.fillText(GN[G][1], LW / 2, LH / 2 + 40); g.fillStyle = "#c8a24a"; g.font = "16px Figtree,sans-serif"; g.fillText("Choose solo or online above", LW / 2, LH / 2 + 72);
+}
 
 function setGameUI() {
   G in GN || (G = "pong");
   $("#gt").textContent = GN[G][0] + " " + GN[G][1]; $("#help").textContent = GN[G][2];
-  cv.width = SIZE[G][0]; cv.height = SIZE[G][1];
-  ctx.fillStyle = "#0a0614"; ctx.fillRect(0, 0, cv.width, cv.height);
-  ctx.fillStyle = "#f0cf7a"; ctx.textAlign = "center"; ctx.font = "600 28px Figtree,sans-serif"; ctx.fillText(GN[G][0] + " " + GN[G][1], cv.width / 2, cv.height / 2);
+  fit(); idle();
 }
 function openGame(g) {
   stopMatch(); G = g; $("#menu").hidden = true; $("#gp").hidden = false; $("#setup").hidden = role !== "solo";
   $("#acc").hidden = $("#again").hidden = true; st(""); setGameUI();
 }
 function stopMatch() { cancelAnimationFrame(raf); cur = null; on = false; }
-function closeNet() { try { net && net.destroy(); } catch (e) {} net = conn = null; role = "solo"; escrow = 0; $("#cp").hidden = true; }
-$("#bk").onclick = () => { stopMatch(); closeNet(); $("#gp").hidden = true; $("#menu").hidden = false; };
+function closeNet() { try { net && net.destroy(); } catch (e) {} net = conn = null; role = "solo"; escrow = 0; $("#inv").hidden = true; }
+$("#bk").onclick = () => { stopMatch(); closeNet(); $("#gp").hidden = true; $("#menu").hidden = false; renderMenu(); };
 
 /* Match flow */
 function begin(seed, first) {
   setGameUI(); $("#setup").hidden = true; $("#acc").hidden = $("#again").hidden = true; st(""); on = true;
   const o = { seed, first };
-  cur = G === "flappy" ? Flappy(o) : G === "pong" ? Pong(o) : TTT(o);
+  cur = MK[G](o);
   last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
 }
-function loop(t) { const dt = Math.min(.05, (t - last) / 1000); last = t; if (!cur) return; cur.update(dt); cur.draw(); raf = requestAnimationFrame(loop); }
+function loop(t) { const dt = Math.min(.05, (t - last) / 1000); last = t; if (!cur) return; cur.update(dt); ctx.setTransform(SC, 0, 0, SC, 0, 0); cur.draw(); raf = requestAnimationFrame(loop); }
 function finish(res, msg) {
   if (!on) return; on = false;
   if (escrow) {
@@ -134,7 +172,12 @@ $("#acc").onclick = () => {
   if (stake > bal()) return st("You don’t have enough chips for that stake.");
   addBal(-stake); escrow = stake; $("#acc").hidden = true; conn && conn.send({ t: "ok" }); st("Waiting for the host to start …");
 };
-$("#cp").onclick = () => navigator.clipboard && navigator.clipboard.writeText(link).then(() => st("Invite link copied!"), () => {});
+$("#lnk").onclick = () => $("#lnk").select();
+$("#cp").onclick = () => {
+  const ok = () => { $("#cp").textContent = "Copied!"; setTimeout(() => $("#cp").textContent = "Copy link", 1500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(link).then(ok, () => { $("#lnk").select(); document.execCommand("copy") && ok(); });
+  else { $("#lnk").select(); document.execCommand("copy") && ok(); }
+};
 
 /* Online (PeerJS): one host, one guest */
 const PRE = "jakup-arc-";
@@ -150,7 +193,7 @@ function host() {
   stake = Math.max(0, Math.floor(+$("#stk").value) || 0);
   if (stake > bal()) return st("You don’t have enough chips for that stake.");
   const code = Math.random().toString(36).slice(2, 6).toUpperCase(); role = "host"; st("Opening room …"); net = new Peer(PRE + code);
-  net.on("open", () => { link = location.origin + location.pathname + "?room=" + code + "&g=" + G; $("#setup").hidden = true; $("#cp").hidden = false; st("Room " + code + ": waiting for a friend. Share the code or the invite link."); });
+  net.on("open", () => { link = location.origin + location.pathname + "?room=" + code + "&g=" + G; $("#setup").hidden = true; $("#rc").textContent = code; $("#lnk").value = link; $("#inv").hidden = false; st("Room open: waiting for a friend. Send them the code or the link below."); });
   net.on("connection", c => { if (conn) { c.close(); return; } wire(c); if (c.open) offer(); else c.on("open", offer); });
   net.on("error", e => { closeNet(); $("#setup").hidden = false; st("Error: " + e.type); });
 }
@@ -183,28 +226,33 @@ function onMsg(m) {
 }
 
 /* Input */
-const pt = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; };
+const pt = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * LW / r.width, (e.clientY - r.top) * LH / r.height]; };
 cv.onpointerdown = e => { if (cur && cur.down) cur.down(...pt(e)); };
 cv.onpointermove = e => { if (cur && cur.move) cur.move(...pt(e)); };
+cv.onpointerup = cv.onpointercancel = () => { if (cur && cur.up) cur.up(); };
 addEventListener("keydown", e => {
   if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName) || !cur || !cur.key) return;
   if ([" ", "ArrowUp", "ArrowDown"].includes(e.key)) e.preventDefault(); cur.key(e.key, true);
 });
 addEventListener("keyup", e => cur && cur.key && cur.key(e.key, false));
 
+addEventListener("resize", () => { if (G && !$("#gp").hidden) { fit(); if (!cur) idle(); } });
+const roundR = (g, x, y, w, h, r) => { g.beginPath(); g.roundRect(x, y, w, h, r); };
+
 /* Flappy Bird: fixed time step and seeded pipes, so online players get identical runs */
 function Flappy(o) {
   const W = 360, H = 560, GY = 500, GAP = 140, SP = 210, PW = 54, VX = 120, BX = 90, online = role !== "solo";
-  let y = H / 2 - 30, v = 0, dist = 0, dead = false, go = !online, cd = online ? 3 : 0, acc = 0, sent = -1, oppS = 0, oppFin = null, myFin = null, t = 0;
+  let y = H / 2 - 30, v = 0, dist = 0, dead = false, go = !online, cd = online ? 3 : 0, acc = 0, sent = -1, oppS = 0, oppFin = null, myFin = null, t = 0, fl = 0, dead0 = 0, shake = 0, P = [];
   const best0 = (() => { try { return +localStorage.getItem("arc_flappy") || 0; } catch (e) { return 0; } })();
   const pr = i => { let h = Math.imul(o.seed ^ Math.imul(i + 1, 0x9E3779B1), 0x85EBCA6B); h ^= h >>> 13; h = Math.imul(h, 0xC2B2AE35); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
   const top = i => 60 + pr(i) * (GY - GAP - 120), score = () => dist < 376 ? 0 : Math.floor((dist - 376) / SP) + 1;
+  const puff = (n, c, burst) => { for (let i = 0; i < n; i++) { const a = Math.random() * 6.28; P.push(burst ? { x: BX, y, vx: Math.cos(a) * 140, vy: Math.sin(a) * 140, l: .7, c } : { x: BX - 10, y: y + 6, vx: -40 - Math.random() * 70, vy: (Math.random() - .3) * 80, l: .45, c }); } };
   function resolve() {
     if (myFin === null || oppFin === null) return;
     finish(myFin > oppFin ? "win" : myFin < oppFin ? "lose" : "draw", "You scored " + myFin + ", your opponent " + oppFin + ".");
   }
   function die() {
-    dead = true; v = -200; myFin = score();
+    dead = true; v = -200; myFin = score(); shake = .4; puff(16, "#ffd23a", true);
     if (online) { conn && conn.send({ t: "fin", s: myFin }); st("You crashed with " + myFin + ". Waiting for your opponent …"); resolve(); }
     else { let b = best0; if (myFin > b) { b = myFin; try { localStorage.setItem("arc_flappy", b); } catch (e) {} } on = false; st("Game over. Score " + myFin + ", best " + b + "."); $("#again").hidden = false; }
   }
@@ -213,15 +261,22 @@ function Flappy(o) {
     v += 1500 * d; y += v * d;
     if (dead) { if (y > GY - 12) { y = GY - 12; v = 0; } return; }
     dist += VX * d; if (y < 12) { y = 12; v = 0; } if (y > GY - 12) { y = GY - 12; return die(); }
-    for (let i = Math.max(0, Math.floor((dist - 400 - PW) / SP)); i < Math.max(0, Math.floor((dist - 400 - PW) / SP)) + 4; i++) {
-      const px = 400 + i * SP - dist;
-      if (px < BX + 12 && px + PW > BX - 12 && (y - 12 < top(i) || y + 12 > top(i) + GAP)) return die();
-    }
+    const i0 = Math.max(0, Math.floor((dist - 400 - PW) / SP));
+    for (let i = i0; i < i0 + 4; i++) { const px = 400 + i * SP - dist; if (px < BX + 12 && px + PW > BX - 12 && (y - 12 < top(i) || y + 12 > top(i) + GAP)) return die(); }
   }
-  function flap() { if (dead || cd > 0) return; go = true; v = -420; }
+  function flap() { if (dead || cd > 0) return; go = true; v = -420; fl = .3; puff(3, "#fff"); }
+  const city = (g, sp, col, base, hMin, hVar, lit) => {
+    const off = dist * sp, cw = 46;
+    for (let i = Math.floor(off / cw); i < Math.floor((off + W) / cw) + 2; i++) {
+      const r = ((i * 7919) % 97) / 97, h = hMin + r * hVar, x = i * cw - off; g.fillStyle = col; g.fillRect(x, base - h, cw - 4, h);
+      if (lit) { g.fillStyle = "rgba(255,225,140,.6)"; for (let a = 0; a < 3; a++) for (let b = 0; b < Math.floor((h - 12) / 14); b++) if ((i * 31 + a * 7 + b * 13) % 5 < 2) g.fillRect(x + 6 + a * 12, base - h + 8 + b * 14, 5, 7); }
+    }
+  };
   return {
     update(dt) {
-      t += dt; if (cd > 0) { cd -= dt; if (cd <= 0) { cd = 0; go = true; } }
+      t += dt; fl = Math.max(0, fl - dt); shake = Math.max(0, shake - dt); if (dead) dead0 += dt;
+      P.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.l -= dt; }); P = P.filter(p => p.l > 0);
+      if (cd > 0) { cd -= dt; if (cd <= 0) { cd = 0; go = true; } }
       if (!go) y = H / 2 - 30 + Math.sin(t * 5) * 6;
       acc += dt; while (acc >= 1 / 120) { acc -= 1 / 120; step(1 / 120); }
       if (online && !dead && score() !== sent) { sent = score(); conn && conn.send({ t: "sc", s: sent }); }
@@ -229,27 +284,43 @@ function Flappy(o) {
     down: flap, key(k, d) { if (d && (k === " " || k === "ArrowUp")) flap(); },
     net(m) { if (m.t === "sc") oppS = m.s | 0; if (m.t === "fin") { oppFin = m.s | 0; oppS = oppFin; resolve(); } },
     draw() {
-      const g = ctx, sky = g.createLinearGradient(0, 0, 0, GY); sky.addColorStop(0, "#1b1038"); sky.addColorStop(1, "#5a3a8a");
-      g.fillStyle = sky; g.fillRect(0, 0, W, H);
-      for (let i = Math.max(0, Math.floor((dist - 400 - PW) / SP)); i < Math.floor((dist + W - 400) / SP) + 2; i++) {
-        const px = 400 + i * SP - dist, tp = top(i);
-        g.fillStyle = "#3fae5a"; g.strokeStyle = "#1f6b3a"; g.lineWidth = 3;
-        g.fillRect(px, 0, PW, tp); g.strokeRect(px, 0, PW, tp); g.fillRect(px, tp + GAP, PW, GY - tp - GAP); g.strokeRect(px, tp + GAP, PW, GY - tp - GAP);
-        g.fillStyle = "#56c873"; g.fillRect(px - 4, tp - 20, PW + 8, 20); g.strokeRect(px - 4, tp - 20, PW + 8, 20); g.fillRect(px - 4, tp + GAP, PW + 8, 20); g.strokeRect(px - 4, tp + GAP, PW + 8, 20);
+      const g = ctx; g.save(); if (shake > 0) g.translate((Math.random() - .5) * shake * 22, (Math.random() - .5) * shake * 22);
+      const sky = g.createLinearGradient(0, 0, 0, GY); sky.addColorStop(0, "#150a33"); sky.addColorStop(.55, "#5a2a8a"); sky.addColorStop(1, "#ff8ab0");
+      g.fillStyle = sky; g.fillRect(-30, -30, W + 60, H + 60);
+      g.fillStyle = "#fff"; for (let i = 0; i < 40; i++) { g.globalAlpha = .35 + .65 * Math.abs(Math.sin(t * 2 + i)); g.fillRect((i * 97) % W, (i * 53) % 250, 2, 2); } g.globalAlpha = 1;
+      g.fillStyle = "#fff3c8"; g.beginPath(); g.arc(285, 95, 28, 0, 7); g.fill(); g.fillStyle = "#e6d9a2"; g.beginPath(); g.arc(277, 88, 6, 0, 7); g.arc(294, 103, 4, 0, 7); g.fill();
+      city(g, .15, "#3b2068", GY - 25, 70, 60, false); city(g, .4, "#22103f", GY, 55, 90, true);
+      const pg = g.createLinearGradient(0, 0, PW, 0); pg.addColorStop(0, "#278a43"); pg.addColorStop(.3, "#86eb9a"); pg.addColorStop(.7, "#3fae5a"); pg.addColorStop(1, "#1d6e36");
+      const i0 = Math.max(0, Math.floor((dist - 400 - PW) / SP));
+      for (let i = i0; i < Math.floor((dist + W - 400) / SP) + 2; i++) {
+        const tp = top(i); g.save(); g.translate(400 + i * SP - dist, 0); g.fillStyle = pg; g.strokeStyle = "#13492a"; g.lineWidth = 3;
+        g.fillRect(0, -10, PW, tp - 12); g.strokeRect(0, -10, PW, tp - 12); g.fillRect(0, tp + GAP + 22, PW, GY - tp - GAP - 22); g.strokeRect(0, tp + GAP + 22, PW, GY - tp - GAP - 22);
+        g.fillRect(-5, tp - 22, PW + 10, 22); g.strokeRect(-5, tp - 22, PW + 10, 22); g.fillRect(-5, tp + GAP, PW + 10, 22); g.strokeRect(-5, tp + GAP, PW + 10, 22); g.restore();
       }
-      g.fillStyle = "#c8a24a"; g.fillRect(0, GY, W, H - GY); g.fillStyle = "#8a6a1f";
-      for (let x = -((dist * 1) % 40); x < W; x += 40) g.fillRect(x, GY, 20, 10);
-      g.save(); g.translate(BX, y); g.rotate(clamp(v / 700, -.5, 1.1));
-      g.fillStyle = "#f0cf7a"; g.beginPath(); g.arc(0, 0, 13, 0, 7); g.fill(); g.strokeStyle = "#8a6a1f"; g.lineWidth = 2; g.stroke();
-      g.fillStyle = "#fff"; g.beginPath(); g.arc(5, -4, 4.5, 0, 7); g.fill(); g.fillStyle = "#222"; g.beginPath(); g.arc(6.5, -4, 2, 0, 7); g.fill();
-      g.fillStyle = "#e0525f"; g.beginPath(); g.moveTo(10, 1); g.lineTo(21, 4); g.lineTo(10, 8); g.fill(); g.restore();
-      g.textAlign = "center"; g.fillStyle = "#fff"; g.strokeStyle = "#000"; g.lineWidth = 4; g.font = "700 44px Figtree,sans-serif";
-      g.strokeText(score(), W / 2, 60); g.fillText(score(), W / 2, 60);
-      g.font = "600 15px Figtree,sans-serif"; g.lineWidth = 3;
-      const sub = online ? "Opponent: " + oppS : "Best: " + Math.max(best0, myFin || 0);
-      g.strokeText(sub, W / 2, 86); g.fillText(sub, W / 2, 86);
-      if (cd > 0) { g.font = "700 64px Figtree,sans-serif"; g.strokeText(Math.ceil(cd), W / 2, 240); g.fillText(Math.ceil(cd), W / 2, 240); }
-      else if (!go) { g.font = "600 18px Figtree,sans-serif"; g.strokeText("Tap or press Space to start", W / 2, 240); g.fillText("Tap or press Space to start", W / 2, 240); }
+      g.fillStyle = "#6b3a1a"; g.fillRect(-30, GY, W + 60, H - GY + 30); g.fillStyle = "#4fbf5a"; g.fillRect(-30, GY, W + 60, 12); g.fillStyle = "#2f8a3a";
+      for (let x = -(dist % 24) - 24; x < W + 24; x += 24) { g.beginPath(); g.moveTo(x, GY + 12); g.lineTo(x + 12, GY + 1); g.lineTo(x + 24, GY + 12); g.fill(); }
+      g.fillStyle = "#7d4a22"; for (let x = -(dist % 40) - 40; x < W + 40; x += 40) g.fillRect(x, GY + 26, 20, 6);
+      P.forEach(p => { g.globalAlpha = clamp(p.l * 2, 0, 1); g.fillStyle = p.c; g.beginPath(); g.arc(p.x, p.y, 3, 0, 7); g.fill(); }); g.globalAlpha = 1;
+      g.save(); g.translate(BX, y); g.rotate(clamp(v / 700, -.5, 1.1)); g.lineWidth = 2; g.strokeStyle = "#7a4a00";
+      g.fillStyle = "#e0a100"; g.beginPath(); g.moveTo(-10, 0); g.lineTo(-23, -7); g.lineTo(-23, 7); g.fill();
+      const bg = g.createRadialGradient(-4, -6, 2, 0, 0, 17); bg.addColorStop(0, "#fff3a8"); bg.addColorStop(1, "#f0a800"); g.fillStyle = bg; g.beginPath(); g.ellipse(0, 0, 16, 13, 0, 0, 7); g.fill(); g.stroke();
+      g.save(); g.translate(-4, 3); g.rotate(fl > 0 || !go ? Math.sin(t * 28) * .7 : .25); g.fillStyle = "#fff"; g.beginPath(); g.ellipse(-3, 0, 9, 5, 0, 0, 7); g.fill(); g.stroke(); g.restore();
+      g.fillStyle = "#fff"; g.beginPath(); g.arc(7, -5, 5.2, 0, 7); g.fill(); g.stroke(); g.fillStyle = "#111"; g.beginPath(); g.arc(9, -5, 2.4, 0, 7); g.fill(); g.fillStyle = "#fff"; g.beginPath(); g.arc(9.8, -5.8, .9, 0, 7); g.fill();
+      g.fillStyle = "#ff6a3a"; g.beginPath(); g.moveTo(12, -1); g.lineTo(24, 2); g.lineTo(12, 7); g.closePath(); g.fill(); g.stroke(); g.restore();
+      g.restore();
+      g.textAlign = "center"; g.fillStyle = "#fff"; g.strokeStyle = "rgba(0,0,0,.7)"; g.lineWidth = 6; g.lineJoin = "round"; g.font = "700 52px Figtree,sans-serif";
+      g.strokeText(score(), W / 2, 72); g.fillText(score(), W / 2, 72);
+      const sub = online ? "Opponent: " + oppS : "Best: " + Math.max(best0, myFin || 0), sw = g.measureText(sub).width;
+      g.font = "600 14px Figtree,sans-serif"; g.fillStyle = "rgba(0,0,0,.45)"; roundR(g, W / 2 - (g.measureText(sub).width + 24) / 2, 82, g.measureText(sub).width + 24, 24, 12); g.fill(); g.fillStyle = "#f0cf7a"; g.fillText(sub, W / 2, 99);
+      g.font = "700 20px Figtree,sans-serif"; g.lineWidth = 4;
+      const msg = cd > 0 ? Math.ceil(cd) : !go ? "Tap or press Space to start" : "";
+      if (msg) { g.font = cd > 0 ? "700 72px Figtree,sans-serif" : "700 20px Figtree,sans-serif"; g.strokeStyle = "rgba(0,0,0,.7)"; g.strokeText(msg, W / 2, 250); g.fillStyle = "#fff"; g.fillText(msg, W / 2, 250); }
+      if (dead && dead0 > .6) {
+        g.fillStyle = "rgba(10,6,20,.8)"; roundR(g, 50, 190, 260, online ? 90 : 150, 18); g.fill(); g.strokeStyle = "#f0cf7a"; g.lineWidth = 3; g.stroke();
+        g.fillStyle = "#f0cf7a"; g.font = "700 26px Figtree,sans-serif"; g.fillText("GAME OVER", W / 2, 230);
+        g.fillStyle = "#fff"; g.font = "600 16px Figtree,sans-serif"; g.fillText(online ? "Waiting for your opponent …" : "Score " + myFin + "   ·   Best " + Math.max(best0, myFin), W / 2, 262);
+        if (!online) { g.fillStyle = "#c8a24a"; g.fillText("Press “Play again” below", W / 2, 310); }
+      }
     }
   };
 }
@@ -257,20 +328,22 @@ function Flappy(o) {
 /* Pong: the host (or solo player) simulates, the guest sends its paddle and renders the host’s state */
 function Pong(o) {
   const W = 640, H = 400, PH = 70, WIN = 5, K = {};
-  let my = H / 2, oy = H / 2, ly = H / 2, bx = W / 2, by = H / 2, vx = 0, vy = 0, sp = 300, sc = [0, 0], wait = 2, over = false, ts = 0, ta = 0;
-  const serve = d => { bx = W / 2; by = H / 2; sp = 300; const a = (Math.random() - .5) * .8; vx = Math.cos(a) * sp * d; vy = Math.sin(a) * sp; wait = 1.2; };
+  let my = H / 2, oy = H / 2, ly = H / 2, bx = W / 2, by = H / 2, vx = 0, vy = 0, sp = 300, sc = [0, 0], wait = 2, over = false, ts = 0, ta = 0, tr = [], fl = [0, 0], pdx = 0, banner = "", pop = 0;
+  const serve = d => { bx = W / 2; by = H / 2; sp = 300; const a = (Math.random() - .5) * .8; vx = Math.cos(a) * sp * d; vy = Math.sin(a) * sp; wait = 1.2; tr = []; };
   serve(Math.random() < .5 ? 1 : -1);
-  function hit(p, dir) { const a = (by - p) / (PH / 2) * .9; sp = Math.min(620, sp * 1.06); vx = dir * Math.cos(a) * sp; vy = Math.sin(a) * sp; bx = dir > 0 ? 33 : W - 33; }
+  function hit(p, dir) { const a = (by - p) / (PH / 2) * .9; sp = Math.min(620, sp * 1.06); vx = dir * Math.cos(a) * sp; vy = Math.sin(a) * sp; bx = dir > 0 ? 33 : W - 33; fl[dir > 0 ? 0 : 1] = 1; }
   function point(i, d) {
-    sc[i]++;
+    sc[i]++; pop = 1;
     if (sc[0] >= WIN || sc[1] >= WIN) {
-      over = true; const w = sc[0] > sc[1] ? "h" : "g";
+      over = true; const w = sc[0] > sc[1] ? "h" : "g"; banner = w === "h" ? "YOU WIN" : "YOU LOSE";
       if (role === "host") conn && conn.send({ t: "end", w, sc });
-      finish(w === "h" ? "win" : "lose", w === "h" ? "You win " + sc[0] + " to " + sc[1] + "." : "You lose " + sc[0] + " to " + sc[1] + ".");
+      finish(w === "h" ? "win" : "lose", (w === "h" ? "You win " : "You lose ") + sc[0] + " to " + sc[1] + ".");
     } else serve(d);
   }
   return {
     update(dt) {
+      fl[0] = Math.max(0, fl[0] - dt * 4); fl[1] = Math.max(0, fl[1] - dt * 4); pop = Math.max(0, pop - dt * 2);
+      tr.push([bx, by]); if (tr.length > 9) tr.shift();
       if (K.u) my -= 380 * dt; if (K.d) my += 380 * dt; my = clamp(my, PH / 2, H - PH / 2);
       if (role === "guest") { ts += dt; if (ts > .03) { ts = 0; conn && conn.send({ t: "in", y: my }); } return; }
       if (role === "solo") oy = clamp(oy + clamp(by - oy, -235 * dt, 235 * dt), PH / 2, H - PH / 2);
@@ -278,7 +351,7 @@ function Pong(o) {
       if (wait > 0) wait -= dt;
       else {
         bx += vx * dt; by += vy * dt;
-        if (by < 6) { by = 6; vy = Math.abs(vy); } if (by > H - 6) { by = H - 6; vy = -Math.abs(vy); }
+        if (by < 12) { by = 12; vy = Math.abs(vy); } if (by > H - 12) { by = H - 12; vy = -Math.abs(vy); }
         if (vx < 0 && bx <= 32 && bx >= 14 && Math.abs(by - ly) < PH / 2 + 6) hit(ly, 1);
         if (vx > 0 && bx >= W - 32 && bx <= W - 14 && Math.abs(by - oy) < PH / 2 + 6) hit(oy, -1);
         if (bx < -10) point(1, -1); else if (bx > W + 10) point(0, 1);
@@ -289,28 +362,37 @@ function Pong(o) {
     down(x, y) { my = clamp(y, PH / 2, H - PH / 2); }, move(x, y) { my = clamp(y, PH / 2, H - PH / 2); },
     net(m) {
       if (role === "host" && m.t === "in") oy = clamp(+m.y || H / 2, PH / 2, H - PH / 2);
-      if (role === "guest" && m.t === "st") { bx = +m.bx; by = +m.by; ly = +m.ly; sc = m.sc; wait = m.w ? 1 : 0; }
-      if (role === "guest" && m.t === "end") { over = true; sc = m.sc; finish(m.w === "g" ? "win" : "lose", (m.w === "g" ? "You win " : "You lose ") + sc[1] + " to " + sc[0] + "."); }
+      if (role === "guest" && m.t === "st") {
+        const dx = +m.bx - bx; if (dx * pdx < 0 && Math.abs(dx) < 100) fl[m.bx < W / 2 ? 0 : 1] = 1; if (dx) pdx = dx;
+        if (m.sc[0] + m.sc[1] !== sc[0] + sc[1]) pop = 1; bx = +m.bx; by = +m.by; ly = +m.ly; sc = m.sc; wait = m.w ? 1 : 0;
+      }
+      if (role === "guest" && m.t === "end") { over = true; sc = m.sc; banner = m.w === "g" ? "YOU WIN" : "YOU LOSE"; finish(m.w === "g" ? "win" : "lose", (m.w === "g" ? "You win " : "You lose ") + sc[1] + " to " + sc[0] + "."); }
     },
     draw() {
       const g = ctx, L = role === "guest" ? ly : my, R = role === "guest" ? my : oy;
-      g.fillStyle = "#000"; g.fillRect(0, 0, W, H); g.fillStyle = "#fff";
-      for (let y = 8; y < H; y += 28) g.fillRect(W / 2 - 3, y, 6, 14);
-      g.fillRect(20, L - PH / 2, 10, PH); g.fillRect(W - 30, R - PH / 2, 10, PH); g.fillRect(bx - 5, by - 5, 10, 10);
-      g.font = "700 52px 'Courier New',monospace"; g.textAlign = "center";
-      const a = role === "guest" ? sc[1] : sc[0], b = role === "guest" ? sc[0] : sc[1];
-      if (role === "guest") { g.fillText(sc[0], W / 2 - 70, 60); g.fillText(sc[1], W / 2 + 70, 60); } else { g.fillText(sc[0], W / 2 - 70, 60); g.fillText(sc[1], W / 2 + 70, 60); }
-      g.font = "600 14px 'Courier New',monospace"; g.fillText(role === "solo" ? "YOU        COMPUTER" : role === "host" ? "YOU        FRIEND" : "FRIEND        YOU", W / 2, H - 12);
-      if (wait > 0 && !over) { g.font = "700 20px 'Courier New',monospace"; g.fillText("GET READY", W / 2, H / 2 - 30); }
+      g.fillStyle = "#05070f"; g.fillRect(0, 0, W, H);
+      const vg = g.createRadialGradient(W / 2, H / 2, H * .25, W / 2, H / 2, W * .65); vg.addColorStop(0, "rgba(40,70,120,.4)"); vg.addColorStop(1, "rgba(0,0,0,.65)"); g.fillStyle = vg; g.fillRect(0, 0, W, H);
+      g.shadowColor = "#9fd0ff"; g.shadowBlur = 14; g.fillStyle = "#e8f4ff";
+      g.fillRect(0, 0, W, 8); g.fillRect(0, H - 8, W, 8);
+      for (let y = 18; y < H - 14; y += 28) g.fillRect(W / 2 - 3, y, 6, 14);
+      tr.forEach((p, i) => { g.globalAlpha = i / tr.length * .3; g.fillRect(p[0] - 6, p[1] - 6, 12, 12); }); g.globalAlpha = 1;
+      g.shadowBlur = 14 + fl[0] * 24; g.fillRect(20, L - PH / 2, 10, PH); g.shadowBlur = 14 + fl[1] * 24; g.fillRect(W - 30, R - PH / 2, 10, PH);
+      g.shadowBlur = 20; g.fillRect(bx - 6, by - 6, 12, 12); g.shadowBlur = 0;
+      g.textAlign = "center"; g.font = "700 " + (36 + pop * 10) + "px 'Press Start 2P','Courier New',monospace"; g.fillStyle = "#e8f4ff"; g.fillText(sc[0], W / 2 - 80, 72); g.fillText(sc[1], W / 2 + 80, 72);
+      g.font = "10px 'Press Start 2P','Courier New',monospace"; g.fillStyle = "#7fa8d8";
+      g.fillText(role === "solo" ? "YOU" : role === "host" ? "YOU" : "FRIEND", W / 2 - 150, H - 20); g.fillText(role === "solo" ? "COMPUTER" : role === "host" ? "FRIEND" : "YOU", W / 2 + 150, H - 20);
+      g.fillStyle = "rgba(0,0,0,.14)"; for (let y = 0; y < H; y += 4) g.fillRect(0, y, W, 2);
+      if (wait > 0 && !over) { g.font = "16px 'Press Start 2P','Courier New',monospace"; g.fillStyle = "#e8f4ff"; g.fillText("GET READY", W / 2, H / 2 + 60); }
+      if (over) { g.fillStyle = "rgba(0,0,0,.6)"; g.fillRect(0, H / 2 - 50, W, 100); g.font = "28px 'Press Start 2P','Courier New',monospace"; g.fillStyle = banner === "YOU WIN" ? "#f0cf7a" : "#ff7a8a"; g.fillText(banner, W / 2, H / 2 + 10); }
     }
   };
 }
 
 /* Tic Tac Toe */
 function TTT(o) {
-  const L = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
-  const bd = Array(9).fill(""), me = role === "solo" ? "X" : (role === "host") === (o.first === "h") ? "X" : "O";
-  let turn = "X", over = false, line = null;
+  const L = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]], X0 = 30, Y0 = 100, C = 120;
+  const bd = Array(9).fill(""), age = Array(9).fill(0), me = role === "solo" ? "X" : (role === "host") === (o.first === "h") ? "X" : "O";
+  let turn = "X", over = false, line = null, wp = 0, hov = -1;
   const wn = b => { for (const l of L) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return l; return null; };
   const mm = (b, s) => { const l = wn(b); if (l) return b[l[0]] === "O" ? 1 : -1; if (b.every(x => x)) return 0; let r = s === "O" ? -2 : 2; for (let i = 0; i < 9; i++) if (!b[i]) { b[i] = s; const v = mm(b, s === "O" ? "X" : "O"); b[i] = ""; r = s === "O" ? Math.max(r, v) : Math.min(r, v); } return r; };
   function status() { if (!over) st(turn === me ? "Your turn (" + me + ")" : role === "solo" ? "Computer is thinking …" : "Your opponent’s turn"); }
@@ -318,33 +400,224 @@ function TTT(o) {
     bd[i] = s; const l = wn(bd);
     if (l) { line = l; over = true; finish(s === me ? "win" : "lose", s === me ? "Three in a row!" : "Your opponent got three in a row."); }
     else if (bd.every(x => x)) { over = true; finish("draw", "It’s a draw."); }
-    else { turn = s === "X" ? "O" : "X"; status(); if (role === "solo" && turn !== me) setTimeout(ai, 450); }
+    else { turn = s === "X" ? "O" : "X"; status(); if (role === "solo" && turn !== me) setTimeout(ai, 500); }
   }
   function ai() {
     if (over) return; const e = [...bd.keys()].filter(i => !bd[i]); let mv = e[rnd(e.length)];
     if (Math.random() > .25) { let bs = -3; e.forEach(i => { bd[i] = "O"; const v = mm(bd, "X"); bd[i] = ""; if (v > bs) { bs = v; mv = i; } }); }
     place(mv, "O");
   }
+  const cellAt = (x, y) => { const cx = Math.floor((x - X0) / C), cy = Math.floor((y - Y0) / C); return cx < 0 || cx > 2 || cy < 0 || cy > 2 ? -1 : cy * 3 + cx; };
+  function mark(g, s, cx, cy, r, p, a) {
+    g.lineCap = "round"; g.lineWidth = 12; g.globalAlpha = a; g.shadowBlur = 18;
+    if (s === "X") { g.strokeStyle = g.shadowColor = "#ff5a7a"; g.beginPath(); g.moveTo(cx - r, cy - r); const p1 = Math.min(1, p * 2); g.lineTo(cx - r + 2 * r * p1, cy - r + 2 * r * p1); g.stroke(); if (p > .5) { const p2 = (p - .5) * 2; g.beginPath(); g.moveTo(cx + r, cy - r); g.lineTo(cx + r - 2 * r * p2, cy - r + 2 * r * p2); g.stroke(); } }
+    else { g.strokeStyle = g.shadowColor = "#6fe3ff"; g.beginPath(); g.arc(cx, cy, r, -1.57, -1.57 + 6.283 * p); g.stroke(); }
+    g.shadowBlur = 0; g.globalAlpha = 1;
+  }
   status();
   return {
-    update() {},
+    update(dt) { bd.forEach((s, i) => { if (s) age[i] = Math.min(1, age[i] + dt * 4); }); if (line) wp = Math.min(1, wp + dt * 2.5); },
     down(x, y) {
-      if (over || turn !== me) return; const i = Math.floor(y / 140) * 3 + Math.floor(x / 140);
-      if (i < 0 || i > 8 || bd[i]) return; place(i, me); if (role !== "solo") conn && conn.send({ t: "mv", i });
+      const i = cellAt(x, y); if (over || turn !== me || i < 0 || bd[i]) return;
+      place(i, me); if (role !== "solo") conn && conn.send({ t: "mv", i });
     },
+    move(x, y) { hov = cellAt(x, y); },
     net(m) { if (m.t !== "mv" || over || turn === me) return; const i = m.i | 0; if (i < 0 || i > 8 || bd[i]) return; place(i, turn); },
     draw() {
-      const g = ctx; g.fillStyle = "#10081f"; g.fillRect(0, 0, 420, 420); g.strokeStyle = "#c8a24a"; g.lineWidth = 6; g.lineCap = "round";
-      [140, 280].forEach(p => { g.beginPath(); g.moveTo(p, 16); g.lineTo(p, 404); g.moveTo(16, p); g.lineTo(404, p); g.stroke(); });
-      bd.forEach((s, i) => {
-        const cx = i % 3 * 140 + 70, cy = Math.floor(i / 3) * 140 + 70; g.lineWidth = 10;
-        if (s === "X") { g.strokeStyle = "#e0525f"; g.beginPath(); g.moveTo(cx - 34, cy - 34); g.lineTo(cx + 34, cy + 34); g.moveTo(cx + 34, cy - 34); g.lineTo(cx - 34, cy + 34); g.stroke(); }
-        if (s === "O") { g.strokeStyle = "#f2ead3"; g.beginPath(); g.arc(cx, cy, 36, 0, 7); g.stroke(); }
+      const g = ctx, bg = g.createLinearGradient(0, 0, 0, 480); bg.addColorStop(0, "#1b0f33"); bg.addColorStop(1, "#0a0614"); g.fillStyle = bg; g.fillRect(0, 0, 420, 480);
+      [[me, "YOU"], [me === "X" ? "O" : "X", role === "solo" ? "COMPUTER" : "FRIEND"]].forEach(([s, l], k) => {
+        const x = k ? 220 : 30, act = !over && turn === s; g.fillStyle = act ? "rgba(240,207,122,.18)" : "rgba(255,255,255,.04)"; g.strokeStyle = act ? "#f0cf7a" : "#3a2a5a"; g.lineWidth = 2;
+        roundR(g, x, 20, 170, 56, 14); g.fill(); g.stroke(); mark(g, s, x + 32, 48, 11, 1, 1);
+        g.font = "700 14px Figtree,sans-serif"; g.textAlign = "left"; g.fillStyle = act ? "#f0cf7a" : "#c8a24a"; g.fillText(l, x + 60, 54);
       });
-      if (line) { const a = line[0], c = line[2]; g.strokeStyle = "#f0cf7a"; g.lineWidth = 8; g.beginPath(); g.moveTo(a % 3 * 140 + 70, Math.floor(a / 3) * 140 + 70); g.lineTo(c % 3 * 140 + 70, Math.floor(c / 3) * 140 + 70); g.stroke(); }
+      for (let i = 0; i < 9; i++) {
+        const x = X0 + i % 3 * C, y = Y0 + Math.floor(i / 3) * C, can = !over && turn === me && !bd[i] && hov === i;
+        g.fillStyle = can ? "rgba(240,207,122,.16)" : "rgba(255,255,255,.05)"; g.strokeStyle = can ? "#f0cf7a" : "#4a3a6a"; g.lineWidth = 2; roundR(g, x + 4, y + 4, C - 8, C - 8, 14); g.fill(); g.stroke();
+        if (bd[i]) mark(g, bd[i], x + C / 2, y + C / 2, 30, age[i], line && !line.includes(i) ? .45 : 1);
+      }
+      if (line) {
+        const a = line[0], c = line[2], ax = X0 + a % 3 * C + C / 2, ay = Y0 + Math.floor(a / 3) * C + C / 2, cx = X0 + c % 3 * C + C / 2, cy = Y0 + Math.floor(c / 3) * C + C / 2;
+        g.strokeStyle = g.shadowColor = "#f0cf7a"; g.shadowBlur = 20; g.lineWidth = 8; g.lineCap = "round"; g.beginPath(); g.moveTo(ax, ay); g.lineTo(ax + (cx - ax) * wp, ay + (cy - ay) * wp); g.stroke(); g.shadowBlur = 0;
+      }
     }
   };
 }
+
+/* More games. Score-race games (Snake, Breakout) share one helper: same seed for both players, higher score wins. */
+const mulb = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+function Race(key) {
+  const online = role !== "solo"; let sent = -1, oppS = 0, oppFin = null, myFin = null;
+  const best0 = (() => { try { return +localStorage.getItem(key) || 0; } catch (e) { return 0; } })();
+  const resolve = () => { if (myFin === null || oppFin === null) return; finish(myFin > oppFin ? "win" : myFin < oppFin ? "lose" : "draw", "You scored " + myFin + ", your opponent " + oppFin + "."); };
+  return {
+    online, opp: () => oppS, best: () => Math.max(best0, myFin || 0), sub: () => online ? "Opponent: " + oppS : "Best: " + Math.max(best0, myFin || 0),
+    live(s) { if (online && s !== sent) { sent = s; conn && conn.send({ t: "sc", s }); } },
+    end(s) {
+      myFin = s;
+      if (online) { conn && conn.send({ t: "fin", s }); st("You finished with " + s + ". Waiting for your opponent …"); resolve(); }
+      else { if (s > best0) try { localStorage.setItem(key, s); } catch (e) {} on = false; st("Game over. Score " + s + ", best " + Math.max(best0, s) + "."); $("#again").hidden = false; }
+    },
+    net(m) { if (m.t === "sc") oppS = m.s | 0; if (m.t === "fin") { oppFin = m.s | 0; oppS = oppFin; resolve(); } }
+  };
+}
+const card = (g, W, H, a, b) => {
+  g.fillStyle = "rgba(10,6,20,.84)"; roundR(g, W / 2 - 135, H / 2 - 52, 270, 104, 16); g.fill(); g.strokeStyle = "#f0cf7a"; g.lineWidth = 3; g.stroke();
+  g.textAlign = "center"; g.fillStyle = "#f0cf7a"; g.font = "700 25px Figtree,sans-serif"; g.fillText(a, W / 2, H / 2 - 8); g.fillStyle = "#fff"; g.font = "600 15px Figtree,sans-serif"; g.fillText(b, W / 2, H / 2 + 24);
+};
+const hud = (g, W, left, right) => {
+  g.fillStyle = "rgba(255,255,255,.07)"; roundR(g, 10, 8, W - 20, 36, 12); g.fill(); g.font = "700 17px Figtree,sans-serif"; g.fillStyle = "#f2ead3";
+  g.textAlign = "left"; g.fillText(left, 24, 32); g.textAlign = "right"; g.fillStyle = "#f0cf7a"; g.fillText(right, W - 24, 32);
+};
+
+/* Snake */
+function Snake(o) {
+  const N = 20, CS = 20, OY = 50, R = Race("arc_snake"), rng = mulb(o.seed), W = 400, H = 450;
+  let sn = [[10, 10], [9, 10], [8, 10]], dir = [1, 0], nd = [1, 0], food, score = 0, acc = 0, dead = false, go = false, cd = R.online ? 3 : 0, t = 0, p0 = null, P = [], d0 = 0, shake = 0;
+  const spawn = () => { for (;;) { const f = [Math.floor(rng() * N), Math.floor(rng() * N)]; if (!sn.some(s => s[0] === f[0] && s[1] === f[1])) { food = f; return; } } };
+  spawn();
+  const turn = d => { if (cd > 0 || dead) return; go = true; if (!(d[0] + dir[0] === 0 && d[1] + dir[1] === 0)) nd = d; };
+  const burst = (x, y, n, c) => { for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, s = 40 + Math.random() * 120; P.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, l: .6, c }); } };
+  function die() { dead = true; shake = .35; sn.forEach(s => burst(s[0] * CS + 10, OY + s[1] * CS + 10, 2, "#2fd47a")); R.end(score); }
+  function step() {
+    dir = nd; const h = [sn[0][0] + dir[0], sn[0][1] + dir[1]], eat = h[0] === food[0] && h[1] === food[1], body = eat ? sn : sn.slice(0, -1);
+    if (h[0] < 0 || h[1] < 0 || h[0] >= N || h[1] >= N || body.some(s => s[0] === h[0] && s[1] === h[1])) return die();
+    sn.unshift(h); if (eat) { score++; R.live(score); burst(h[0] * CS + 10, OY + h[1] * CS + 10, 10, "#ff5a5a"); spawn(); } else sn.pop();
+  }
+  const KEYS = { arrowup: [0, -1], w: [0, -1], arrowdown: [0, 1], s: [0, 1], arrowleft: [-1, 0], a: [-1, 0], arrowright: [1, 0], d: [1, 0] };
+  return {
+    update(dt) {
+      t += dt; shake = Math.max(0, shake - dt); if (dead) d0 += dt;
+      P.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.l -= dt; }); P = P.filter(p => p.l > 0);
+      if (cd > 0) { cd -= dt; if (cd <= 0) { cd = 0; go = true; } }
+      if (!go || dead) return; acc += dt; const iv = Math.max(65, 120 - score * 2.5) / 1000; while (acc >= iv && !dead) { acc -= iv; step(); }
+    },
+    key(k, d) { const v = KEYS[k.toLowerCase()]; if (d && v) turn(v); },
+    down() { if (cd > 0) return; go = true; p0 = [arguments[0], arguments[1]]; },
+    move(x, y) { if (!p0) return; const dx = x - p0[0], dy = y - p0[1]; if (Math.max(Math.abs(dx), Math.abs(dy)) > 22) { turn(Math.abs(dx) > Math.abs(dy) ? [Math.sign(dx), 0] : [0, Math.sign(dy)]); p0 = [x, y]; } },
+    up() { p0 = null; }, net: R.net,
+    draw() {
+      const g = ctx; g.save(); if (shake > 0) g.translate((Math.random() - .5) * shake * 18, (Math.random() - .5) * shake * 18);
+      g.fillStyle = "#07120d"; g.fillRect(-20, -20, W + 40, H + 40); hud(g, W, "SCORE " + score, R.sub());
+      for (let i = 0; i < N; i++) for (let j = 0; j < N; j++) { g.fillStyle = (i + j) % 2 ? "#0e2a1f" : "#11331f"; g.fillRect(i * CS, OY + j * CS, CS, CS); }
+      const fx = food[0] * CS + 10, fy = OY + food[1] * CS + 10, pul = 1 + Math.sin(t * 6) * .08;
+      g.shadowColor = "#ff4a4a"; g.shadowBlur = 14; g.fillStyle = "#ff4a4a"; g.beginPath(); g.arc(fx, fy + 1, 7.5 * pul, 0, 7); g.fill(); g.shadowBlur = 0;
+      g.fillStyle = "rgba(255,255,255,.7)"; g.beginPath(); g.arc(fx - 2.5, fy - 2, 2, 0, 7); g.fill(); g.fillStyle = "#4fd36a"; g.beginPath(); g.ellipse(fx + 3, fy - 7, 4, 2, -.6, 0, 7); g.fill();
+      for (let k = sn.length - 1; k >= 0; k--) {
+        const s = sn[k], f = 1 - k / Math.max(sn.length, 8) * .55; g.fillStyle = "rgb(" + Math.round(40 * f) + "," + Math.round(212 * f) + "," + Math.round(122 * f) + ")";
+        roundR(g, s[0] * CS + (k ? 1.5 : .5), OY + s[1] * CS + (k ? 1.5 : .5), k ? CS - 3 : CS - 1, k ? CS - 3 : CS - 1, 6); g.fill();
+      }
+      const hx = sn[0][0] * CS + 10, hy = OY + sn[0][1] * CS + 10;
+      [-1, 1].forEach(sd => { const ex = hx + dir[0] * 4 - dir[1] * 4.5 * sd, ey = hy + dir[1] * 4 + dir[0] * 4.5 * sd; g.fillStyle = "#fff"; g.beginPath(); g.arc(ex, ey, 3, 0, 7); g.fill(); g.fillStyle = "#111"; g.beginPath(); g.arc(ex + dir[0], ey + dir[1], 1.5, 0, 7); g.fill(); });
+      P.forEach(p => { g.globalAlpha = clamp(p.l * 2, 0, 1); g.fillStyle = p.c; g.fillRect(p.x - 2, p.y - 2, 4, 4); }); g.globalAlpha = 1; g.restore();
+      if (cd > 0) { g.textAlign = "center"; g.font = "700 80px Figtree,sans-serif"; g.fillStyle = "#fff"; g.strokeStyle = "rgba(0,0,0,.7)"; g.lineWidth = 6; g.strokeText(Math.ceil(cd), W / 2, 270); g.fillText(Math.ceil(cd), W / 2, 270); }
+      else if (!go && !dead) card(g, W, H, "SNAKE", "Arrow keys, WASD or swipe to start");
+      if (dead && d0 > .6) card(g, W, H, "GAME OVER", R.online ? "Waiting for your opponent …" : "Score " + score + "  ·  Best " + R.best());
+    }
+  };
+}
+
+/* Breakout */
+function Breakout(o) {
+  const W = 400, H = 520, R = Race("arc_breakout"), rng = mulb(o.seed), PWD = 72, PY = 486, BR = 7, CO = 10, RO = 6, BW = 36, BH = 16, BX0 = 20, BY0 = 90;
+  const CL = ["#ff5a7a", "#ff9a3a", "#ffd23a", "#5ae08a", "#3ab0ff", "#a06aff"], br = Array(CO * RO).fill(1), K = {};
+  let alive = CO * RO, px = W / 2, bx = W / 2, by = PY - BR - 1, vx = 0, vy = 0, sp = 320, lives = 3, score = 0, stuck = true, wait = R.online ? 3 : 0, end = false, t = 0, P = [], e0 = 0;
+  const launch = () => { if (!stuck || end || wait > 0) return; stuck = false; const a = (rng() - .5) * .9; vx = sp * Math.sin(a); vy = -sp * Math.cos(a); };
+  const burst = (x, y, c) => { for (let i = 0; i < 8; i++) { const a = Math.random() * 6.28, s = 40 + Math.random() * 120; P.push({ x, y, vx: Math.cos(a) * s, vy: Math.sin(a) * s, l: .5, c }); } };
+  const over = () => { end = true; R.end(score); };
+  return {
+    update(dt) {
+      t += dt; if (end) e0 += dt; P.forEach(p => { p.x += p.vx * dt; p.y += p.vy * dt; p.l -= dt; }); P = P.filter(p => p.l > 0);
+      if (wait > 0) { wait -= dt; if (wait <= 0) { wait = 0; if (R.online) launch(); } }
+      if (K.l) px -= 430 * dt; if (K.r) px += 430 * dt; px = clamp(px, PWD / 2, W - PWD / 2);
+      if (stuck) { bx = px; by = PY - BR - 1; return; }
+      for (let s = 0; s < 3 && !stuck && !end; s++) {
+        const d = dt / 3, pbx = bx; bx += vx * d; by += vy * d;
+        if (bx < BR) { bx = BR; vx = Math.abs(vx); } if (bx > W - BR) { bx = W - BR; vx = -Math.abs(vx); } if (by < BR + 58) { by = BR + 58; vy = Math.abs(vy); }
+        if (vy > 0 && by + BR >= PY && by + BR <= PY + 14 && Math.abs(bx - px) < PWD / 2 + BR) { const a = clamp((bx - px) / (PWD / 2), -1, 1) * 1.05; vx = sp * Math.sin(a); vy = -sp * Math.cos(a); by = PY - BR; }
+        const c = Math.floor((bx - BX0) / BW), r = Math.floor((by - BY0) / BH);
+        if (c >= 0 && c < CO && r >= 0 && r < RO && br[r * CO + c]) {
+          br[r * CO + c] = 0; alive--; score += 10 * (RO - r); R.live(score); sp = Math.min(520, sp + 4); burst(BX0 + c * BW + BW / 2, BY0 + r * BH + BH / 2, CL[r]);
+          if (Math.floor((pbx - BX0) / BW) !== c) vx = -vx; else vy = -vy; const k = Math.hypot(vx, vy); vx = vx / k * sp; vy = vy / k * sp;
+          if (!alive) { score += lives * 50; R.live(score); return over(); }
+        }
+        if (by > H + 20) { lives--; if (lives <= 0) return over(); stuck = true; wait = R.online ? 1 : 0; sp = 320; }
+      }
+    },
+    key(k, d) { const l = k.toLowerCase(); if (l === "arrowleft" || l === "a") K.l = d; if (l === "arrowright" || l === "d") K.r = d; if (d && (l === " " || l === "arrowup")) launch(); },
+    down(x) { px = clamp(x, PWD / 2, W - PWD / 2); launch(); }, move(x) { px = clamp(x, PWD / 2, W - PWD / 2); }, net: R.net,
+    draw() {
+      const g = ctx, bg = g.createLinearGradient(0, 0, 0, H); bg.addColorStop(0, "#14082e"); bg.addColorStop(1, "#05030c"); g.fillStyle = bg; g.fillRect(0, 0, W, H);
+      g.fillStyle = "rgba(255,255,255,.5)"; for (let i = 0; i < 30; i++) g.fillRect((i * 83) % W, (i * 47) % H, 1.5, 1.5);
+      hud(g, W, "SCORE " + score, "♥".repeat(Math.max(0, lives)) + "   " + (R.online ? R.sub() : ""));
+      br.forEach((a, i) => {
+        if (!a) return; const r = Math.floor(i / CO), c = i % CO, x = BX0 + c * BW, y = BY0 + r * BH; g.fillStyle = CL[r]; roundR(g, x + 1, y + 1, BW - 2, BH - 2, 4); g.fill();
+        g.fillStyle = "rgba(255,255,255,.35)"; g.fillRect(x + 3, y + 2, BW - 6, 3); g.fillStyle = "rgba(0,0,0,.25)"; g.fillRect(x + 3, y + BH - 5, BW - 6, 3);
+      });
+      P.forEach(p => { g.globalAlpha = clamp(p.l * 2, 0, 1); g.fillStyle = p.c; g.fillRect(p.x - 2, p.y - 2, 4, 4); }); g.globalAlpha = 1;
+      const pg = g.createLinearGradient(0, PY, 0, PY + 12); pg.addColorStop(0, "#f8e7a0"); pg.addColorStop(1, "#b8862a"); g.fillStyle = pg; g.shadowColor = "#f0cf7a"; g.shadowBlur = 12; roundR(g, px - PWD / 2, PY, PWD, 12, 6); g.fill();
+      g.fillStyle = "#fff"; g.shadowColor = "#9fd0ff"; g.shadowBlur = 14; g.beginPath(); g.arc(bx, by, BR, 0, 7); g.fill(); g.shadowBlur = 0;
+      if (wait > 0 && lives === 3 && R.online) { g.textAlign = "center"; g.font = "700 72px Figtree,sans-serif"; g.fillStyle = "#fff"; g.fillText(Math.ceil(wait), W / 2, 330); }
+      else if (stuck && !end && !R.online) { g.textAlign = "center"; g.font = "600 15px Figtree,sans-serif"; g.fillStyle = "#f0cf7a"; g.fillText("Tap, click or press Space to launch", W / 2, 400); }
+      if (end && e0 > .5) card(g, W, H, alive ? "GAME OVER" : "CLEARED!", R.online ? "Waiting for your opponent …" : "Score " + score + "  ·  Best " + R.best());
+    }
+  };
+}
+
+/* Connect Four */
+function Connect4(o) {
+  const X0 = 34, Y0 = 110, CS = 54, bd = Array(42).fill(0), age = Array(42).fill(1), me = role === "solo" ? 1 : (role === "host") === (o.first === "h") ? 1 : 2;
+  let turn = 1, over = false, win = null, hov = -1, t = 0;
+  const drop = (b, c) => { for (let r = 5; r >= 0; r--) if (!b[r * 7 + c]) return r; return -1; };
+  const four = b => {
+    for (let r = 0; r < 6; r++) for (let c = 0; c < 7; c++) for (const [dr, dc] of [[0, 1], [1, 0], [1, 1], [1, -1]]) {
+      const l = [0, 1, 2, 3].map(k => [r + dr * k, c + dc * k]); if (l.some(([a, d]) => a < 0 || a > 5 || d < 0 || d > 6)) continue;
+      const v = b[l[0][0] * 7 + l[0][1]]; if (v && l.every(([a, d]) => b[a * 7 + d] === v)) return l.map(([a, d]) => a * 7 + d);
+    } return null;
+  };
+  function status() { if (!over) st(turn === me ? "Your turn" : role === "solo" ? "Computer is thinking …" : "Your opponent’s turn"); }
+  function place(c, s) {
+    const r = drop(bd, c); bd[r * 7 + c] = s; age[r * 7 + c] = 0; const w = four(bd);
+    if (w) { win = w; over = true; finish(s === me ? "win" : "lose", s === me ? "Four in a row!" : "Your opponent connected four."); }
+    else if (bd.every(x => x)) { over = true; finish("draw", "The board is full. It’s a draw."); }
+    else { turn = 3 - s; status(); if (role === "solo" && turn !== me) setTimeout(ai, 650); }
+  }
+  function ai() {
+    if (over) return; const cols = [0, 1, 2, 3, 4, 5, 6].filter(c => drop(bd, c) >= 0);
+    const tryW = (s, c) => { const r = drop(bd, c); if (r < 0) return false; bd[r * 7 + c] = s; const w = !!four(bd); bd[r * 7 + c] = 0; return w; };
+    let mv = cols.find(c => tryW(2, c)); if (mv === undefined) mv = cols.find(c => tryW(1, c));
+    if (mv === undefined) {
+      const safe = cols.filter(c => { const r = drop(bd, c); if (r <= 0) return true; bd[r * 7 + c] = 2; const bad = tryW(1, c); bd[r * 7 + c] = 0; return !bad; }), pool = safe.length ? safe : cols, wt = [1, 2, 3, 5, 3, 2, 1];
+      let x = Math.random() * pool.reduce((a, c) => a + wt[c], 0); for (const c of pool) { x -= wt[c]; if (x <= 0) { mv = c; break; } } if (mv === undefined) mv = pool[0];
+    }
+    place(mv, 2);
+  }
+  const colAt = x => { const c = Math.floor((x - X0) / CS); return c < 0 || c > 6 ? -1 : c; };
+  const disc = (g, x, y, s, r) => {
+    const gr = g.createRadialGradient(x - r * .3, y - r * .3, r * .1, x, y, r); gr.addColorStop(0, s === 1 ? "#ff9aa8" : "#fff2a0"); gr.addColorStop(1, s === 1 ? "#d81e3c" : "#f0b400");
+    g.fillStyle = gr; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); g.strokeStyle = "rgba(0,0,0,.25)"; g.lineWidth = 2; g.beginPath(); g.arc(x, y, r * .62, 0, 7); g.stroke();
+  };
+  status();
+  return {
+    update(dt) { t += dt; for (let i = 0; i < 42; i++) if (age[i] < 1) age[i] = Math.min(1, age[i] + dt * 2.4); },
+    down(x) { const c = colAt(x); if (over || turn !== me || c < 0 || drop(bd, c) < 0) return; place(c, me); if (role !== "solo") conn && conn.send({ t: "mv", c }); },
+    move(x) { hov = colAt(x); },
+    net(m) { if (m.t !== "mv" || over || turn === me) return; const c = m.c | 0; if (c < 0 || c > 6 || drop(bd, c) < 0) return; place(c, turn); },
+    draw() {
+      const g = ctx, bg = g.createLinearGradient(0, 0, 0, 500); bg.addColorStop(0, "#1b0f33"); bg.addColorStop(1, "#0a0614"); g.fillStyle = bg; g.fillRect(0, 0, 448, 500);
+      [[me, "YOU"], [3 - me, role === "solo" ? "COMPUTER" : "FRIEND"]].forEach(([s, l], k) => {
+        const x = k ? 232 : 34, act = !over && turn === s; g.fillStyle = act ? "rgba(240,207,122,.18)" : "rgba(255,255,255,.04)"; g.strokeStyle = act ? "#f0cf7a" : "#3a2a5a"; g.lineWidth = 2;
+        roundR(g, x, 20, 182, 56, 14); g.fill(); g.stroke(); disc(g, x + 30, 48, s, 14); g.font = "700 14px Figtree,sans-serif"; g.textAlign = "left"; g.fillStyle = act ? "#f0cf7a" : "#c8a24a"; g.fillText(l, x + 58, 54);
+      });
+      if (!over && turn === me && hov >= 0 && drop(bd, hov) >= 0) { g.globalAlpha = .6; disc(g, X0 + hov * CS + CS / 2, Y0 - 24, me, 20); g.globalAlpha = 1; }
+      for (let i = 0; i < 42; i++) if (bd[i]) { const r = Math.floor(i / 7), c = i % 7, ty = Y0 + r * CS + CS / 2, e = age[i] * age[i], y = Y0 - 30 + (ty - Y0 + 30) * e; disc(g, X0 + c * CS + CS / 2, y, bd[i], 22); }
+      g.beginPath(); g.roundRect(X0 - 10, Y0 - 10, 7 * CS + 20, 6 * CS + 20, 18);
+      for (let r = 0; r < 6; r++) for (let c = 0; c < 7; c++) { g.moveTo(X0 + c * CS + CS / 2 + 23, Y0 + r * CS + CS / 2); g.arc(X0 + c * CS + CS / 2, Y0 + r * CS + CS / 2, 23, 0, 6.283); }
+      const bl = g.createLinearGradient(0, Y0, 0, Y0 + 6 * CS); bl.addColorStop(0, "#2a5bd7"); bl.addColorStop(1, "#173a99"); g.fillStyle = bl; g.fill("evenodd");
+      if (win) { g.strokeStyle = "#fff"; g.shadowColor = "#f0cf7a"; g.shadowBlur = 16; g.lineWidth = 4 + Math.sin(t * 8); win.forEach(i => { g.beginPath(); g.arc(X0 + i % 7 * CS + CS / 2, Y0 + Math.floor(i / 7) * CS + CS / 2, 25, 0, 7); g.stroke(); }); g.shadowBlur = 0; }
+    }
+  };
+}
+const MK = { flappy: Flappy, ttt: TTT, pong: Pong, snake: Snake, breakout: Breakout, c4: Connect4 };
 
 /* Invite links: ?room=CODE&g=pong */
 const qs = new URLSearchParams(location.search), qr = qs.get("room");
