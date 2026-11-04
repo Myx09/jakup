@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jakup arcade</title>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,600;1,600&family=Figtree:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--brass:#c8a24a;--gold:#f0cf7a;--ivory:#f2ead3;--wine:#8c2331;--felt2:#092b21;--pink:#ff7aa8}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;color:var(--ivory);font:400 16px/1.5 Figtree,system-ui,sans-serif;background:radial-gradient(ellipse at 50% 0,#3a1a6a,transparent 70%),repeating-linear-gradient(45deg,rgba(255,255,255,.02) 0 2px,transparent 2px 8px),#10081f}
+#note{position:fixed;top:0;left:0;right:0;z-index:5;padding:3px 8px;text-align:center;font-size:.8rem;font-weight:600;background:var(--wine)}
+.wrap{max-width:760px;margin:0 auto;padding:44px 14px 40px}
+h1{margin:0;font:italic 600 2.4rem/1 "Bodoni Moda",Georgia,serif;color:var(--pink);text-shadow:0 0 18px var(--pink)}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.pill{padding:6px 14px;border:1px solid var(--brass);border-radius:99px;background:rgba(6,32,26,.92)}
+.pill b{font:italic 600 1.2rem "Bodoni Moda",Georgia,serif;color:var(--gold)}
+a{color:var(--gold)}
+button,input{font:inherit}
+button{cursor:pointer;color:var(--ivory);background:rgba(6,32,26,.92);border:1px solid var(--brass);border-radius:99px;padding:8px 16px}
+button:hover:not(:disabled){background:rgba(200,162,74,.3)}
+button:focus-visible,input:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.go{background:linear-gradient(var(--wine),#6d1a26);font-weight:600}
+input{width:90px;padding:8px 12px;border-radius:99px;border:1px solid var(--brass);background:var(--ivory);color:#221c14}
+#code{text-transform:uppercase;width:80px}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:12px 0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:14px;margin-top:18px}
+.gc{display:grid;gap:4px;padding:22px 12px;border-radius:16px;border:2px solid var(--brass);background:linear-gradient(#1b0f33,#10081f);box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.gc span{font-size:3rem}.gc b{font:italic 600 1.4rem "Bodoni Moda",Georgia,serif;color:var(--gold)}.gc small{color:var(--brass)}
+.gc:hover{transform:translateY(-3px);border-color:var(--pink)}
+.msg{min-height:1.6em;margin:8px 0;text-align:center;font-weight:600;color:var(--gold)}
+.hint{text-align:center;color:var(--brass);font-size:.9rem}
+canvas{display:block;margin:10px auto;max-width:100%;height:auto;border:2px solid var(--brass);border-radius:10px;background:#000;touch-action:none}
+</style>
+</head>
+<body>
+<div id="note">Play money only. No real money is involved, this game is just for fun.</div>
+<div class="wrap">
+  <div class="top">
+    <h1>jakup arcade</h1>
+    <span class="pill">Balance <b id="bal">1,000</b></span>
+  </div>
+  <p class="hint"><a href="../multiplayer/">← Casino (multiplayer)</a> · <a href="../">Casino (singleplayer)</a></p>
+
+  <section id="menu">
+    <p class="hint">Pick a game. Play alone, or play online with a friend and bet your casino play money: the winner takes the loser’s stake.</p>
+    <div class="cards"></div>
+  </section>
+
+  <section id="gp" hidden>
+    <div class="top"><b id="gt" style="font-size:1.3rem"></b><button id="bk">← All games</button></div>
+    <div id="setup">
+      <div class="row"><button class="go" id="solo">Play solo</button></div>
+      <div class="row">
+        <label>Stake <input id="stk" type="number" min="0" value="50" aria-label="Stake in chips"></label>
+        <button id="host">Host online</button>
+        <input id="code" maxlength="4" placeholder="Code" aria-label="Room code">
+        <button id="join">Join</button>
+      </div>
+    </div>
+    <p class="msg" id="st"></p>
+    <div class="row"><button id="cp" hidden>Copy invite link</button><button class="go" id="acc" hidden></button><button class="go" id="again" hidden>Play again</button></div>
+    <canvas id="cv" width="360" height="560" aria-label="Game"></canvas>
+    <p class="hint" id="help"></p>
+  </section>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const $ = s => document.querySelector(s), fmt = n => Math.round(n).toLocaleString("en-US");
+const rnd = n => Math.floor(Math.random() * n), rnd32 = () => Math.floor(Math.random() * 2147483647), clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const cv = $("#cv"), ctx = cv.getContext("2d");
+
+/* Balance: shared with the casino through the same localStorage key */
+function bal() { try { const r = localStorage.getItem("casino_bal"), v = +r; return r === null || isNaN(v) ? 1000 : v; } catch (e) { return 1000; } }
+function show() { $("#bal").textContent = fmt(bal()); }
+function addBal(d) {
+  const v = bal() + Math.round(d);
+  try { localStorage.setItem("casino_bal", v); if (v > (+localStorage.getItem("casino_hs") || 1000)) localStorage.setItem("casino_hs", v); } catch (e) {}
+  show();
+}
+addEventListener("storage", show); addEventListener("focus", show); show();
+
+const GN = {
+  flappy: ["🐦", "Flappy Bird", "Tap, click or press Space to flap. Online, both players get the same pipes and the higher score wins."],
+  ttt: ["❌", "Tic Tac Toe", "Click a square. Three in a row wins. Online, who starts is random."],
+  pong: ["🏓", "Pong", "Move with W/S or the arrow keys, or drag on the screen. First to 5 points wins."]
+};
+$("#menu .cards").innerHTML = Object.keys(GN).map(g => '<button class="gc" data-g="' + g + '"><span>' + GN[g][0] + "</span><b>" + GN[g][1] + "</b><small>Solo or online</small></button>").join("");
+$("#menu").onclick = e => { const b = e.target.closest("[data-g]"); if (b) openGame(b.dataset.g); };
+
+let G = null, net = null, conn = null, role = "solo", stake = 0, escrow = 0, on = false, cur = null, raf = 0, last = 0, link = "";
+const st = t => $("#st").textContent = t;
+const SIZE = { flappy: [360, 560], ttt: [420, 420], pong: [640, 400] };
+
+function setGameUI() {
+  G in GN || (G = "pong");
+  $("#gt").textContent = GN[G][0] + " " + GN[G][1]; $("#help").textContent = GN[G][2];
+  cv.width = SIZE[G][0]; cv.height = SIZE[G][1];
+  ctx.fillStyle = "#0a0614"; ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.fillStyle = "#f0cf7a"; ctx.textAlign = "center"; ctx.font = "600 28px Figtree,sans-serif"; ctx.fillText(GN[G][0] + " " + GN[G][1], cv.width / 2, cv.height / 2);
+}
+function openGame(g) {
+  stopMatch(); G = g; $("#menu").hidden = true; $("#gp").hidden = false; $("#setup").hidden = role !== "solo";
+  $("#acc").hidden = $("#again").hidden = true; st(""); setGameUI();
+}
+function stopMatch() { cancelAnimationFrame(raf); cur = null; on = false; }
+function closeNet() { try { net && net.destroy(); } catch (e) {} net = conn = null; role = "solo"; escrow = 0; $("#cp").hidden = true; }
+$("#bk").onclick = () => { stopMatch(); closeNet(); $("#gp").hidden = true; $("#menu").hidden = false; };
+
+/* Match flow */
+function begin(seed, first) {
+  setGameUI(); $("#setup").hidden = true; $("#acc").hidden = $("#again").hidden = true; st(""); on = true;
+  const o = { seed, first };
+  cur = G === "flappy" ? Flappy(o) : G === "pong" ? Pong(o) : TTT(o);
+  last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+}
+function loop(t) { const dt = Math.min(.05, (t - last) / 1000); last = t; if (!cur) return; cur.update(dt); cur.draw(); raf = requestAnimationFrame(loop); }
+function finish(res, msg) {
+  if (!on) return; on = false;
+  if (escrow) {
+    if (res === "win") { addBal(escrow * 2); msg += " You win " + fmt(escrow) + " chips!"; }
+    else if (res === "draw") { addBal(escrow); msg += " Your stake was returned."; }
+    else msg += " You lose " + fmt(escrow) + " chips.";
+    escrow = 0;
+  }
+  st(role === "guest" ? msg + " Waiting for the host to start a rematch …" : msg);
+  if (role !== "guest") $("#again").hidden = false;
+}
+$("#solo").onclick = () => { role = "solo"; stake = 0; begin(rnd32(), "h"); };
+$("#again").onclick = () => role === "host" ? offer() : begin(rnd32(), "h");
+$("#acc").onclick = () => {
+  if (stake > bal()) return st("You don’t have enough chips for that stake.");
+  addBal(-stake); escrow = stake; $("#acc").hidden = true; conn && conn.send({ t: "ok" }); st("Waiting for the host to start …");
+};
+$("#cp").onclick = () => navigator.clipboard && navigator.clipboard.writeText(link).then(() => st("Invite link copied!"), () => {});
+
+/* Online (PeerJS): one host, one guest */
+const PRE = "jakup-arc-";
+function wire(c) {
+  conn = c; c.on("data", onMsg);
+  c.on("close", () => {
+    if (conn !== c) return; conn = null; if (!on && escrow) { addBal(escrow); escrow = 0; }
+    if (on) finish("win", "Your opponent left the game."); else st(role === "host" ? "Your friend left. Waiting for someone to join …" : "Disconnected.");
+  });
+}
+function host() {
+  if (net) return; if (typeof Peer === "undefined") return st("Online play is unavailable offline.");
+  stake = Math.max(0, Math.floor(+$("#stk").value) || 0);
+  if (stake > bal()) return st("You don’t have enough chips for that stake.");
+  const code = Math.random().toString(36).slice(2, 6).toUpperCase(); role = "host"; st("Opening room …"); net = new Peer(PRE + code);
+  net.on("open", () => { link = location.origin + location.pathname + "?room=" + code + "&g=" + G; $("#setup").hidden = true; $("#cp").hidden = false; st("Room " + code + ": waiting for a friend. Share the code or the invite link."); });
+  net.on("connection", c => { if (conn) { c.close(); return; } wire(c); if (c.open) offer(); else c.on("open", offer); });
+  net.on("error", e => { closeNet(); $("#setup").hidden = false; st("Error: " + e.type); });
+}
+function join(code) {
+  if (net) return; if (typeof Peer === "undefined") return st("Online play is unavailable offline.");
+  code = String(code || "").trim().toUpperCase(); if (code.length < 4) return st("Enter the 4-letter room code.");
+  role = "guest"; st("Joining …"); net = new Peer();
+  net.on("open", () => { const c = net.connect(PRE + code); c.on("open", () => { wire(c); $("#setup").hidden = true; st("Connected. Waiting for the host …"); }); });
+  net.on("error", e => { const m = e.type === "peer-unavailable" ? "Room not found." : "Error: " + e.type; closeNet(); $("#setup").hidden = false; st(m); });
+}
+$("#host").onclick = host; $("#join").onclick = () => join($("#code").value);
+function offer() {
+  if (!conn) return st("Waiting for a friend to join …"); if (on) return;
+  if (stake > bal()) return st("You don’t have enough chips for that stake.");
+  conn.send({ t: "cfg", g: G, stake }); $("#again").hidden = true; st("Waiting for your friend to accept the stake of " + fmt(stake) + " chips …");
+}
+function onMsg(m) {
+  if (!m) return;
+  if (m.t === "cfg" && role === "guest") {
+    if (on) return; G = GN[m.g] ? m.g : G; stake = Math.max(0, m.stake | 0); stopMatch(); setGameUI();
+    st(GN[G][1] + " for " + fmt(stake) + " chips. Do you accept?"); $("#acc").textContent = stake ? "Accept and pay " + fmt(stake) : "Accept"; $("#acc").hidden = false; $("#again").hidden = true; return;
+  }
+  if (m.t === "ok" && role === "host") {
+    if (on) return; if (stake > bal()) { conn.send({ t: "no" }); return st("You don’t have enough chips for that stake."); }
+    addBal(-stake); escrow = stake; const seed = rnd32(), first = Math.random() < .5 ? "h" : "g"; conn.send({ t: "go", seed, first }); begin(seed, first); return;
+  }
+  if (m.t === "no" && role === "guest") { addBal(escrow); escrow = 0; return st("The host doesn’t have enough chips for that stake."); }
+  if (m.t === "go" && role === "guest") return begin(m.seed | 0, m.first);
+  if (cur && cur.net) cur.net(m);
+}
+
+/* Input */
+const pt = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * cv.width / r.width, (e.clientY - r.top) * cv.height / r.height]; };
+cv.onpointerdown = e => { if (cur && cur.down) cur.down(...pt(e)); };
+cv.onpointermove = e => { if (cur && cur.move) cur.move(...pt(e)); };
+addEventListener("keydown", e => {
+  if (/INPUT|SELECT|TEXTAREA/.test(e.target.tagName) || !cur || !cur.key) return;
+  if ([" ", "ArrowUp", "ArrowDown"].includes(e.key)) e.preventDefault(); cur.key(e.key, true);
+});
+addEventListener("keyup", e => cur && cur.key && cur.key(e.key, false));
+
+/* Flappy Bird: fixed time step and seeded pipes, so online players get identical runs */
+function Flappy(o) {
+  const W = 360, H = 560, GY = 500, GAP = 140, SP = 210, PW = 54, VX = 120, BX = 90, online = role !== "solo";
+  let y = H / 2 - 30, v = 0, dist = 0, dead = false, go = !online, cd = online ? 3 : 0, acc = 0, sent = -1, oppS = 0, oppFin = null, myFin = null, t = 0;
+  const best0 = (() => { try { return +localStorage.getItem("arc_flappy") || 0; } catch (e) { return 0; } })();
+  const pr = i => { let h = Math.imul(o.seed ^ Math.imul(i + 1, 0x9E3779B1), 0x85EBCA6B); h ^= h >>> 13; h = Math.imul(h, 0xC2B2AE35); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
+  const top = i => 60 + pr(i) * (GY - GAP - 120), score = () => dist < 376 ? 0 : Math.floor((dist - 376) / SP) + 1;
+  function resolve() {
+    if (myFin === null || oppFin === null) return;
+    finish(myFin > oppFin ? "win" : myFin < oppFin ? "lose" : "draw", "You scored " + myFin + ", your opponent " + oppFin + ".");
+  }
+  function die() {
+    dead = true; v = -200; myFin = score();
+    if (online) { conn && conn.send({ t: "fin", s: myFin }); st("You crashed with " + myFin + ". Waiting for your opponent …"); resolve(); }
+    else { let b = best0; if (myFin > b) { b = myFin; try { localStorage.setItem("arc_flappy", b); } catch (e) {} } on = false; st("Game over. Score " + myFin + ", best " + b + "."); $("#again").hidden = false; }
+  }
+  function step(d) {
+    if (!go && !dead) return;
+    v += 1500 * d; y += v * d;
+    if (dead) { if (y > GY - 12) { y = GY - 12; v = 0; } return; }
+    dist += VX * d; if (y < 12) { y = 12; v = 0; } if (y > GY - 12) { y = GY - 12; return die(); }
+    for (let i = Math.max(0, Math.floor((dist - 400 - PW) / SP)); i < Math.max(0, Math.floor((dist - 400 - PW) / SP)) + 4; i++) {
+      const px = 400 + i * SP - dist;
+      if (px < BX + 12 && px + PW > BX - 12 && (y - 12 < top(i) || y + 12 > top(i) + GAP)) return die();
+    }
+  }
+  function flap() { if (dead || cd > 0) return; go = true; v = -420; }
+  return {
+    update(dt) {
+      t += dt; if (cd > 0) { cd -= dt; if (cd <= 0) { cd = 0; go = true; } }
+      if (!go) y = H / 2 - 30 + Math.sin(t * 5) * 6;
+      acc += dt; while (acc >= 1 / 120) { acc -= 1 / 120; step(1 / 120); }
+      if (online && !dead && score() !== sent) { sent = score(); conn && conn.send({ t: "sc", s: sent }); }
+    },
+    down: flap, key(k, d) { if (d && (k === " " || k === "ArrowUp")) flap(); },
+    net(m) { if (m.t === "sc") oppS = m.s | 0; if (m.t === "fin") { oppFin = m.s | 0; oppS = oppFin; resolve(); } },
+    draw() {
+      const g = ctx, sky = g.createLinearGradient(0, 0, 0, GY); sky.addColorStop(0, "#1b1038"); sky.addColorStop(1, "#5a3a8a");
+      g.fillStyle = sky; g.fillRect(0, 0, W, H);
+      for (let i = Math.max(0, Math.floor((dist - 400 - PW) / SP)); i < Math.floor((dist + W - 400) / SP) + 2; i++) {
+        const px = 400 + i * SP - dist, tp = top(i);
+        g.fillStyle = "#3fae5a"; g.strokeStyle = "#1f6b3a"; g.lineWidth = 3;
+        g.fillRect(px, 0, PW, tp); g.strokeRect(px, 0, PW, tp); g.fillRect(px, tp + GAP, PW, GY - tp - GAP); g.strokeRect(px, tp + GAP, PW, GY - tp - GAP);
+        g.fillStyle = "#56c873"; g.fillRect(px - 4, tp - 20, PW + 8, 20); g.strokeRect(px - 4, tp - 20, PW + 8, 20); g.fillRect(px - 4, tp + GAP, PW + 8, 20); g.strokeRect(px - 4, tp + GAP, PW + 8, 20);
+      }
+      g.fillStyle = "#c8a24a"; g.fillRect(0, GY, W, H - GY); g.fillStyle = "#8a6a1f";
+      for (let x = -((dist * 1) % 40); x < W; x += 40) g.fillRect(x, GY, 20, 10);
+      g.save(); g.translate(BX, y); g.rotate(clamp(v / 700, -.5, 1.1));
+      g.fillStyle = "#f0cf7a"; g.beginPath(); g.arc(0, 0, 13, 0, 7); g.fill(); g.strokeStyle = "#8a6a1f"; g.lineWidth = 2; g.stroke();
+      g.fillStyle = "#fff"; g.beginPath(); g.arc(5, -4, 4.5, 0, 7); g.fill(); g.fillStyle = "#222"; g.beginPath(); g.arc(6.5, -4, 2, 0, 7); g.fill();
+      g.fillStyle = "#e0525f"; g.beginPath(); g.moveTo(10, 1); g.lineTo(21, 4); g.lineTo(10, 8); g.fill(); g.restore();
+      g.textAlign = "center"; g.fillStyle = "#fff"; g.strokeStyle = "#000"; g.lineWidth = 4; g.font = "700 44px Figtree,sans-serif";
+      g.strokeText(score(), W / 2, 60); g.fillText(score(), W / 2, 60);
+      g.font = "600 15px Figtree,sans-serif"; g.lineWidth = 3;
+      const sub = online ? "Opponent: " + oppS : "Best: " + Math.max(best0, myFin || 0);
+      g.strokeText(sub, W / 2, 86); g.fillText(sub, W / 2, 86);
+      if (cd > 0) { g.font = "700 64px Figtree,sans-serif"; g.strokeText(Math.ceil(cd), W / 2, 240); g.fillText(Math.ceil(cd), W / 2, 240); }
+      else if (!go) { g.font = "600 18px Figtree,sans-serif"; g.strokeText("Tap or press Space to start", W / 2, 240); g.fillText("Tap or press Space to start", W / 2, 240); }
+    }
+  };
+}
+
+/* Pong: the host (or solo player) simulates, the guest sends its paddle and renders the host’s state */
+function Pong(o) {
+  const W = 640, H = 400, PH = 70, WIN = 5, K = {};
+  let my = H / 2, oy = H / 2, ly = H / 2, bx = W / 2, by = H / 2, vx = 0, vy = 0, sp = 300, sc = [0, 0], wait = 2, over = false, ts = 0, ta = 0;
+  const serve = d => { bx = W / 2; by = H / 2; sp = 300; const a = (Math.random() - .5) * .8; vx = Math.cos(a) * sp * d; vy = Math.sin(a) * sp; wait = 1.2; };
+  serve(Math.random() < .5 ? 1 : -1);
+  function hit(p, dir) { const a = (by - p) / (PH / 2) * .9; sp = Math.min(620, sp * 1.06); vx = dir * Math.cos(a) * sp; vy = Math.sin(a) * sp; bx = dir > 0 ? 33 : W - 33; }
+  function point(i, d) {
+    sc[i]++;
+    if (sc[0] >= WIN || sc[1] >= WIN) {
+      over = true; const w = sc[0] > sc[1] ? "h" : "g";
+      if (role === "host") conn && conn.send({ t: "end", w, sc });
+      finish(w === "h" ? "win" : "lose", w === "h" ? "You win " + sc[0] + " to " + sc[1] + "." : "You lose " + sc[0] + " to " + sc[1] + ".");
+    } else serve(d);
+  }
+  return {
+    update(dt) {
+      if (K.u) my -= 380 * dt; if (K.d) my += 380 * dt; my = clamp(my, PH / 2, H - PH / 2);
+      if (role === "guest") { ts += dt; if (ts > .03) { ts = 0; conn && conn.send({ t: "in", y: my }); } return; }
+      if (role === "solo") oy = clamp(oy + clamp(by - oy, -235 * dt, 235 * dt), PH / 2, H - PH / 2);
+      ly = my; if (over) return;
+      if (wait > 0) wait -= dt;
+      else {
+        bx += vx * dt; by += vy * dt;
+        if (by < 6) { by = 6; vy = Math.abs(vy); } if (by > H - 6) { by = H - 6; vy = -Math.abs(vy); }
+        if (vx < 0 && bx <= 32 && bx >= 14 && Math.abs(by - ly) < PH / 2 + 6) hit(ly, 1);
+        if (vx > 0 && bx >= W - 32 && bx <= W - 14 && Math.abs(by - oy) < PH / 2 + 6) hit(oy, -1);
+        if (bx < -10) point(1, -1); else if (bx > W + 10) point(0, 1);
+      }
+      if (role === "host") { ta += dt; if (ta > .033) { ta = 0; conn && conn.send({ t: "st", bx, by, ly, sc, w: wait > 0 }); } }
+    },
+    key(k, d) { const l = k.toLowerCase(); if (l === "w" || l === "arrowup") K.u = d; if (l === "s" || l === "arrowdown") K.d = d; },
+    down(x, y) { my = clamp(y, PH / 2, H - PH / 2); }, move(x, y) { my = clamp(y, PH / 2, H - PH / 2); },
+    net(m) {
+      if (role === "host" && m.t === "in") oy = clamp(+m.y || H / 2, PH / 2, H - PH / 2);
+      if (role === "guest" && m.t === "st") { bx = +m.bx; by = +m.by; ly = +m.ly; sc = m.sc; wait = m.w ? 1 : 0; }
+      if (role === "guest" && m.t === "end") { over = true; sc = m.sc; finish(m.w === "g" ? "win" : "lose", (m.w === "g" ? "You win " : "You lose ") + sc[1] + " to " + sc[0] + "."); }
+    },
+    draw() {
+      const g = ctx, L = role === "guest" ? ly : my, R = role === "guest" ? my : oy;
+      g.fillStyle = "#000"; g.fillRect(0, 0, W, H); g.fillStyle = "#fff";
+      for (let y = 8; y < H; y += 28) g.fillRect(W / 2 - 3, y, 6, 14);
+      g.fillRect(20, L - PH / 2, 10, PH); g.fillRect(W - 30, R - PH / 2, 10, PH); g.fillRect(bx - 5, by - 5, 10, 10);
+      g.font = "700 52px 'Courier New',monospace"; g.textAlign = "center";
+      const a = role === "guest" ? sc[1] : sc[0], b = role === "guest" ? sc[0] : sc[1];
+      if (role === "guest") { g.fillText(sc[0], W / 2 - 70, 60); g.fillText(sc[1], W / 2 + 70, 60); } else { g.fillText(sc[0], W / 2 - 70, 60); g.fillText(sc[1], W / 2 + 70, 60); }
+      g.font = "600 14px 'Courier New',monospace"; g.fillText(role === "solo" ? "YOU        COMPUTER" : role === "host" ? "YOU        FRIEND" : "FRIEND        YOU", W / 2, H - 12);
+      if (wait > 0 && !over) { g.font = "700 20px 'Courier New',monospace"; g.fillText("GET READY", W / 2, H / 2 - 30); }
+    }
+  };
+}
+
+/* Tic Tac Toe */
+function TTT(o) {
+  const L = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]];
+  const bd = Array(9).fill(""), me = role === "solo" ? "X" : (role === "host") === (o.first === "h") ? "X" : "O";
+  let turn = "X", over = false, line = null;
+  const wn = b => { for (const l of L) if (b[l[0]] && b[l[0]] === b[l[1]] && b[l[0]] === b[l[2]]) return l; return null; };
+  const mm = (b, s) => { const l = wn(b); if (l) return b[l[0]] === "O" ? 1 : -1; if (b.every(x => x)) return 0; let r = s === "O" ? -2 : 2; for (let i = 0; i < 9; i++) if (!b[i]) { b[i] = s; const v = mm(b, s === "O" ? "X" : "O"); b[i] = ""; r = s === "O" ? Math.max(r, v) : Math.min(r, v); } return r; };
+  function status() { if (!over) st(turn === me ? "Your turn (" + me + ")" : role === "solo" ? "Computer is thinking …" : "Your opponent’s turn"); }
+  function place(i, s) {
+    bd[i] = s; const l = wn(bd);
+    if (l) { line = l; over = true; finish(s === me ? "win" : "lose", s === me ? "Three in a row!" : "Your opponent got three in a row."); }
+    else if (bd.every(x => x)) { over = true; finish("draw", "It’s a draw."); }
+    else { turn = s === "X" ? "O" : "X"; status(); if (role === "solo" && turn !== me) setTimeout(ai, 450); }
+  }
+  function ai() {
+    if (over) return; const e = [...bd.keys()].filter(i => !bd[i]); let mv = e[rnd(e.length)];
+    if (Math.random() > .25) { let bs = -3; e.forEach(i => { bd[i] = "O"; const v = mm(bd, "X"); bd[i] = ""; if (v > bs) { bs = v; mv = i; } }); }
+    place(mv, "O");
+  }
+  status();
+  return {
+    update() {},
+    down(x, y) {
+      if (over || turn !== me) return; const i = Math.floor(y / 140) * 3 + Math.floor(x / 140);
+      if (i < 0 || i > 8 || bd[i]) return; place(i, me); if (role !== "solo") conn && conn.send({ t: "mv", i });
+    },
+    net(m) { if (m.t !== "mv" || over || turn === me) return; const i = m.i | 0; if (i < 0 || i > 8 || bd[i]) return; place(i, turn); },
+    draw() {
+      const g = ctx; g.fillStyle = "#10081f"; g.fillRect(0, 0, 420, 420); g.strokeStyle = "#c8a24a"; g.lineWidth = 6; g.lineCap = "round";
+      [140, 280].forEach(p => { g.beginPath(); g.moveTo(p, 16); g.lineTo(p, 404); g.moveTo(16, p); g.lineTo(404, p); g.stroke(); });
+      bd.forEach((s, i) => {
+        const cx = i % 3 * 140 + 70, cy = Math.floor(i / 3) * 140 + 70; g.lineWidth = 10;
+        if (s === "X") { g.strokeStyle = "#e0525f"; g.beginPath(); g.moveTo(cx - 34, cy - 34); g.lineTo(cx + 34, cy + 34); g.moveTo(cx + 34, cy - 34); g.lineTo(cx - 34, cy + 34); g.stroke(); }
+        if (s === "O") { g.strokeStyle = "#f2ead3"; g.beginPath(); g.arc(cx, cy, 36, 0, 7); g.stroke(); }
+      });
+      if (line) { const a = line[0], c = line[2]; g.strokeStyle = "#f0cf7a"; g.lineWidth = 8; g.beginPath(); g.moveTo(a % 3 * 140 + 70, Math.floor(a / 3) * 140 + 70); g.lineTo(c % 3 * 140 + 70, Math.floor(c / 3) * 140 + 70); g.stroke(); }
+    }
+  };
+}
+
+/* Invite links: ?room=CODE&g=pong */
+const qs = new URLSearchParams(location.search), qr = qs.get("room");
+if (qr) { openGame(GN[qs.get("g")] ? qs.get("g") : "pong"); $("#code").value = qr.slice(0, 4); setTimeout(() => join(qr), 300); }
+</script>
+</body>
+</html>
