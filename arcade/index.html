@@ -46,7 +46,15 @@ canvas{display:block;margin:12px auto;max-width:100%;border:3px solid var(--pink
 .gc b{color:#fff;font-size:1.3rem}.gc small{color:rgba(255,255,255,.8)}
 .gc em{font-style:normal;margin-top:6px;padding:2px 10px;border-radius:99px;background:rgba(0,0,0,.35);font-size:.78rem;color:var(--gold)}
 .gc u{text-decoration:none;margin-top:2px;font-size:.8rem;color:#fff}
-#inv{gap:8px}#lnk{width:min(430px,100%);border-radius:10px;font-size:.9rem}
+.codebox{padding:8px 26px;border:2px dashed var(--gold);border-radius:14px;background:#0a0614;font-weight:600}
+#rc{margin-left:12px;font:700 2.2rem "Courier New",monospace;letter-spacing:.35em;color:var(--gold);text-shadow:0 0 14px var(--gold)}
+#wcode{width:130px;text-transform:uppercase;text-align:center}
+#wbar{min-height:48px}
+.ov{position:fixed;inset:0;z-index:6;display:grid;place-items:center;background:rgba(10,3,6,.9)}
+.gb{width:min(400px,92vw);padding:26px;border:2px solid var(--pink);border-radius:18px;background:linear-gradient(#1b0f33,#10081f);box-shadow:0 0 30px rgba(255,122,168,.3);text-align:center;display:grid;gap:12px}
+.gb h2{margin:0;font:italic 600 1.8rem "Bodoni Moda",Georgia,serif;color:var(--pink)}
+.gb p{margin:0;color:var(--brass)}.gb input#nm{width:100%}
+#note{z-index:8}
 </style>
 </head>
 <body>
@@ -57,33 +65,44 @@ canvas{display:block;margin:12px auto;max-width:100%;border:3px solid var(--pink
     <span class="pill">Balance <b id="bal">1,000</b></span>
   </div>
   <p class="hint"><a href="../multiplayer/">← Casino (multiplayer)</a> · <a href="../">Casino (singleplayer)</a></p>
+  <div class="row" id="rbar" hidden><div class="codebox">Room code<b id="rc"></b></div><span class="pill" id="rn">1 online</span><button id="cp">Copy invite link</button><button id="lr">Leave room</button></div>
 
   <section id="menu">
     <div class="hero">
       <div class="marq">★ INSERT COIN ★</div>
-      <p>Play alone, or challenge a friend online and bet your casino play money. <b>The winner takes the stake.</b></p>
-      <div class="steps"><div><span>1</span>Pick a game</div><div><span>2</span>Solo, or host / join online</div><div><span>3</span>Winner takes the stake</div></div>
+      <p>Everyone in the room walks around the arcade together. Walk to a machine (WASD or arrow keys, or tap the floor) and press E, then play solo or <b>challenge another player</b> and bet your casino play money: the winner takes the stake.</p>
     </div>
-    <div class="cards"></div>
+    <canvas id="wc" aria-label="Arcade hall"></canvas>
+    <div class="row" id="wbar"><button class="go" id="wplay" hidden></button></div>
   </section>
 
   <section id="gp" hidden>
     <div class="top"><b id="gt" style="font-size:1.3rem"></b><button id="bk">← All games</button></div>
     <div id="setup">
       <div class="row"><button class="go" id="solo">Play solo</button></div>
-      <div class="row">
-        <label>Stake <input id="stk" type="number" min="0" value="50" aria-label="Stake in chips"></label>
-        <button id="host">Host online</button>
-        <input id="code" maxlength="4" placeholder="Code" aria-label="Room code">
-        <button id="join">Join</button>
-      </div>
+      <div class="row"><label>Stake <input id="stk" type="number" min="0" value="50" aria-label="Stake in chips"></label></div>
+      <p class="hint">Challenge a player in the room. The winner takes the stake:</p>
+      <div class="row" id="plist"></div>
     </div>
     <p class="msg" id="st"></p>
-    <div class="row" id="inv" hidden><span class="pill">Room code <b id="rc"></b></span><input id="lnk" readonly aria-label="Invite link"><button id="cp">Copy link</button></div>
     <div class="row"><button class="go" id="acc" hidden></button><button class="go" id="again" hidden>Play again</button></div>
     <canvas id="cv" width="360" height="560" aria-label="Game"></canvas>
     <p class="hint" id="help"></p>
   </section>
+</div>
+
+<div id="gate" class="ov">
+  <div class="gb">
+    <h2>★ jakup arcade ★</h2>
+    <p>Play money only. No real money is involved.</p>
+    <input id="nm" maxlength="12" placeholder="Your name" aria-label="Your name">
+    <button class="go" id="host">Host a new room</button>
+    <div class="row"><input id="code" maxlength="4" placeholder="Code" aria-label="Room code"><button id="join">Join room</button></div>
+    <p id="gs">Host a new room, or join a friend’s room.</p>
+  </div>
+</div>
+<div id="chal" class="ov" hidden>
+  <div class="gb"><h2 id="ct"></h2><div class="row"><button class="go" id="cy">Accept</button><button id="cn">Decline</button></div></div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
@@ -103,25 +122,18 @@ function addBal(d) {
 addEventListener("storage", show); addEventListener("focus", show); show();
 
 const GN = {
-  flappy: ["🐦", "Flappy Bird", "Tap, click or press Space to flap. Online, both players get the same pipes and the higher score wins.", "Dodge the neon pipes", "#3a1a7a", "#a0306a", "Solo · 2 online", "arc_flappy"],
+  wings: ["🐦", "Neon Wings", "Tap, click or press Space to flap. Online, both players get the same pipes and the higher score wins.", "Dodge the neon pipes", "#3a1a7a", "#a0306a", "Solo · 2 online", "arc_wings"],
   snake: ["🐍", "Snake", "Arrow keys, WASD or swipe. Eat apples, avoid the walls and yourself. Online, both get the same apples and the higher score wins.", "Eat, grow, survive", "#0f4a36", "#2a7a3a", "Solo · 2 online", "arc_snake"],
   breakout: ["🧱", "Breakout", "Move the paddle with the mouse, your finger or the arrow keys. Smash every brick. Online, both get the same bricks and the higher score wins.", "Smash every brick", "#5a2a0a", "#a02a3a", "Solo · 2 online", "arc_breakout"],
   pong: ["🏓", "Pong", "Move with W/S or the arrow keys, or drag on the screen. First to 5 points wins.", "The retro classic", "#0b2a4a", "#2a2a6a", "Solo · 2 online", null],
   ttt: ["❌", "Tic Tac Toe", "Click a square. Three in a row wins. Online, who starts is random.", "Three in a row wins", "#143a6a", "#1a7a8a", "Solo · 2 online", null],
   c4: ["🔴", "Connect Four", "Click a column to drop a disc. Four in a row wins. Online, who starts is random.", "Drop four in a row", "#10306a", "#6a1a6a", "Solo · 2 online", null]
 };
-function renderMenu() {
-  $("#menu .cards").innerHTML = Object.keys(GN).map(g => {
-    const a = GN[g]; let b = ""; try { const v = a[7] && +localStorage.getItem(a[7]); if (v) b = "<u>Best: " + v + "</u>"; } catch (e) {}
-    return '<button class="gc" data-g="' + g + '" style="--c1:' + a[4] + ";--c2:" + a[5] + '"><i class="ic">' + a[0] + "</i><b>" + a[1] + "</b><small>" + a[3] + "</small><em>" + a[6] + "</em>" + b + "</button>";
-  }).join("");
-}
-renderMenu();
 $("#menu").onclick = e => { const b = e.target.closest("[data-g]"); if (b) openGame(b.dataset.g); };
 
 let G = null, net = null, conn = null, role = "solo", stake = 0, escrow = 0, on = false, cur = null, raf = 0, last = 0, link = "";
 const st = t => $("#st").textContent = t;
-const SIZE = { flappy: [360, 560], ttt: [420, 480], pong: [640, 400], snake: [400, 450], breakout: [400, 520], c4: [448, 500] };
+const SIZE = { wings: [360, 560], ttt: [420, 480], pong: [640, 400], snake: [400, 450], breakout: [400, 520], c4: [448, 500] };
 let LW = 360, LH = 560, SC = 1;
 function fit() {
   const [w, h] = SIZE[G], d = Math.min(devicePixelRatio || 1, 2), aw = Math.min($("#gp").clientWidth || innerWidth, 920), ah = Math.max(280, innerHeight - 250), k = Math.min(aw / w, ah / h);
@@ -140,12 +152,14 @@ function setGameUI() {
   fit(); idle();
 }
 function openGame(g) {
-  stopMatch(); G = g; $("#menu").hidden = true; $("#gp").hidden = false; $("#setup").hidden = role !== "solo";
-  $("#acc").hidden = $("#again").hidden = true; st(""); setGameUI();
+  worldOn = false; cancelAnimationFrame(wraf); stopMatch(); G = g; $("#menu").hidden = true; $("#gp").hidden = false; $("#setup").hidden = role !== "solo";
+  $("#acc").hidden = $("#again").hidden = true; st(""); setGameUI(); renderPlist();
 }
 function stopMatch() { cancelAnimationFrame(raf); cur = null; on = false; }
-function closeNet() { try { net && net.destroy(); } catch (e) {} net = conn = null; role = "solo"; escrow = 0; $("#inv").hidden = true; }
-$("#bk").onclick = () => { stopMatch(); closeNet(); $("#gp").hidden = true; $("#menu").hidden = false; renderMenu(); };
+$("#bk").onclick = () => {
+  if (conn) { try { conn.send({ t: "leave" }); } catch (e) {} } if (!on && escrow) addBal(escrow); escrow = 0; conn = null; role = "solo"; stopMatch();
+  $("#gp").hidden = true; $("#menu").hidden = false; worldBack();
+};
 
 /* Match flow */
 function begin(seed, first) {
@@ -163,67 +177,122 @@ function finish(res, msg) {
     else msg += " You lose " + fmt(escrow) + " chips.";
     escrow = 0;
   }
-  st(role === "guest" ? msg + " Waiting for the host to start a rematch …" : msg);
+  st(role === "guest" ? msg + " Waiting for your opponent to offer a rematch …" : msg);
   if (role !== "guest") $("#again").hidden = false;
 }
 $("#solo").onclick = () => { role = "solo"; stake = 0; begin(rnd32(), "h"); };
 $("#again").onclick = () => role === "host" ? offer() : begin(rnd32(), "h");
-$("#acc").onclick = () => {
-  if (stake > bal()) return st("You don’t have enough chips for that stake.");
-  addBal(-stake); escrow = stake; $("#acc").hidden = true; conn && conn.send({ t: "ok" }); st("Waiting for the host to start …");
-};
-$("#lnk").onclick = () => $("#lnk").select();
 $("#cp").onclick = () => {
-  const ok = () => { $("#cp").textContent = "Copied!"; setTimeout(() => $("#cp").textContent = "Copy link", 1500); };
-  if (navigator.clipboard) navigator.clipboard.writeText(link).then(ok, () => { $("#lnk").select(); document.execCommand("copy") && ok(); });
-  else { $("#lnk").select(); document.execCommand("copy") && ok(); }
+  const ok = () => { $("#cp").textContent = "Copied!"; setTimeout(() => $("#cp").textContent = "Copy invite link", 1500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(link).then(ok, () => prompt("Copy this invite link:", link)); else prompt("Copy this invite link:", link);
 };
 
-/* Online (PeerJS): one host, one guest */
-const PRE = "jakup-arc-";
-function wire(c) {
-  conn = c; c.on("data", onMsg);
-  c.on("close", () => {
-    if (conn !== c) return; conn = null; if (!on && escrow) { addBal(escrow); escrow = 0; }
-    if (on) finish("win", "Your opponent left the game."); else st(role === "host" ? "Your friend left. Waiting for someone to join …" : "Disconnected.");
-  });
+/* Online room (PeerJS): everybody joins one room and the room host relays between players. Matches run player to player through the room. */
+const PRE = "jakup-arc-", esc = t => String(t).replace(/[&<>"]/g, c => "&#" + c.charCodeAt(0) + ";");
+let rmode = "none", hostConn = null, rconns = [], pid = null, inRoom = false, pendingChal = null, plHtml = "";
+const peers = {}, gmsg = t => $("#gs").textContent = t, pnm = id => (peers[id] && peers[id].n) || "Your opponent";
+const vconn = id => ({ peerId: id, open: true, send: m => toPeer(id, m) });
+function toPeer(to, m) {
+  const w = { t: "gm", to, from: pid, m };
+  if (rmode === "host") { if (to !== pid) { const c = rconns.find(x => x.peer === to); if (c && c.open) c.send(w); } }
+  else if (hostConn && hostConn.open) hostConn.send(w);
 }
-function host() {
-  if (net) return; if (typeof Peer === "undefined") return st("Online play is unavailable offline.");
-  stake = Math.max(0, Math.floor(+$("#stk").value) || 0);
+function enterRoom(code) {
+  inRoom = true; link = location.origin + location.pathname + "?room=" + code; $("#gate").hidden = true; $("#rbar").hidden = false; $("#rc").textContent = code;
+  pl.n = ($("#nm").value.trim() || "Guest").slice(0, 12); pl.a = LK; try { localStorage.setItem("casino_name", pl.n); } catch (e) {}
+}
+function hostRoom() {
+  if (net) return; if (typeof Peer === "undefined") return gmsg("Online play is unavailable offline.");
+  const code = Math.random().toString(36).slice(2, 6).toUpperCase(); rmode = "host"; gmsg("Opening room …"); net = new Peer(PRE + code);
+  net.on("open", id => { pid = id; enterRoom(code); });
+  net.on("connection", c => { rconns.push(c); c.on("data", m => recvRoom(m, c)); c.on("close", () => { rconns = rconns.filter(x => x !== c); dropPeer(c.peer); }); });
+  net.on("error", e => leaveRoom("Error: " + e.type));
+}
+function joinRoom(code) {
+  if (net) return; if (typeof Peer === "undefined") return gmsg("Online play is unavailable offline.");
+  code = String(code || "").trim().toUpperCase(); if (code.length < 4) return gmsg("Enter the 4-letter room code.");
+  rmode = "guest"; gmsg("Joining …"); net = new Peer();
+  net.on("open", id => { pid = id; const c = net.connect(PRE + code); hostConn = c; c.on("open", () => enterRoom(code)); c.on("data", m => recvRoom(m, c)); c.on("close", () => { if (hostConn === c) roomClosed(); }); });
+  net.on("error", e => leaveRoom(e.type === "peer-unavailable" ? "Room not found." : "Error: " + e.type));
+}
+function recvRoom(m, from) {
+  if (!m) return;
+  if (m.t === "s") {
+    if (m.id === pid) return; const p = peers[m.id] || (peers[m.id] = { x: +m.x || 0, y: +m.y || 0, ph: 0 });
+    Object.assign(p, { tx: +m.x || 0, ty: +m.y || 0, n: String(m.n || "Guest").slice(0, 12), a: Array.isArray(m.a) ? m.a.slice(0, 5).map(v => v | 0) : [1, 1, 1, 1, 0], f: m.f | 0, m: m.m | 0, g: GN[m.g] ? m.g : null, b: m.b | 0, seen: performance.now() });
+    if (rmode === "host") rconns.forEach(c => c !== from && c.open && c.send(m)); return;
+  }
+  if (m.t === "gm") { if (m.to === pid) return onGameMsg(m.from, m.m); if (rmode === "host") { const c = rconns.find(x => x.peer === m.to); if (c && c.open) c.send(m); } return; }
+  if (m.t === "gone" && rmode === "guest") peerGone(m.id);
+}
+function dropPeer(id) { peerGone(id); rconns.forEach(c => c.open && c.send({ t: "gone", id })); }
+function oppLeft(id) {
+  if (!conn || conn.peerId !== id) return;
+  if (on) finish("win", "Your opponent left the game."); else { if (escrow) { addBal(escrow); escrow = 0; } st("Your opponent left."); }
+  conn = null; role = "solo"; $("#setup").hidden = false; $("#again").hidden = true; renderPlist();
+}
+function peerGone(id) { delete peers[id]; if (pendingChal && pendingChal.from === id) { pendingChal = null; $("#chal").hidden = true; } oppLeft(id); }
+function roomClosed() { if (escrow) { addBal(escrow); escrow = 0; } leaveRoom("The room was closed."); }
+function leaveRoom(msg) {
+  if (conn) { try { conn.send({ t: "leave" }); } catch (e) {} } if (!on && escrow) addBal(escrow); escrow = 0; conn = null; role = "solo"; stopMatch();
+  try { net && net.destroy(); } catch (e) {} net = hostConn = null; rconns = []; rmode = "none"; pid = null; inRoom = false; for (const k in peers) delete peers[k];
+  pendingChal = null; $("#chal").hidden = true; $("#rbar").hidden = true; $("#gp").hidden = true; $("#menu").hidden = false; $("#gate").hidden = false;
+  gmsg(msg || "Host a new room, or join a friend’s room."); worldBack();
+}
+$("#host").onclick = hostRoom; $("#join").onclick = () => joinRoom($("#code").value); $("#lr").onclick = () => leaveRoom();
+$("#nm").value = PNAME0();
+function PNAME0() { try { return (localStorage.getItem("casino_name") || "").slice(0, 12); } catch (e) { return ""; } }
+
+/* Challenges and matches */
+function challenge(id) {
+  if (role !== "solo" || !inRoom) return; stake = Math.max(0, Math.floor(+$("#stk").value) || 0);
   if (stake > bal()) return st("You don’t have enough chips for that stake.");
-  const code = Math.random().toString(36).slice(2, 6).toUpperCase(); role = "host"; st("Opening room …"); net = new Peer(PRE + code);
-  net.on("open", () => { link = location.origin + location.pathname + "?room=" + code + "&g=" + G; $("#setup").hidden = true; $("#rc").textContent = code; $("#lnk").value = link; $("#inv").hidden = false; st("Room open: waiting for a friend. Send them the code or the link below."); });
-  net.on("connection", c => { if (conn) { c.close(); return; } wire(c); if (c.open) offer(); else c.on("open", offer); });
-  net.on("error", e => { closeNet(); $("#setup").hidden = false; st("Error: " + e.type); });
+  role = "host"; conn = vconn(id); $("#setup").hidden = true; conn.send({ t: "cfg", g: G, stake }); st("Waiting for " + pnm(id) + " to accept …");
 }
-function join(code) {
-  if (net) return; if (typeof Peer === "undefined") return st("Online play is unavailable offline.");
-  code = String(code || "").trim().toUpperCase(); if (code.length < 4) return st("Enter the 4-letter room code.");
-  role = "guest"; st("Joining …"); net = new Peer();
-  net.on("open", () => { const c = net.connect(PRE + code); c.on("open", () => { wire(c); $("#setup").hidden = true; st("Connected. Waiting for the host …"); }); });
-  net.on("error", e => { const m = e.type === "peer-unavailable" ? "Room not found." : "Error: " + e.type; closeNet(); $("#setup").hidden = false; st(m); });
-}
-$("#host").onclick = host; $("#join").onclick = () => join($("#code").value);
 function offer() {
-  if (!conn) return st("Waiting for a friend to join …"); if (on) return;
-  if (stake > bal()) return st("You don’t have enough chips for that stake.");
-  conn.send({ t: "cfg", g: G, stake }); $("#again").hidden = true; st("Waiting for your friend to accept the stake of " + fmt(stake) + " chips …");
+  if (!conn) return st("Your opponent has left."); if (on) return; if (stake > bal()) return st("You don’t have enough chips for that stake.");
+  conn.send({ t: "cfg", g: G, stake }); $("#again").hidden = true; st("Waiting for " + pnm(conn.peerId) + " to accept …");
+}
+function incoming(from, m) {
+  const gm = GN[m.g];
+  if (!gm || on || pendingChal || (role !== "solo" && !(conn && conn.peerId === from))) return toPeer(from, { t: "decl" });
+  pendingChal = { from, m }; $("#ct").textContent = pnm(from) + " challenges you to " + gm[1] + (m.stake ? " for " + fmt(m.stake | 0) + " chips" : " (no stake)") + "!"; $("#chal").hidden = false;
+}
+$("#cn").onclick = () => { const c = pendingChal; pendingChal = null; $("#chal").hidden = true; if (c) toPeer(c.from, { t: "decl" }); };
+$("#cy").onclick = () => {
+  const c = pendingChal; pendingChal = null; $("#chal").hidden = true; if (!c) return; const s = Math.max(0, c.m.stake | 0);
+  if (s > bal()) return toPeer(c.from, { t: "decl" });
+  conn = vconn(c.from); role = "guest"; stake = s; openGame(c.m.g); addBal(-s); escrow = s; conn.send({ t: "ok" }); st("Waiting for " + pnm(c.from) + " to start …");
+};
+function onGameMsg(from, m) {
+  if (!m) return; if (m.t === "cfg") return incoming(from, m);
+  if (m.t === "decl") { if (role === "host" && conn && conn.peerId === from && !on) { conn = null; role = "solo"; $("#setup").hidden = false; st(pnm(from) + " declined or is busy."); } return; }
+  if (!conn || conn.peerId !== from) return; if (m.t === "leave") return oppLeft(from); onMsg(m);
 }
 function onMsg(m) {
   if (!m) return;
-  if (m.t === "cfg" && role === "guest") {
-    if (on) return; G = GN[m.g] ? m.g : G; stake = Math.max(0, m.stake | 0); stopMatch(); setGameUI();
-    st(GN[G][1] + " for " + fmt(stake) + " chips. Do you accept?"); $("#acc").textContent = stake ? "Accept and pay " + fmt(stake) : "Accept"; $("#acc").hidden = false; $("#again").hidden = true; return;
-  }
   if (m.t === "ok" && role === "host") {
     if (on) return; if (stake > bal()) { conn.send({ t: "no" }); return st("You don’t have enough chips for that stake."); }
     addBal(-stake); escrow = stake; const seed = rnd32(), first = Math.random() < .5 ? "h" : "g"; conn.send({ t: "go", seed, first }); begin(seed, first); return;
   }
-  if (m.t === "no" && role === "guest") { addBal(escrow); escrow = 0; return st("The host doesn’t have enough chips for that stake."); }
+  if (m.t === "no" && role === "guest") { addBal(escrow); escrow = 0; return st("Your opponent doesn’t have enough chips for that stake."); }
   if (m.t === "go" && role === "guest") return begin(m.seed | 0, m.first);
   if (cur && cur.net) cur.net(m);
 }
+function renderPlist() {
+  const el = $("#plist"); if (!el || $("#gp").hidden) return; const ids = Object.keys(peers);
+  const h = ids.length ? ids.map(id => { const p = peers[id]; return '<button data-id="' + esc(id) + '"' + (p.b || conn ? " disabled" : "") + ">" + esc(p.n || "Guest") + (p.b ? " · busy" : p.g && GN[p.g] ? " · at " + GN[p.g][0] : "") + "</button>"; }).join("") : '<span class="hint">Nobody else is in the room yet. Share the room code!</span>';
+  if (h !== plHtml) { plHtml = h; el.innerHTML = h; }
+}
+$("#plist").onclick = e => { const b = e.target.closest("button"); if (b && !b.disabled) challenge(b.dataset.id); };
+setInterval(() => {
+  if (!inRoom) return; const m = { t: "s", id: pid, x: Math.round(pl.x), y: Math.round(pl.y), n: pl.n, a: pl.a, f: pl.f, m: pl.m, g: $("#gp").hidden ? null : G, b: conn ? 1 : 0 };
+  if (rmode === "host") rconns.forEach(c => c.open && c.send(m)); else if (hostConn && hostConn.open) hostConn.send(m);
+}, 100);
+setInterval(() => {
+  if (!inRoom) return; const now = performance.now(); for (const k in peers) if (now - peers[k].seen > 3500) peerGone(k);
+  $("#rn").textContent = Object.keys(peers).length + 1 + " online"; renderPlist();
+}, 1000);
 
 /* Input */
 const pt = e => { const r = cv.getBoundingClientRect(); return [(e.clientX - r.left) * LW / r.width, (e.clientY - r.top) * LH / r.height]; };
@@ -239,11 +308,11 @@ addEventListener("keyup", e => cur && cur.key && cur.key(e.key, false));
 addEventListener("resize", () => { if (G && !$("#gp").hidden) { fit(); if (!cur) idle(); } });
 const roundR = (g, x, y, w, h, r) => { g.beginPath(); g.roundRect(x, y, w, h, r); };
 
-/* Flappy Bird: fixed time step and seeded pipes, so online players get identical runs */
-function Flappy(o) {
+/* Neon Wings: fixed time step and seeded pipes, so online players get identical runs */
+function Wings(o) {
   const W = 360, H = 560, GY = 500, GAP = 140, SP = 210, PW = 54, VX = 120, BX = 90, online = role !== "solo";
   let y = H / 2 - 30, v = 0, dist = 0, dead = false, go = !online, cd = online ? 3 : 0, acc = 0, sent = -1, oppS = 0, oppFin = null, myFin = null, t = 0, fl = 0, dead0 = 0, shake = 0, P = [];
-  const best0 = (() => { try { return +localStorage.getItem("arc_flappy") || 0; } catch (e) { return 0; } })();
+  const best0 = (() => { try { return +localStorage.getItem("arc_wings") || 0; } catch (e) { return 0; } })();
   const pr = i => { let h = Math.imul(o.seed ^ Math.imul(i + 1, 0x9E3779B1), 0x85EBCA6B); h ^= h >>> 13; h = Math.imul(h, 0xC2B2AE35); h ^= h >>> 16; return (h >>> 0) / 4294967296; };
   const top = i => 60 + pr(i) * (GY - GAP - 120), score = () => dist < 376 ? 0 : Math.floor((dist - 376) / SP) + 1;
   const puff = (n, c, burst) => { for (let i = 0; i < n; i++) { const a = Math.random() * 6.28; P.push(burst ? { x: BX, y, vx: Math.cos(a) * 140, vy: Math.sin(a) * 140, l: .7, c } : { x: BX - 10, y: y + 6, vx: -40 - Math.random() * 70, vy: (Math.random() - .3) * 80, l: .45, c }); } };
@@ -254,7 +323,7 @@ function Flappy(o) {
   function die() {
     dead = true; v = -200; myFin = score(); shake = .4; puff(16, "#ffd23a", true);
     if (online) { conn && conn.send({ t: "fin", s: myFin }); st("You crashed with " + myFin + ". Waiting for your opponent …"); resolve(); }
-    else { let b = best0; if (myFin > b) { b = myFin; try { localStorage.setItem("arc_flappy", b); } catch (e) {} } on = false; st("Game over. Score " + myFin + ", best " + b + "."); $("#again").hidden = false; }
+    else { let b = best0; if (myFin > b) { b = myFin; try { localStorage.setItem("arc_wings", b); } catch (e) {} } on = false; st("Game over. Score " + myFin + ", best " + b + "."); $("#again").hidden = false; }
   }
   function step(d) {
     if (!go && !dead) return;
@@ -617,11 +686,125 @@ function Connect4(o) {
     }
   };
 }
-const MK = { flappy: Flappy, ttt: TTT, pong: Pong, snake: Snake, breakout: Breakout, c4: Connect4 };
+const MK = { wings: Wings, ttt: TTT, pong: Pong, snake: Snake, breakout: Breakout, c4: Connect4 };
+
+/* Walkable arcade hall */
+const WWd = 1280, WHd = 820;
+const SK = ["#f5d3b3", "#e0ac84", "#b97a50", "#7a4a2c", "#4b2e1e"], HC = ["#2b1a10", "#6b3a1a", "#d9b25a", "#b5382c", "#2a2a2a", "#cfcfcf"], SH = ["#c0392b", "#2d5a8a", "#1f6b4c", "#6b3a8a", "#e0a100", "#222222"], PN = ["#2a2f4a", "#3a3a3a", "#6b5a3a", "#8c2331"];
+let LK = [1, 1, 1, 1, 0], PNAME = "";
+try { const v = JSON.parse(localStorage.getItem("casino_look")); if (Array.isArray(v) && v.length === 5) LK = v.map(n => n | 0); PNAME = (localStorage.getItem("casino_name") || "").slice(0, 12); } catch (e) {}
+const wc = $("#wc"), wg = wc.getContext("2d"), pl = { x: 640, y: 690, f: 0, m: 0, ph: 0 }, wk = {};
+const HS = [["wings", 260, 260], ["snake", 640, 260], ["breakout", 1020, 260], ["pong", 260, 520], ["ttt", 640, 520], ["c4", 1020, 520], ["casino", 640, 790]].map(a => ({ id: a[0], x: a[1], y: a[2], r: a[0] === "casino" ? 36 : 46, best: 0 }));
+let worldOn = true, wraf = 0, wlast = 0, wmap = null, wS = 1, wcx = 0, wcy = 0, wtgt = null, wnear = null, cssW = 800, cssH = 500;
+const rrf = (g, x, y, w, h, r, f, s) => { roundR(g, x, y, w, h, r); if (f) { g.fillStyle = f; g.fill(); } if (s) { g.strokeStyle = s; g.lineWidth = 2; g.stroke(); } };
+const cif = (g, x, y, r, f) => { g.fillStyle = f; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
+const neon = (g, t, x, y, sz, c) => { g.font = "700 " + sz + "px 'Press Start 2P','Courier New',monospace"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = g.shadowColor = c; g.shadowBlur = 18; g.fillText(t, x, y); g.shadowBlur = 6; g.fillText(t, x, y); g.shadowBlur = 0; g.textBaseline = "alphabetic"; };
+function renderMenu() { HS.forEach(q => { const k = GN[q.id] && GN[q.id][7]; try { q.best = k ? +localStorage.getItem(k) || 0 : 0; } catch (e) { q.best = 0; } }); }
+function fitWorld() {
+  const d = Math.min(devicePixelRatio || 1, 2); cssW = Math.max(260, Math.min($("#menu").clientWidth || innerWidth, 980)); cssH = clamp(innerHeight - 300, 300, 640);
+  wc.style.width = cssW + "px"; wc.style.height = cssH + "px"; wc.width = Math.round(cssW * d); wc.height = Math.round(cssH * d); wS = cssH / 540;
+}
+function paintHall(g) {
+  g.fillStyle = "#0c0620"; g.fillRect(0, 0, WWd, WHd);
+  for (let i = 0; i < WWd / 80; i++) for (let j = 0; j < WHd / 80; j++) { g.fillStyle = (i + j) % 2 ? "#140a2e" : "#1a1038"; g.fillRect(i * 80, j * 80, 80, 80); }
+  g.strokeStyle = "rgba(255,122,168,.1)"; g.lineWidth = 2; for (let x = 0; x <= WWd; x += 80) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, WHd); g.stroke(); } for (let y = 0; y <= WHd; y += 80) { g.beginPath(); g.moveTo(0, y); g.lineTo(WWd, y); g.stroke(); }
+  HS.forEach(q => { if (q.id === "casino") return; const gr = g.createRadialGradient(q.x, q.y + 20, 10, q.x, q.y + 20, 130); gr.addColorStop(0, "rgba(255,122,168,.22)"); gr.addColorStop(1, "rgba(255,122,168,0)"); g.fillStyle = gr; g.fillRect(q.x - 140, q.y - 110, 280, 280); });
+  g.strokeStyle = "#6fe3ff"; g.shadowColor = "#6fe3ff"; g.shadowBlur = 14; g.lineWidth = 3; g.strokeRect(80, 150, WWd - 160, WHd - 220); g.shadowBlur = 0;
+  g.fillStyle = "#0a0518"; g.fillRect(0, 0, WWd, 112); for (let x = 20; x < WWd; x += 110) rrf(g, x, 14, 96, 70, 8, "#120a2a", "rgba(255,122,168,.25)");
+  g.fillStyle = "#ff7aa8"; g.shadowColor = "#ff7aa8"; g.shadowBlur = 14; g.fillRect(0, 110, WWd, 4); g.shadowBlur = 0;
+  rrf(g, 440, 20, 400, 66, 12, "#0a0518", "#ff7aa8"); neon(g, "★ ARCADE ★", 640, 54, 30, "#ff7aa8"); neon(g, "INSERT COIN", 190, 54, 14, "#6fe3ff"); neon(g, "1UP · 2UP", 1090, 54, 14, "#f0cf7a");
+  g.fillStyle = "#0a0518"; g.fillRect(0, 0, 40, WHd); g.fillRect(WWd - 40, 0, 40, WHd); g.fillRect(0, 800, WWd, 20);
+  g.fillStyle = "#6fe3ff"; g.shadowColor = "#6fe3ff"; g.shadowBlur = 10; g.fillRect(38, 114, 3, WHd); g.fillRect(WWd - 41, 114, 3, WHd); g.fillRect(0, 798, WWd, 3); g.shadowBlur = 0;
+  [[90, 175], [WWd - 90, 175], [90, 735], [WWd - 90, 735]].forEach(([x, y]) => { rrf(g, x - 14, y, 28, 18, 4, "#6b3a1a"); [[-9, -6], [9, -6], [0, -16], [-4, -2], [5, 0]].forEach(([a, b]) => cif(g, x + a, y + b, 10, "#1f6b4c")); cif(g, x, y - 9, 7, "#2f8a5a"); });
+  [[240, 725], [1040, 725]].forEach(([x, y]) => { rrf(g, x - 60, y, 120, 26, 10, "#3a1a5a", "#ff7aa8"); rrf(g, x - 56, y - 14, 112, 14, 6, "#2a1244"); });
+}
+function buildHall() { const c = document.createElement("canvas"); c.width = WWd * 2; c.height = WHd * 2; const x = c.getContext("2d"); x.scale(2, 2); paintHall(x); return c; }
+document.fonts && document.fonts.ready.then(() => { wmap = null; });
+function mini(g, id, cx, cy, T) {
+  g.save(); g.beginPath(); g.rect(cx - 32, cy - 23, 64, 46); g.clip(); g.fillStyle = "#05030c"; g.fillRect(cx - 32, cy - 23, 64, 46);
+  if (id === "wings") { g.fillStyle = "#2a1a5a"; g.fillRect(cx - 32, cy - 23, 64, 46); g.fillStyle = "#3fae5a"; for (let k = 0; k < 2; k++) { const px = cx + 34 - (T * 28 + k * 32) % 66; g.fillRect(px, cy - 23, 9, 14 + k * 8); g.fillRect(px, cy + 4 + k * 8, 9, 20); } cif(g, cx - 16, cy - 4 + Math.sin(T * 3) * 8, 4.5, "#ffd23a"); }
+  else if (id === "snake") { const p = []; for (let i = 0; i < 7; i++) p.push([i, 0]); for (let j = 1; j < 4; j++) p.push([6, j]); for (let i = 5; i >= 0; i--) p.push([i, 3]); for (let j = 2; j >= 1; j--) p.push([0, j]); const h = Math.floor(T * 5) % p.length; for (let k = 5; k >= 0; k--) { const c = p[(h - k + p.length) % p.length]; g.fillStyle = k ? "#2fb06a" : "#6fffa0"; g.fillRect(cx - 28 + c[0] * 8, cy - 16 + c[1] * 8, 7, 7); } cif(g, cx - 28 + 3 * 8 + 3.5, cy - 16 + 8 + 3.5, 3, "#ff4a4a"); }
+  else if (id === "breakout") { const C = ["#ff5a7a", "#ffd23a", "#5ae08a"]; for (let r = 0; r < 3; r++) for (let i = 0; i < 6; i++) { g.fillStyle = C[r]; g.fillRect(cx - 30 + i * 10.3, cy - 20 + r * 6, 9, 5); } g.fillStyle = "#f0cf7a"; g.fillRect(cx - 10 + Math.sin(T * 2.1) * 20, cy + 18, 20, 3); cif(g, cx + Math.sin(T * 2.1) * 24, cy + 14 - Math.abs(Math.sin(T * 1.6)) * 22, 2.5, "#fff"); }
+  else if (id === "pong") { g.fillStyle = "#e8f4ff"; g.fillRect(cx - 30, cy - 8 + Math.sin(T * 2) * 10, 3, 14); g.fillRect(cx + 27, cy - 8 + Math.sin(T * 2 + 1) * 10, 3, 14); for (let y = -20; y < 22; y += 8) g.fillRect(cx - 1, cy + y, 2, 4); g.fillRect(cx + Math.sin(T * 2.3) * 22 - 2, cy + Math.sin(T * 3.7) * 14 - 2, 4, 4); }
+  else if (id === "ttt") {
+    g.strokeStyle = "#c8a24a"; g.lineWidth = 1.5; [-7, 7].forEach(o => { g.beginPath(); g.moveTo(cx + o, cy - 21); g.lineTo(cx + o, cy + 21); g.moveTo(cx - 21, cy + o); g.lineTo(cx + 21, cy + o); g.stroke(); });
+    [[0, 0, "X"], [1, 1, "O"], [2, 2, "X"], [0, 2, "O"], [2, 0, "X"], [1, 0, "O"]].slice(0, Math.floor(T % 7)).forEach(([a, b, s]) => { const x = cx - 14 + a * 14, y = cy - 14 + b * 14; g.lineWidth = 2; if (s === "X") { g.strokeStyle = "#ff5a7a"; g.beginPath(); g.moveTo(x - 4, y - 4); g.lineTo(x + 4, y + 4); g.moveTo(x + 4, y - 4); g.lineTo(x - 4, y + 4); g.stroke(); } else { g.strokeStyle = "#6fe3ff"; g.beginPath(); g.arc(x, y, 4.5, 0, 7); g.stroke(); } });
+  } else if (id === "c4") { g.fillStyle = "#2a5bd7"; g.fillRect(cx - 30, cy - 20, 60, 40); const k = Math.floor(T * 2) % 22; for (let i = 0; i < 7; i++) for (let j = 0; j < 4; j++) { const n = i + (3 - j) * 7; cif(g, cx - 24 + i * 8, cy - 12 + j * 8, 3, n < k ? (n % 2 ? "#ff4a6a" : "#ffd23a") : "#05030c"); } }
+  g.restore();
+}
+function cabinet(g, q, T) {
+  const x = q.x, y = q.y, sel = wnear === q;
+  if (q.id === "casino") {
+    rrf(g, x - 40, y - 30, 80, 62, 6, "#140a2e", "#f0cf7a"); const gr = g.createLinearGradient(0, y - 24, 0, y + 30); gr.addColorStop(0, "#f0cf7a"); gr.addColorStop(1, "#8a6a1f"); rrf(g, x - 30, y - 24, 60, 56, 4, gr);
+    neon(g, "CASINO", x, y - 44, 12, "#f0cf7a"); if (sel) { g.strokeStyle = "#f0cf7a"; g.lineWidth = 2; g.setLineDash([6, 6]); g.beginPath(); g.ellipse(x, y, 62, 50, 0, 0, 7); g.stroke(); g.setLineDash([]); } return;
+  }
+  const a = GN[q.id]; g.fillStyle = "rgba(0,0,0,.4)"; g.beginPath(); g.ellipse(x, y + 58, 52, 11, 0, 0, 7); g.fill();
+  const bg = g.createLinearGradient(x - 44, 0, x + 44, 0); bg.addColorStop(0, a[4]); bg.addColorStop(.5, a[5]); bg.addColorStop(1, a[4]); rrf(g, x - 44, y - 72, 88, 130, 10, bg, sel ? "#f0cf7a" : "rgba(255,255,255,.35)");
+  rrf(g, x - 38, y - 67, 76, 20, 6, "#0a0614"); g.font = "700 10px Figtree,sans-serif"; g.textAlign = "center"; g.fillStyle = "#f0cf7a"; g.fillText(a[1], x, y - 53);
+  for (let i = 0; i < 6; i++) cif(g, x - 32 + i * 12.8, y - 72, 2, (Math.floor(T * 3) + i) % 2 ? "#ff7aa8" : "#5a2a4a");
+  rrf(g, x - 35, y - 42, 70, 54, 6, "#05030c", "#9fd0ff"); mini(g, q.id, x, y - 15, T);
+  rrf(g, x - 38, y + 16, 76, 22, 6, "#1a1030"); cif(g, x - 20, y + 28, 6, "#333"); cif(g, x - 20, y + 23, 4.5, "#ff3a4a"); [["#6fe3ff", 4], ["#ffd23a", 18], ["#5ae08a", 32]].forEach(([c, o]) => cif(g, x + o - 4, y + 28, 4, c));
+  rrf(g, x - 34, y + 42, 68, 14, 4, "#0a0614");
+  g.font = "700 14px Figtree,sans-serif"; g.fillStyle = sel ? "#f0cf7a" : "#f2ead3"; g.fillText(a[1], x, y + 80); if (q.best) { g.font = "600 11px Figtree,sans-serif"; g.fillStyle = "#c8a24a"; g.fillText("Best: " + q.best, x, y + 96); }
+  if (sel) { g.strokeStyle = "#f0cf7a"; g.lineWidth = 2; g.setLineDash([6, 6]); g.beginPath(); g.ellipse(x, y + 12, 66, 82, 0, 0, 7); g.stroke(); g.setLineDash([]); }
+}
+function avatar(g, p, self) {
+  const a = p.a || LK, sk = SK[a[0]] || SK[0], hs = a[1], hc = HC[a[2]] || HC[0], sh = SH[a[3]] || SH[0], pn = PN[a[4]] || PN[0], f = p.f, sw = p.m ? Math.sin(p.ph) * 5 : 0, x = p.x, y = p.y + (p.m ? -Math.abs(Math.cos(p.ph)) * 2 : 0), side = f > 1, dir = f === 3 ? 1 : -1, hy = y - 20, so = "#1a1410";
+  g.fillStyle = "rgba(0,0,0,.35)"; g.beginPath(); g.ellipse(p.x, p.y + 25, 15, 6, 0, 0, 7); g.fill();
+  if (side) { rrf(g, x - 5 + sw, y + 8, 9, 16, 3, pn); rrf(g, x - 4 - sw, y + 8, 9, 16, 3, pn); rrf(g, x - 5 + sw + dir * 2, y + 21, 10, 5, 2, so); rrf(g, x - 4 - sw + dir * 2, y + 21, 10, 5, 2, so); }
+  else { rrf(g, x - 10, y + 8 + sw / 2, 9, 16, 3, pn); rrf(g, x + 1, y + 8 - sw / 2, 9, 16, 3, pn); rrf(g, x - 10, y + 21 + sw / 2, 9, 5, 2, so); rrf(g, x + 1, y + 21 - sw / 2, 9, 5, 2, so); }
+  if (hs === 1 && f !== 0) rrf(g, x - 12, y - 30, 24, f === 1 ? 30 : 22, 8, hc);
+  if (side) rrf(g, x - 3 - sw * 1.2, y - 6, 7, 15, 3, sh);
+  rrf(g, x - 11, y - 8, 22, 19, 5, sh);
+  if (side) { rrf(g, x - 3 + sw * 1.2, y - 6, 7, 15, 3, sh); cif(g, x + .5 + sw * 1.2, y + 11, 3.4, sk); }
+  else { rrf(g, x - 17, y - 6 - sw / 2, 6, 15, 3, sh); rrf(g, x + 11, y - 6 + sw / 2, 6, 15, 3, sh); cif(g, x - 14, y + 11 - sw / 2, 3.4, sk); cif(g, x + 14, y + 11 + sw / 2, 3.4, sk); }
+  rrf(g, x - 3, y - 12, 6, 6, 2, sk); cif(g, x, hy, 11, sk);
+  if (f === 0) { cif(g, x - 4, hy + 1, 1.8, "#222"); cif(g, x + 4, hy + 1, 1.8, "#222"); g.strokeStyle = "#7a3b2b"; g.lineWidth = 1.3; g.beginPath(); g.arc(x, hy + 3.5, 3, .2, Math.PI - .2); g.stroke(); } else if (side) cif(g, x + dir * 5, hy + 1, 1.8, "#222");
+  if (hs !== 4) {
+    const col = hs === 3 ? sh : hc; g.fillStyle = col; g.beginPath(); if (f === 1) g.arc(x, hy, 11.5, 0, 7); else g.arc(x, hy, 11.5, Math.PI, 0); g.fill();
+    if (side) cif(g, x - dir * 4, hy - 1, 8.5, col);
+    if (hs === 1 && f === 0) { rrf(g, x - 12, hy - 2, 5, 16, 3, hc); rrf(g, x + 7, hy - 2, 5, 16, 3, hc); }
+    if (hs === 2) for (let i = -2; i <= 2; i++) { g.fillStyle = hc; g.beginPath(); g.moveTo(x + i * 5 - 4, hy - 8); g.lineTo(x + i * 5, hy - 17 - (i % 2 ? 0 : 3)); g.lineTo(x + i * 5 + 4, hy - 8); g.fill(); }
+    if (hs === 3 && f !== 1) rrf(g, f === 0 ? x - 12 : x + (dir > 0 ? 2 : -14), hy - 4, f === 0 ? 24 : 12, 4, 2, sh);
+  }
+  const nm = p.n || "Guest"; g.font = "600 11px Figtree,sans-serif"; const w = g.measureText(nm).width + 14; rrf(g, p.x - w / 2, p.y - 56, w, 17, 8, "rgba(6,32,26,.88)", self ? "#f0cf7a" : "#6fe3ff"); g.fillStyle = "#f2ead3"; g.textAlign = "center"; g.fillText(nm, p.x, p.y - 44); if (p.g && GN[p.g]) { g.font = "20px sans-serif"; g.fillText(GN[p.g][0], p.x, p.y - 64); }
+}
+function wenter(q) { if (q.id === "casino") location.href = "../multiplayer/"; else openGame(q.id); }
+function wstep(dt) {
+  let dx = (wk.d || wk.arrowright ? 1 : 0) - (wk.a || wk.arrowleft ? 1 : 0), dy = (wk.s || wk.arrowdown ? 1 : 0) - (wk.w || wk.arrowup ? 1 : 0);
+  if (!inRoom) { dx = dy = 0; wtgt = null; }
+  if (dx || dy) wtgt = null; else if (wtgt) { const ex = wtgt.x - pl.x, ey = wtgt.y - pl.y, d = Math.hypot(ex, ey); if (d < 6) wtgt = null; else { dx = ex / d; dy = ey / d; } }
+  const l = Math.hypot(dx, dy) || 1; pl.x += dx / l * 220 * dt; pl.y += dy / l * 220 * dt; pl.m = dx || dy ? 1 : 0;
+  if (pl.m) { pl.f = Math.abs(dx) > Math.abs(dy) ? (dx < 0 ? 2 : 3) : (dy < 0 ? 1 : 0); pl.ph += dt * 11; }
+  HS.forEach(q => { const ex = pl.x - q.x, ey = pl.y - q.y, d = Math.hypot(ex, ey); if (d < q.r && d > 0) { pl.x = q.x + ex / d * q.r; pl.y = q.y + ey / d * q.r; } });
+  pl.x = clamp(pl.x, 56, WWd - 56); pl.y = clamp(pl.y, 140, WHd - 60);
+  for (const k in peers) { const o = peers[k]; o.x += (o.tx - o.x) * .3; o.y += (o.ty - o.y) * .3; if (o.m) o.ph += dt * 11; }
+  wnear = null; let b = 1e9; HS.forEach(q => { const d = Math.hypot(pl.x - q.x, pl.y - q.y); if (d < q.r + 48 && d < b) { b = d; wnear = q; } });
+  const pb = $("#wplay"); pb.hidden = !wnear || !inRoom; if (wnear) pb.textContent = wnear.id === "casino" ? "Back to the casino (E)" : "Play " + GN[wnear.id][1] + " (E)";
+}
+function wdraw(T) {
+  const g = wg, d = wc.width / cssW, vw = cssW / wS, vh = cssH / wS;
+  wcx = vw >= WWd ? (WWd - vw) / 2 : clamp(pl.x - vw / 2, 0, WWd - vw); wcy = vh >= WHd ? (WHd - vh) / 2 : clamp(pl.y - vh / 2, 0, WHd - vh);
+  if (!wmap) wmap = buildHall();
+  g.setTransform(d, 0, 0, d, 0, 0); g.fillStyle = "#06030f"; g.fillRect(0, 0, cssW, cssH);
+  g.setTransform(d * wS, 0, 0, d * wS, -d * wS * wcx, -d * wS * wcy); g.drawImage(wmap, 0, 0, WWd, WHd);
+  HS.forEach(q => cabinet(g, q, T)); Object.values(peers).map(p => [p, false]).concat([[pl, true]]).sort((a, b) => a[0].y - b[0].y).forEach(([p, me]) => avatar(g, p, me));
+}
+function wloop(t) { if (!worldOn) return; const dt = Math.min(.05, (t - wlast) / 1000); wlast = t; wstep(dt); wdraw(t / 1000); wraf = requestAnimationFrame(wloop); }
+function worldBack() { worldOn = true; renderMenu(); fitWorld(); wlast = performance.now(); cancelAnimationFrame(wraf); wraf = requestAnimationFrame(wloop); }
+wc.onpointerdown = e => { const r = wc.getBoundingClientRect(); wtgt = { x: (e.clientX - r.left) * cssW / r.width / wS + wcx, y: (e.clientY - r.top) * cssH / r.height / wS + wcy }; };
+addEventListener("keydown", e => {
+  if (!worldOn || /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return; const k = e.key.toLowerCase(); wk[k] = 1;
+  if ([" ", "arrowup", "arrowdown"].includes(k)) e.preventDefault(); if ((k === "e" || k === " ") && wnear) wenter(wnear);
+});
+addEventListener("keyup", e => wk[e.key.toLowerCase()] = 0);
+addEventListener("resize", () => { if (worldOn) fitWorld(); });
+$("#wplay").onclick = () => wnear && wenter(wnear);
+worldBack();
 
 /* Invite links: ?room=CODE&g=pong */
 const qs = new URLSearchParams(location.search), qr = qs.get("room");
-if (qr) { openGame(GN[qs.get("g")] ? qs.get("g") : "pong"); $("#code").value = qr.slice(0, 4); setTimeout(() => join(qr), 300); }
+if (qr) { $("#code").value = qr.slice(0, 4); setTimeout(() => $("#join").click(), 300); }
 </script>
 </body>
 </html>
