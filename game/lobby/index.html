@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>jakup lobby</title>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,wght@0,600;1,600&family=Figtree:wght@400;600;700&family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{--brass:#c8a24a;--gold:#f0cf7a;--ivory:#f2ead3;--wine:#8c2331;--pink:#ff7aa8;--teal:#6fe3ff}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{margin:0;min-height:100vh;color:var(--ivory);font:400 16px/1.5 Figtree,system-ui,sans-serif;background:radial-gradient(ellipse at 50% -10%,#3a1a6a,transparent 60%),linear-gradient(rgba(255,122,168,.04) 1px,transparent 1px) 0 0/44px 44px,linear-gradient(90deg,rgba(255,122,168,.04) 1px,transparent 1px) 0 0/44px 44px,#0a0518}
+#note{position:fixed;top:0;left:0;right:0;z-index:5;padding:3px 8px;text-align:center;font-size:.8rem;font-weight:600;background:var(--wine)}
+.app{max-width:1280px;margin:0 auto;padding:42px 14px 30px}
+header{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+h1{margin:0 auto 0 0;font:italic 600 2.2rem/1 "Bodoni Moda",Georgia,serif;color:var(--pink);text-shadow:0 0 18px var(--pink)}
+.pill{padding:6px 14px;border:1px solid var(--brass);border-radius:99px;background:rgba(6,32,26,.92)}
+.pill b{font:italic 600 1.2rem "Bodoni Moda",Georgia,serif;color:var(--gold)}
+button,input,select{font:inherit}
+button{cursor:pointer;color:var(--ivory);background:rgba(6,32,26,.92);border:1px solid var(--brass);border-radius:99px;padding:8px 16px}
+button:hover:not(:disabled){background:rgba(200,162,74,.3)}
+button:disabled{opacity:.45;cursor:default}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+input,select{padding:8px 12px;border-radius:99px;border:1px solid var(--brass);background:var(--ivory);color:#221c14}
+select{border-radius:8px;padding:4px 8px}
+#nm{width:150px}
+.grid{display:grid;grid-template-columns:270px minmax(0,1fr) 290px;gap:16px;align-items:start}
+.panel{padding:16px;border:1px solid rgba(255,122,168,.5);border-radius:16px;background:linear-gradient(#150b2e,#0d0620);box-shadow:0 0 24px rgba(255,122,168,.12)}
+.panel h3{margin:0 0 10px;font:italic 600 1.35rem "Bodoni Moda",Georgia,serif;color:var(--gold)}
+.codebox{padding:10px;border:2px dashed var(--gold);border-radius:14px;background:#0a0614;text-align:center;font-weight:600;margin-bottom:10px}
+#rc{display:block;font:700 2.1rem "Courier New",monospace;letter-spacing:.35em;text-indent:.35em;color:var(--gold);text-shadow:0 0 14px var(--gold)}
+#cp{width:100%}
+#mem{list-style:none;margin:12px 0;padding:0;display:grid;gap:6px}
+#mem li{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:10px;background:rgba(255,255,255,.06)}
+.dot{width:12px;height:12px;border-radius:50%;flex:none}
+.join{display:flex;gap:8px;margin-top:6px}.join input{width:100%;min-width:0;text-transform:uppercase;text-align:center}
+.small{color:var(--brass);font-size:.88rem;margin:8px 0 0}
+.stage{order:0}
+#sc{display:block;width:100%;height:auto;border:3px solid var(--pink);border-radius:16px;box-shadow:0 0 0 5px #1b0f33,0 0 40px rgba(255,122,168,.35)}
+.mode{display:grid;gap:2px;width:100%;margin-bottom:10px;padding:14px;border-radius:16px;text-align:left;border:2px solid rgba(255,255,255,.25);background:linear-gradient(150deg,var(--c1),var(--c2))}
+.mode i{font-style:normal;font-size:2rem}.mode b{font:italic 600 1.3rem "Bodoni Moda",Georgia,serif;color:#fff}.mode small{color:rgba(255,255,255,.85)}
+.mode.on{border-color:#fff;box-shadow:0 0 22px var(--gold),inset 0 0 20px rgba(255,255,255,.2);transform:scale(1.02)}
+.mode:disabled{opacity:1;cursor:default}.mode:disabled:not(.on){opacity:.5}
+#play{width:100%;padding:16px;font:400 1rem "Press Start 2P","Courier New",monospace;border-radius:14px;color:#10081f;background:linear-gradient(#ffd96a,#e0a100);border:2px solid #fff3c0;box-shadow:0 5px 0 #8a5a00,0 0 26px rgba(240,207,122,.5)}
+#play:hover:not(:disabled){background:linear-gradient(#ffe48a,#f0b400)}
+#play:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #8a5a00}
+#play:disabled{background:#3a3050;color:#9a90b0;box-shadow:none;border-color:#4a3a6a}
+#lk{margin-top:10px;display:grid;grid-template-columns:auto 1fr;gap:6px 10px;align-items:center;padding:12px;border:1px solid var(--brass);border-radius:12px;background:rgba(6,32,26,.95)}
+@media (max-width:960px){.grid{grid-template-columns:1fr}.stage{order:-1}#modes{order:0}#party{order:1}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div id="note">Play money only. No real money is involved, this game is just for fun.</div>
+<div class="app">
+  <header>
+    <h1>jakup lobby</h1>
+    <span class="pill">Balance <b id="bal">1,000</b></span>
+    <input id="nm" maxlength="12" placeholder="Your name" aria-label="Your name">
+    <button id="look">Look</button>
+  </header>
+  <div id="lk" hidden></div>
+
+  <div class="grid">
+    <aside class="panel" id="party">
+      <h3>Your party <span id="pc" class="small"></span></h3>
+      <div class="codebox">Party code<b id="rc">…</b></div>
+      <button id="cp">Copy invite link</button>
+      <ul id="mem"></ul>
+      <h3 style="font-size:1.1rem;margin-top:14px">Join another party</h3>
+      <div class="join"><input id="jc" maxlength="4" placeholder="Code" aria-label="Party code"><button id="jb">Join</button></div>
+      <p class="small">Joining leaves your current party.</p>
+    </aside>
+
+    <section class="stage"><canvas id="sc" aria-label="Lobby stage"></canvas></section>
+
+    <aside class="panel" id="modes">
+      <h3>Game mode</h3>
+      <div id="list"></div>
+      <button id="play" disabled>PLAY</button>
+      <p class="small" id="pmsg"></p>
+    </aside>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>
+const $ = s => document.querySelector(s), fmt = n => Math.round(n).toLocaleString("en-US"), rnd = n => Math.floor(Math.random() * n), clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const esc = t => String(t).replace(/[&<>"]/g, c => "&#" + c.charCodeAt(0) + ";");
+const MODES = {
+  casino: { ic: "🎰", nm: "Casino", d: "Slots, Blackjack, Roulette, Poker and more. Walk around together.", c1: "#8c2331", c2: "#b8862a" },
+  arcade: { ic: "🕹️", nm: "Arcade", d: "Neon Wings, Snake, Breakout, Pong, Tic Tac Toe, Connect Four. Challenge friends.", c1: "#3a1a7a", c2: "#c0306a" }
+};
+
+/* Balance, name and look are shared with the casino and the arcade through localStorage */
+const SK = ["#f5d3b3", "#e0ac84", "#b97a50", "#7a4a2c", "#4b2e1e"], HC = ["#2b1a10", "#6b3a1a", "#d9b25a", "#b5382c", "#2a2a2a", "#cfcfcf"], SH = ["#c0392b", "#2d5a8a", "#1f6b4c", "#6b3a8a", "#e0a100", "#222222"], PN = ["#2a2f4a", "#3a3a3a", "#6b5a3a", "#8c2331"];
+const LOOK = [["Skin", ["Light", "Fair", "Tan", "Brown", "Dark"]], ["Hair", ["Short", "Long", "Spiky", "Cap", "Bald"]], ["Hair color", ["Black", "Brown", "Blond", "Red", "Dark gray", "Gray"]], ["Shirt", ["Red", "Blue", "Green", "Purple", "Yellow", "Black"]], ["Pants", ["Navy", "Gray", "Khaki", "Wine"]]];
+let LK = LOOK.map(l => rnd(l[1].length)), NAME = "";
+try {
+  const v = JSON.parse(localStorage.getItem("casino_look")); if (Array.isArray(v) && v.length === 5) LK = v.map((n, i) => n >= 0 && n < LOOK[i][1].length ? n | 0 : 0);
+  NAME = (localStorage.getItem("casino_name") || "").slice(0, 12);
+} catch (e) {}
+if (!NAME) NAME = "Player" + (100 + rnd(900));
+const save = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+save("casino_look", JSON.stringify(LK)); save("casino_name", NAME);
+$("#nm").value = NAME;
+$("#nm").oninput = e => { NAME = e.target.value.trim().slice(0, 12) || "Player"; save("casino_name", NAME); push(); };
+$("#lk").innerHTML = LOOK.map((l, i) => "<label for=lk" + i + ">" + l[0] + "</label><select id=lk" + i + ">" + l[1].map((o, j) => "<option value=" + j + (LK[i] === j ? " selected" : "") + ">" + o + "</option>").join("") + "</select>").join("");
+$("#lk").onchange = () => { LK = LOOK.map((_, i) => +$("#lk" + i).value); save("casino_look", JSON.stringify(LK)); push(); };
+$("#look").onclick = () => $("#lk").hidden = !$("#lk").hidden;
+function showBal() { let v = 1000; try { const r = localStorage.getItem("casino_bal"); if (r !== null && !isNaN(+r)) v = +r; } catch (e) {} $("#bal").textContent = fmt(v); }
+setInterval(showBal, 1000); showBal(); addEventListener("focus", showBal);
+
+/* Party (PeerJS): the party leader hosts the room and relays state. Pressing Play sends everybody to the chosen mode with the same room code. */
+const PRE = "jakup-lobby-", rcode = () => Math.random().toString(36).slice(2, 6).toUpperCase();
+let net = null, pid = null, role = "host", conns = [], hostConn = null, code = "", lead = null, sel = "casino", members = [], seen = {}, tries = 0, hostTries = 0;
+try { const v = localStorage.getItem("lobby_mode"); if (MODES[v]) sel = v; } catch (e) {}
+const note = t => $("#pmsg").textContent = t;
+const myEntry = () => ({ id: pid, n: NAME, a: LK });
+function push() {
+  if (role !== "host") return; members = [myEntry()].concat(Object.keys(seen).map(id => ({ id, n: seen[id].n, a: seen[id].a })));
+  const m = { t: "party", lead: pid, mode: sel, code, members }; conns.forEach(c => c.open && c.send(m)); render();
+}
+function sendMe() { if (hostConn && hostConn.open) hostConn.send({ t: "me", n: NAME, a: LK }); }
+function teardown() { try { net && net.destroy(); } catch (e) {} net = hostConn = null; conns = []; seen = {}; members = []; lead = null; pid = null; }
+function startHost(forced) {
+  teardown(); role = "host"; code = forced || rcode(); render(); net = new Peer(PRE + code);
+  net.on("open", id => { pid = id; lead = id; push(); note(forced ? "Welcome back. Your party is ready." : "Your party is ready. Share the code to invite friends!"); });
+  net.on("connection", c => {
+    conns.push(c);
+    c.on("data", m => { if (m && m.t === "me") { seen[c.peer] = { n: String(m.n || "Guest").slice(0, 12), a: Array.isArray(m.a) ? m.a.slice(0, 5).map(v => v | 0) : [1, 1, 1, 1, 0] }; push(); } });
+    c.on("close", () => { conns = conns.filter(x => x !== c); delete seen[c.peer]; push(); }); c.on("open", push);
+  });
+  net.on("error", e => {
+    if (e.type === "unavailable-id" && forced && hostTries++ < 6) setTimeout(() => startHost(forced), 1200);
+    else if (e.type === "unavailable-id") startHost(); else note("Connection error: " + e.type);
+  });
+}
+function startGuest(c0, auto) {
+  teardown(); role = "guest"; code = c0; render(); note("Joining …"); net = new Peer();
+  net.on("open", id => {
+    pid = id; const c = net.connect(PRE + c0); hostConn = c;
+    c.on("open", () => { tries = 0; note("You joined the party. Waiting for the leader to start …"); sendMe(); });
+    c.on("data", m => {
+      if (!m) return;
+      if (m.t === "party") { members = Array.isArray(m.members) ? m.members.slice(0, 8) : []; lead = m.lead; if (MODES[m.mode]) sel = m.mode; code = m.code || code; render(); }
+      else if (m.t === "goto" && MODES[m.to]) location.href = "../" + m.to + "/?room=" + encodeURIComponent(m.code);
+    });
+    c.on("close", () => { if (hostConn === c) { startHost(); note("The party was disbanded. You are in your own party again."); } });
+  });
+  net.on("error", e => {
+    if (e.type === "peer-unavailable") { if (auto && tries++ < 15) { note("Waiting for the party leader …"); setTimeout(() => startGuest(c0, true), 1300); } else { startHost(); note("Party not found. You are in your own party."); } }
+    else { startHost(); note("Connection error: " + e.type); }
+  });
+}
+function go() {
+  if (role !== "host" || !pid) return; conns.forEach(c => c.open && c.send({ t: "goto", to: sel, code }));
+  note("Starting " + MODES[sel].nm + " …"); setTimeout(() => location.href = "../" + sel + "/?room=" + code + "&host=1", 500);
+}
+$("#play").onclick = go;
+$("#jb").onclick = () => { const c = $("#jc").value.trim().toUpperCase(); if (c.length < 4) return note("Enter the 4-letter party code."); if (typeof Peer === "undefined") return note("Online play is unavailable offline."); startGuest(c, false); };
+$("#cp").onclick = () => {
+  const link = location.origin + location.pathname + "?room=" + code, ok = () => { $("#cp").textContent = "Copied!"; setTimeout(() => $("#cp").textContent = "Copy invite link", 1500); };
+  if (navigator.clipboard) navigator.clipboard.writeText(link).then(ok, () => prompt("Copy this invite link:", link)); else prompt("Copy this invite link:", link);
+};
+$("#list").innerHTML = Object.keys(MODES).map(k => { const m = MODES[k]; return '<button class="mode" data-m="' + k + '" style="--c1:' + m.c1 + ";--c2:" + m.c2 + '"><i>' + m.ic + "</i><b>" + m.nm + "</b><small>" + m.d + "</small></button>"; }).join("");
+$("#list").onclick = e => { const b = e.target.closest(".mode"); if (!b || role !== "host") return; sel = b.dataset.m; save("lobby_mode", sel); push(); };
+function render() {
+  $("#rc").textContent = code || "…"; const list = members.length ? members : (pid ? [myEntry()] : []);
+  $("#pc").textContent = list.length ? "(" + list.length + ")" : "";
+  $("#mem").innerHTML = list.map(m => '<li><span class="dot" style="background:' + (SH[(m.a || [])[3]] || "#888") + '"></span><span>' + esc(m.n || "Guest") + (m.id === pid ? " (you)" : "") + "</span>" + (m.id === lead ? '<span style="margin-left:auto">👑</span>' : "") + "</li>").join("");
+  document.querySelectorAll(".mode").forEach(b => { b.classList.toggle("on", b.dataset.m === sel); b.disabled = role !== "host"; });
+  const pb = $("#play"); pb.disabled = role !== "host" || !pid; pb.textContent = role === "host" ? "PLAY" : "WAITING";
+}
+setInterval(() => { if (role === "guest") sendMe(); else if (pid) push(); }, 1000);
+
+/* Stage */
+const sc = $("#sc"), g = sc.getContext("2d"), STW = 760, STH = 460;
+function fitStage() { const d = Math.min(devicePixelRatio || 1, 2), w = sc.parentElement.clientWidth || STW; sc.style.height = Math.round(w * STH / STW) + "px"; sc.width = Math.round(w * d); sc.height = Math.round(w * d * STH / STW); }
+addEventListener("resize", fitStage); fitStage();
+const rrf = (x, y, w, h, r, f, s) => { g.beginPath(); g.roundRect(x, y, w, h, r); if (f) { g.fillStyle = f; g.fill(); } if (s) { g.strokeStyle = s; g.lineWidth = 2; g.stroke(); } };
+const cif = (x, y, r, f) => { g.fillStyle = f; g.beginPath(); g.arc(x, y, r, 0, 7); g.fill(); };
+function avatar(p, self, T) {
+  const a = p.a || [1, 1, 1, 1, 0], sk = SK[a[0]] || SK[0], hs = a[1], hc = HC[a[2]] || HC[0], sh = SH[a[3]] || SH[0], pn = PN[a[4]] || PN[0], x = 0, y = Math.sin(T * 2 + p.k) * 1.5, hy = y - 20, so = "#1a1410";
+  g.fillStyle = "rgba(0,0,0,.4)"; g.beginPath(); g.ellipse(0, 25, 15, 6, 0, 0, 7); g.fill();
+  rrf(x - 10, y + 8, 9, 16, 3, pn); rrf(x + 1, y + 8, 9, 16, 3, pn); rrf(x - 10, y + 21, 9, 5, 2, so); rrf(x + 1, y + 21, 9, 5, 2, so);
+  rrf(x - 11, y - 8, 22, 19, 5, sh); rrf(x - 17, y - 6, 6, 15, 3, sh); cif(x - 14, y + 11, 3.4, sk);
+  if (p.w) { g.save(); g.translate(x + 14, y - 5); g.rotate(-2.6 + Math.sin(T * 9) * .35); rrf(-3, 0, 6, 15, 3, sh); cif(0, 16, 3.4, sk); g.restore(); } else { rrf(x + 11, y - 6, 6, 15, 3, sh); cif(x + 14, y + 11, 3.4, sk); }
+  rrf(x - 3, y - 12, 6, 6, 2, sk); cif(x, hy, 11, sk); cif(x - 4, hy + 1, 1.8, "#222"); cif(x + 4, hy + 1, 1.8, "#222");
+  g.strokeStyle = "#7a3b2b"; g.lineWidth = 1.3; g.beginPath(); g.arc(x, hy + 3.5, 3, .2, Math.PI - .2); g.stroke();
+  if (hs !== 4) {
+    const col = hs === 3 ? sh : hc; g.fillStyle = col; g.beginPath(); g.arc(x, hy, 11.5, Math.PI, 0); g.fill();
+    if (hs === 1) { rrf(x - 12, hy - 2, 5, 16, 3, hc); rrf(x + 7, hy - 2, 5, 16, 3, hc); }
+    if (hs === 2) for (let i = -2; i <= 2; i++) { g.fillStyle = hc; g.beginPath(); g.moveTo(x + i * 5 - 4, hy - 8); g.lineTo(x + i * 5, hy - 17 - (i % 2 ? 0 : 3)); g.lineTo(x + i * 5 + 4, hy - 8); g.fill(); }
+    if (hs === 3) rrf(x - 12, hy - 4, 24, 4, 2, sh);
+  }
+  const nm = p.n || "Guest"; g.font = "700 11px Figtree,sans-serif"; const w = g.measureText(nm).width + 14; rrf(-w / 2, -58, w, 17, 8, "rgba(6,32,26,.9)", self ? "#f0cf7a" : "#6fe3ff");
+  g.fillStyle = "#f2ead3"; g.textAlign = "center"; g.fillText(nm, 0, -46);
+}
+function skyline(col, base, hMin, hVar, lit, T) {
+  g.fillStyle = col; for (let i = 0; i < STW / 44 + 1; i++) {
+    const r = ((i * 7919 + (lit ? 13 : 0)) % 97) / 97, h = hMin + r * hVar, x = i * 44 - (lit ? 0 : 20); g.fillRect(x, base - h, 40, h);
+    if (lit) { g.fillStyle = "rgba(255,225,140,.65)"; for (let a = 0; a < 3; a++) for (let b = 0; b < Math.floor((h - 10) / 13); b++) if ((i * 31 + a * 7 + b * 13 + Math.floor(T / 3)) % 5 < 2) g.fillRect(x + 6 + a * 11, base - h + 7 + b * 13, 5, 7); g.fillStyle = col; }
+  }
+}
+function drawStage(T) {
+  g.setTransform(sc.width / STW, 0, 0, sc.width / STW, 0, 0);
+  const sky = g.createLinearGradient(0, 0, 0, 300); sky.addColorStop(0, "#0a0420"); sky.addColorStop(.6, "#3a1a6a"); sky.addColorStop(1, "#ff7aa8"); g.fillStyle = sky; g.fillRect(0, 0, STW, STH);
+  g.fillStyle = "#fff"; for (let i = 0; i < 50; i++) { g.globalAlpha = .3 + .7 * Math.abs(Math.sin(T * 1.6 + i)); g.fillRect((i * 97) % STW, (i * 53) % 170, 2, 2); } g.globalAlpha = 1;
+  cif(650, 70, 26, "#fff3c8"); cif(642, 64, 5, "#e6d9a2");
+  skyline("#2a1450", 305, 60, 70, false, T); skyline("#150a30", 312, 40, 100, true, T);
+  const fl = g.createLinearGradient(0, 305, 0, STH); fl.addColorStop(0, "#1a0b3a"); fl.addColorStop(1, "#06020d"); g.fillStyle = fl; g.fillRect(0, 305, STW, STH - 305);
+  g.strokeStyle = "rgba(111,227,255,.25)"; g.lineWidth = 1.5;
+  for (let x = -600; x <= 1360; x += 120) { g.beginPath(); g.moveTo(380 + (x - 380) * .12, 305); g.lineTo(x, STH); g.stroke(); }
+  for (let i = 1; i < 8; i++) { const y = 305 + Math.pow(i / 8, 2) * 155; g.beginPath(); g.moveTo(0, y); g.lineTo(STW, y); g.stroke(); }
+  const md = MODES[sel], bc = sel === "casino" ? "#f0cf7a" : "#ff7aa8";
+  rrf(230, 26, 300, 92, 16, "#0a0518", bc); g.shadowColor = bc; g.shadowBlur = 18; g.fillStyle = bc; g.textAlign = "center"; g.font = "700 28px 'Press Start 2P','Courier New',monospace"; g.fillText(md.nm.toUpperCase(), 380, 90); g.font = "34px sans-serif"; g.fillText(md.ic, 380, 62); g.shadowBlur = 0;
+  [[110, 1], [650, -1]].forEach(([sx, dir]) => { const sw = Math.sin(T * .7 + sx) * 50, gr = g.createLinearGradient(0, 0, 0, 390); gr.addColorStop(0, "rgba(255,240,200,.28)"); gr.addColorStop(1, "rgba(255,240,200,0)"); g.fillStyle = gr; g.beginPath(); g.moveTo(sx - 10, 0); g.lineTo(sx + 10, 0); g.lineTo(380 + dir * -140 + sw + 130, 392); g.lineTo(380 + dir * -140 + sw - 130, 392); g.fill(); });
+  const pg = g.createRadialGradient(380, 392, 20, 380, 392, 340); pg.addColorStop(0, "#3a2470"); pg.addColorStop(1, "#150a30"); g.fillStyle = pg; g.beginPath(); g.ellipse(380, 394, 340, 54, 0, 0, 7); g.fill();
+  g.strokeStyle = bc; g.shadowColor = bc; g.shadowBlur = 16; g.lineWidth = 4; g.beginPath(); g.ellipse(380, 394, 340, 54, 0, 0, 7); g.stroke(); g.shadowBlur = 0;
+  const list = (members.length ? members : (pid ? [myEntry()] : [])).slice().sort((a, b) => (b.id === lead) - (a.id === lead)), sp = list.length > 5 ? 82 : 104;
+  list.forEach((m, k) => {
+    const off = k === 0 ? 0 : (k % 2 ? -1 : 1) * Math.ceil(k / 2), x = 380 + off * sp, y = 342 + Math.abs(off) * 5;
+    g.save(); g.translate(x, y); g.scale(1.85, 1.85); avatar({ a: m.a, n: m.n, k, w: Math.sin(T * .6 + k * 2.1) > .8 }, m.id === pid, T); g.restore();
+    if (m.id === lead) { g.font = "24px sans-serif"; g.textAlign = "center"; g.fillText("👑", x, y - 118); }
+  });
+  for (let i = 0; i < 40; i++) {
+    const x = (i * 97 + T * 18 * (1 + i % 3)) % STW, y = (i * 53 + T * 38 * (1 + i % 2)) % STH; g.save(); g.translate(x, y); g.rotate(T * 2 + i); g.fillStyle = ["#ff7aa8", "#6fe3ff", "#f0cf7a", "#b58cff"][i % 4]; g.globalAlpha = .75; g.fillRect(-3, -2, 6, 4); g.restore();
+  }
+  g.globalAlpha = 1;
+}
+(function loop(t) { drawStage(t / 1000); requestAnimationFrame(loop); })(performance.now());
+
+/* Start: own party by default; ?room=CODE joins that party, ?room=CODE&host=1 re-opens it (coming back from a game) */
+const QS = new URLSearchParams(location.search), QR = (QS.get("room") || "").toUpperCase().slice(0, 4), QH = QS.get("host") === "1";
+try { history.replaceState(null, "", location.pathname); } catch (e) {}
+render();
+if (typeof Peer === "undefined") note("Online play is unavailable offline.");
+else if (QR.length === 4) QH ? startHost(QR) : startGuest(QR, true);
+else startHost();
+</script>
+</body>
+</html>
