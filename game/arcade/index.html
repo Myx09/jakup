@@ -74,7 +74,7 @@ body.ov{overflow:hidden}
     <h1>jakup arcade</h1>
     <span class="pill">Balance <b id="bal">1,000</b></span>
   </div>
-  <p class="hint"><a href="../lobby/">← Back to the lobby</a></p>
+  <p class="hint"><a href="../lobby/">← Back to the lobby</a> · <span title="Build tag">build 7</span></p>
   <div class="row" id="rbar" hidden><div class="codebox">Room code<b id="rc"></b></div><span class="pill" id="rn">1 online</span><button id="cp">Copy invite link</button><button id="lr">Leave room</button></div>
 
   <section id="menu">
@@ -324,6 +324,7 @@ addEventListener("keydown", e => {
 });
 addEventListener("keyup", e => cur && cur.key && cur.key(e.key, false));
 
+console.info("jakup arcade build 7");
 const refit = () => { if (G && !$("#gp").hidden) { fit(); if (!cur) idle(); } };
 addEventListener("resize", refit); addEventListener("orientationchange", () => setTimeout(refit, 250)); if (typeof visualViewport !== "undefined" && visualViewport) visualViewport.addEventListener("resize", refit);
 const roundR = (g, x, y, w, h, r) => { g.beginPath(); g.roundRect(x, y, w, h, r); };
@@ -782,11 +783,11 @@ function AirHockey(o) {
       const my = flip ? sc[1] : sc[0], op = flip ? sc[0] : sc[1]; g.textAlign = "right"; g.font = "28px 'Press Start 2P','Courier New',monospace"; g.fillStyle = "rgba(255,90,138,.8)"; g.fillText(op, W - 16, H / 2 - 22); g.fillStyle = "rgba(90,224,255,.85)"; g.fillText(my, W - 16, H / 2 + 46);
       tr.forEach((p, i) => { g.globalAlpha = i / tr.length * .3; cif(g, X(p[0]), Y(p[1]), PR * .8, "#fff4c0"); }); g.globalAlpha = 1;
       [0, 1].forEach(i => {
-        const x = X(m[i].x), y = Y(m[i].y), me = i === mine, c1 = me ? "#9ff0ff" : "#ffa0bc", c2 = me ? "#0a9ac0" : "#c01a52";
+        const x = X(m[i].x), y = Y(m[i].y); if (!isFinite(x + y)) return; const me = i === mine, c1 = me ? "#9ff0ff" : "#ffa0bc", c2 = me ? "#0a9ac0" : "#c01a52";
         g.shadowColor = me ? "#5ae0ff" : "#ff5a8a"; g.shadowBlur = 14 + fl[i] * 26; const gr = g.createRadialGradient(x - 8, y - 8, 4, x, y, MR); gr.addColorStop(0, c1); gr.addColorStop(1, c2); g.fillStyle = gr; g.beginPath(); g.arc(x, y, MR, 0, 7); g.fill(); g.shadowBlur = 0;
         g.strokeStyle = "rgba(255,255,255,.55)"; g.lineWidth = 3; g.beginPath(); g.arc(x, y, MR * .5, 0, 7); g.stroke();
       });
-      g.shadowColor = "#fff4c0"; g.shadowBlur = 18; cif(g, X(px), Y(py), PR, "#fff4c0"); g.shadowBlur = 0; g.strokeStyle = "#ff5a5a"; g.lineWidth = 3; g.beginPath(); g.arc(X(px), Y(py), PR - 4, 0, 7); g.stroke();
+      if (isFinite(px + py)) { g.shadowColor = "#fff4c0"; g.shadowBlur = 18; cif(g, X(px), Y(py), PR, "#fff4c0"); g.shadowBlur = 0; g.strokeStyle = "#ff5a5a"; g.lineWidth = 3; g.beginPath(); g.arc(X(px), Y(py), PR - 4, 0, 7); g.stroke(); }
       g.textAlign = "center"; if (wait > 0 && !over) { g.font = "16px 'Press Start 2P','Courier New',monospace"; g.fillStyle = "#e8f4ff"; g.fillText("GET READY", W / 2, H / 2 - 74); }
       if (over) { g.fillStyle = "rgba(0,0,0,.65)"; g.fillRect(0, H / 2 - 50, W, 100); g.font = "26px 'Press Start 2P','Courier New',monospace"; g.fillStyle = banner === "YOU WIN" ? "#f0cf7a" : "#ff7a8a"; g.fillText(banner, W / 2, H / 2 + 10); }
     }
