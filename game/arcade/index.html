@@ -180,7 +180,7 @@ function begin(seed, first) {
   cur = MK[G](o);
   last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
 }
-function loop(t) { const dt = Math.min(.05, (t - last) / 1000); last = t; if (!cur) return; cur.update(dt); ctx.setTransform(SC, 0, 0, SC, 0, 0); cur.draw(); raf = requestAnimationFrame(loop); }
+function loop(t) { const dt = Math.max(0, Math.min(.05, (t - last) / 1000)); last = t; if (!cur) return; cur.update(dt); ctx.setTransform(SC, 0, 0, SC, 0, 0); cur.draw(); raf = requestAnimationFrame(loop); }
 function finish(res, msg) {
   if (!on) return; on = false;
   if (escrow) {
@@ -713,7 +713,7 @@ function AirHockey(o) {
   let vt = { x: W / 2, y: H - 90 }, px = W / 2, py = H / 2, vx = 0, vy = 0, sc = [0, 0], wait = 2.2, kick = 1, over = false, banner = "", tr = [], ts = 0, ta = 0, fl = [0, 0], gl = 0, t = 0;
   const X = x => flip ? W - x : x, Y = y => flip ? H - y : y, setV = (x, y) => { vt = { x: clamp(x, MR, W - MR), y: clamp(y, H / 2 + MR, H - MR) }; };
   function moveM(i, d, spd) {
-    const q = m[i], g = tg[i], dx = g.x - q.x, dy = g.y - q.y, dist = Math.hypot(dx, dy), k = dist > spd * d ? spd * d / dist : 1, nx = q.x + dx * k, ny = q.y + dy * k;
+    if (!(d > 0)) return; const q = m[i], g = tg[i], dx = g.x - q.x, dy = g.y - q.y, dist = Math.hypot(dx, dy), k = dist > spd * d && dist > 0 ? spd * d / dist : 1, nx = q.x + dx * k, ny = q.y + dy * k;
     q.vx = (nx - q.x) / d; q.vy = (ny - q.y) / d; q.x = nx; q.y = ny;
   }
   function hitM(i) {
@@ -738,6 +738,7 @@ function AirHockey(o) {
   }
   return {
     update(dt) {
+      if (!isFinite(px + py + m[0].x + m[0].y + m[1].x + m[1].y)) { px = W / 2; py = H / 2; vx = vy = 0; m[0].x = W / 2; m[0].y = H - 90; m[1].x = W / 2; m[1].y = 90; }
       t += dt; fl[0] = Math.max(0, fl[0] - dt * 4); fl[1] = Math.max(0, fl[1] - dt * 4); gl = Math.max(0, gl - dt * 1.6);
       if (K.l) vt.x -= 420 * dt; if (K.r) vt.x += 420 * dt; if (K.u) vt.y -= 420 * dt; if (K.d) vt.y += 420 * dt; setV(vt.x, vt.y);
       tg[mine] = flip ? { x: W - vt.x, y: H - vt.y } : { x: vt.x, y: vt.y };
@@ -896,7 +897,7 @@ function wdraw(T) {
   g.setTransform(d * wS, 0, 0, d * wS, -d * wS * wcx, -d * wS * wcy); g.drawImage(wmap, 0, 0, WWd, WHd);
   HS.forEach(q => cabinet(g, q, T)); Object.values(peers).map(p => [p, false]).concat([[pl, true]]).sort((a, b) => a[0].y - b[0].y).forEach(([p, me]) => avatar(g, p, me));
 }
-function wloop(t) { if (!worldOn) return; const dt = Math.min(.05, (t - wlast) / 1000); wlast = t; wstep(dt); wdraw(t / 1000); wraf = requestAnimationFrame(wloop); }
+function wloop(t) { if (!worldOn) return; const dt = Math.max(0, Math.min(.05, (t - wlast) / 1000)); wlast = t; wstep(dt); wdraw(t / 1000); wraf = requestAnimationFrame(wloop); }
 function worldBack() { worldOn = true; renderMenu(); fitWorld(); wlast = performance.now(); cancelAnimationFrame(wraf); wraf = requestAnimationFrame(wloop); }
 wc.onpointerdown = e => { const r = wc.getBoundingClientRect(); wtgt = { x: (e.clientX - r.left) * cssW / r.width / wS + wcx, y: (e.clientY - r.top) * cssH / r.height / wS + wcy }; };
 addEventListener("keydown", e => {
