@@ -65,27 +65,33 @@ body.ov{overflow:hidden}
 .gsetup{position:absolute;z-index:3;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:calc(100% - 150px);overflow:auto;padding:18px;border:2px solid var(--pink);border-radius:18px;background:rgba(16,8,31,.96);box-shadow:0 0 40px rgba(255,122,168,.35);text-align:center}
 .gfoot{position:absolute;z-index:2;left:0;right:0;bottom:0;min-height:var(--R,84px);padding:0 14px max(8px,env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
 .gfoot>*{pointer-events:auto}.gfoot .msg{margin:0}.gfoot .row{margin:6px 0 0}
+body{overflow:hidden}
+#hud{position:fixed;top:0;left:0;right:0;z-index:3;padding:34px max(14px,env(safe-area-inset-right)) 14px max(14px,env(safe-area-inset-left));pointer-events:none;background:linear-gradient(rgba(10,5,24,.92),rgba(10,5,24,0))}
+#hud>*,#hud button,#hud a{pointer-events:auto}
+#hud .top{margin-bottom:0}#hud h1{font-size:1.7rem}#hud .hint{margin:0;text-align:left}#hud .row{justify-content:flex-start;margin:6px 0 0}
+#menu{position:fixed;inset:0;z-index:1;height:100dvh}
+#wc{position:absolute;inset:0;width:100%;height:100%;margin:0;border:0;border-radius:0;box-shadow:none;touch-action:none}
+#tip{position:fixed;left:0;right:0;bottom:max(8px,env(safe-area-inset-bottom));margin:0;padding:0 12px;text-align:center;color:var(--brass);font-size:.85rem;pointer-events:none;z-index:2}
+#wplay{position:fixed;left:50%;bottom:max(44px,calc(env(safe-area-inset-bottom) + 36px));transform:translateX(-50%);z-index:3;padding:14px 30px;font-size:1.05rem;white-space:nowrap;box-shadow:0 0 26px rgba(255,122,168,.55)}
 </style>
 </head>
 <body>
 <div id="note">Play money only. No real money is involved, this game is just for fun.</div>
-<div class="wrap">
+<div id="hud">
   <div class="top">
     <h1>jakup arcade</h1>
     <span class="pill">Balance <b id="bal">1,000</b></span>
   </div>
-  <p class="hint"><a href="../lobby/">← Back to the lobby</a> · <span title="Build tag">build 7</span></p>
+  <p class="hint"><a href="../lobby/">← Back to the lobby</a> · <span title="Build tag">build 8</span></p>
   <div class="row" id="rbar" hidden><div class="codebox">Room code<b id="rc"></b></div><span class="pill" id="rn">1 online</span><button id="cp">Copy invite link</button><button id="lr">Leave room</button></div>
+</div>
+<section id="menu">
+  <canvas id="wc" aria-label="Arcade hall"></canvas>
+  <p id="tip">Walk with WASD, the arrow keys or by tapping the floor. Press E at a machine to play.</p>
+  <button class="go" id="wplay" hidden></button>
+</section>
 
-  <section id="menu">
-    <div class="hero">
-      <div class="marq">★ INSERT COIN ★</div>
-      <p>Everyone in the room walks around the arcade together. Walk to a machine (WASD or arrow keys, or tap the floor) and press E, then play solo or <b>challenge another player</b> and bet your casino play money: the winner takes the stake.</p>
-    </div>
-    <canvas id="wc" aria-label="Arcade hall"></canvas>
-    <div class="row" id="wbar"><button class="go" id="wplay" hidden></button></div>
-  </section>
-
+<div class="wrap">
   <section id="gp" hidden>
     <div class="gbar"><button id="bk">← Back</button><b id="gt"></b><span></span></div>
     <div class="gstage"><canvas id="cv" width="360" height="560" aria-label="Game"></canvas></div>
@@ -324,7 +330,7 @@ addEventListener("keydown", e => {
 });
 addEventListener("keyup", e => cur && cur.key && cur.key(e.key, false));
 
-console.info("jakup arcade build 7");
+console.info("jakup arcade build 8");
 const refit = () => { if (G && !$("#gp").hidden) { fit(); if (!cur) idle(); } };
 addEventListener("resize", refit); addEventListener("orientationchange", () => setTimeout(refit, 250)); if (typeof visualViewport !== "undefined" && visualViewport) visualViewport.addEventListener("resize", refit);
 const roundR = (g, x, y, w, h, r) => { g.beginPath(); g.roundRect(x, y, w, h, r); };
@@ -711,7 +717,7 @@ function Connect4(o) {
 function AirHockey(o) {
   const W = 360, H = 600, MR = 30, PR = 17, GW = 130, WIN = 7, flip = role === "guest", K = {};
   const m = [{ x: W / 2, y: H - 90, vx: 0, vy: 0 }, { x: W / 2, y: 90, vx: 0, vy: 0 }], tg = [{ x: W / 2, y: H - 90 }, { x: W / 2, y: 90 }], mine = flip ? 1 : 0;
-  let vt = { x: W / 2, y: H - 90 }, px = W / 2, py = H / 2, vx = 0, vy = 0, sc = [0, 0], wait = 2.2, kick = 1, over = false, banner = "", tr = [], ts = 0, ta = 0, fl = [0, 0], gl = 0, t = 0;
+  let vt = { x: W / 2, y: H - 90 }, px = W / 2, py = H / 2, vx = 0, vy = 0, sc = [0, 0], wait = 2.2, kick = 1, over = false, banner = "", tr = [], ts = 0, ta = 0, fl = [0, 0], gl = 0, t = 0, stuckT = 0, calm = 0;
   const X = x => flip ? W - x : x, Y = y => flip ? H - y : y, setV = (x, y) => { vt = { x: clamp(x, MR, W - MR), y: clamp(y, H / 2 + MR, H - MR) }; };
   function moveM(i, d, spd) {
     if (!(d > 0)) return; const q = m[i], g = tg[i], dx = g.x - q.x, dy = g.y - q.y, dist = Math.hypot(dx, dy), k = dist > spd * d && dist > 0 ? spd * d / dist : 1, nx = q.x + dx * k, ny = q.y + dy * k;
@@ -732,9 +738,11 @@ function AirHockey(o) {
       finish(mineWin ? "win" : "lose", (mineWin ? "You win " : "You lose ") + a + " to " + b + ".");
     } else { px = W / 2; py = H / 2; vx = vy = 0; wait = 1.4; kick = i === 0 ? -1 : 1; }
   }
-  function ai() {
-    const q = m[1]; let x, y;
-    if (wait <= 0 && py < H * .52) { x = px + (px < q.x ? 6 : -6); y = py - 26; if (py < q.y - 4) y = py - 40; } else { x = W / 2 + (px - W / 2) * .35; y = 92; }
+  function ai(dt) {
+    const q = m[1], sp = Math.hypot(vx, vy); let x, y; if (calm > 0) calm -= dt;
+    const tight = py < MR + PR + 16 || px < MR + PR + 12 || px > W - MR - PR - 12;   // puck is pinned against a wall or in a corner: do not press it in
+    if (calm <= 0 && wait <= 0 && py < H * .52 && !(tight && sp < 150)) { x = px + (px < q.x ? 6 : -6); y = py - 26; if (py < q.y - 4) y = py - 40; }
+    else { x = W / 2 + (px - W / 2) * .35; y = 92; }
     tg[1] = { x: clamp(x, MR, W - MR), y: clamp(y, MR, H / 2 - MR) };
   }
   return {
@@ -747,7 +755,7 @@ function AirHockey(o) {
       if (role === "guest") {
         moveM(1, dt, 2600); px += vx * dt; py += vy * dt; ts += dt; if (ts > .03) { ts = 0; conn && conn.send({ t: "in", x: tg[1].x, y: tg[1].y }); } return;
       }
-      if (role === "solo") ai();
+      if (role === "solo") ai(dt);
       if (over) { moveM(0, dt, 2600); return; }
       if (wait > 0) { wait -= dt; if (wait <= 0) { vx = (Math.random() - .5) * 120; vy = kick * 190; } }
       const n = 4, d = dt / n;
@@ -761,6 +769,8 @@ function AirHockey(o) {
         hitM(0); hitM(1);
         if (py < -PR) goal(0); else if (py > H + PR) goal(1);
       }
+      const spd = Math.hypot(vx, vy); stuckT = wait <= 0 && spd < 45 ? stuckT + dt : 0;
+      if (stuckT > 1.1) { stuckT = 0; calm = 1; const a = Math.atan2(H / 2 - py, W / 2 - px) + (Math.random() - .5) * .5; vx = Math.cos(a) * 320; vy = Math.sin(a) * 320; }
       if (role === "host") { ta += dt; if (ta > .025) { ta = 0; conn && conn.send({ t: "st", px, py, vx, vy, hx: m[0].x, hy: m[0].y, sc, w: wait > 0 ? 1 : 0 }); } }
     },
     key(k, d) { const l = k.toLowerCase(); if (l === "arrowleft" || l === "a") K.l = d; if (l === "arrowright" || l === "d") K.r = d; if (l === "arrowup" || l === "w") K.u = d; if (l === "arrowdown" || l === "s") K.d = d; },
@@ -808,8 +818,8 @@ const cif = (g, x, y, r, f) => { g.fillStyle = f; g.beginPath(); g.arc(x, y, r, 
 const neon = (g, t, x, y, sz, c) => { g.font = "700 " + sz + "px 'Press Start 2P','Courier New',monospace"; g.textAlign = "center"; g.textBaseline = "middle"; g.fillStyle = g.shadowColor = c; g.shadowBlur = 18; g.fillText(t, x, y); g.shadowBlur = 6; g.fillText(t, x, y); g.shadowBlur = 0; g.textBaseline = "alphabetic"; };
 function renderMenu() { HS.forEach(q => { const k = GN[q.id] && GN[q.id][7]; try { q.best = k ? +localStorage.getItem(k) || 0 : 0; } catch (e) { q.best = 0; } }); }
 function fitWorld() {
-  const d = Math.min(devicePixelRatio || 1, 2); cssW = Math.max(260, Math.min($("#menu").clientWidth || innerWidth, 980)); cssH = clamp(innerHeight - 300, 300, 640);
-  wc.style.width = cssW + "px"; wc.style.height = cssH + "px"; wc.width = Math.round(cssW * d); wc.height = Math.round(cssH * d); wS = cssH / 540;
+  const d = Math.min(devicePixelRatio || 1, 2); cssW = wc.clientWidth || innerWidth; cssH = wc.clientHeight || innerHeight;
+  wc.width = Math.round(cssW * d); wc.height = Math.round(cssH * d); wS = clamp(Math.min(cssW / 560, cssH / 480), .5, 1.5);
 }
 function paintHall(g) {
   g.fillStyle = "#0c0620"; g.fillRect(0, 0, WWd, WHd);
